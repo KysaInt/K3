@@ -11,37 +11,52 @@
             overflow: hidden;
             width: 100%;
             height: 100%;
+            font-family: "Arial", "Helvetica", sans-serif; /* 使用细等线体 */
         }
 
-        /* 调整隐藏按钮样式 */
         #togglePanelButton {
             position: absolute;
-            top: 20px; /* 修正位置，避免超出视口 */
+            bottom: 20px; /* 位于右下角 */
             right: 10px;
             width: 50px;
             height: 50px;
-            background: rgba(30, 30, 30, 0.7);
-            backdrop-filter: blur(15px); /* 模糊较高的毛玻璃效果 */
-            color: white;
+            background: none; /* 取消背景 */
             border: none;
-            border-radius: 50%;
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 24px; /* 调整为简单的 ">" 样式 */
             z-index: 1000;
-            transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out, right 0.3s ease-in-out;
+            transition: right 0.3s ease-in-out; /* 同步左右移动动画 */
         }
 
-        #togglePanelButton:active {
-            box-shadow: 0 0 10px rgba(255, 255, 255, 0.8); /* 按下效果 */
+        #togglePanelButton .icon {
+            font-size: 24px;
+            opacity: 0; /* 初始隐藏 */
+            transition: opacity 0.3s ease-in-out; /* 添加逐渐消隐和显示的动画 */
+            position: absolute;
+        }
+
+        #togglePanelButton .icon-left {
+            opacity: 1; /* 初始显示朝左的图标 */
+        }
+
+        #togglePanelButton.hidden .icon-left {
+            opacity: 0; /* 隐藏朝左的图标 */
+        }
+
+        #togglePanelButton.hidden .icon-right {
+            opacity: 1; /* 显示朝右的图标 */
         }
 
         #infoPanel {
-            transition: transform 0.3s ease-in-out;
+            transition: transform 0.3s ease-in-out; /* 同步左右移动动画 */
             background: rgba(30, 30, 30, 0.5); /* 模糊较低的毛玻璃效果 */
             backdrop-filter: blur(10px);
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            width: 200px; /* 缩小为当前的 2/3 */
         }
 
         #infoPanel.hidden {
@@ -51,7 +66,7 @@
         .collapsible {
             cursor: pointer;
             user-select: none;
-            font-weight: bold;
+            font-weight: normal; /* 使用细等线体 */
             margin-bottom: 10px;
             background: rgba(30, 30, 30, 0.7); /* 按钮背景 */
             backdrop-filter: blur(15px); /* 模糊较高的毛玻璃效果 */
@@ -64,10 +79,9 @@
             box-shadow: 0 0 10px rgba(255, 255, 255, 0.8); /* 按下效果 */
         }
 
-        /* 调整材质列表和材质详情的展开效果 */
         .collapsible-content {
             display: none;
-            overflow: hidden;
+            overflow: hidden; /* 取消滚动条 */
         }
 
         .collapsible.open + .collapsible-content {
@@ -102,6 +116,7 @@
             font-size: 12px;
             color: white;
             flex-grow: 1;
+            font-weight: normal; /* 使用细等线体 */
         }
     </style>
     <script src="https://cdn.babylonjs.com/babylon.js"></script>
@@ -109,16 +124,16 @@
 </head>
 <body>
     <canvas id="renderCanvas" style="width: 100vw; height: 100vh;"></canvas>
-    <!-- 调整隐藏按钮 -->
-    <button id="togglePanelButton">></button>
-    <div id="infoPanel" class="hidden" style="position: absolute; top: 0; right: 0; width: 300px; height: 100%; overflow-y: auto; color: white; font-size: 14px; font-family: Arial, sans-serif; padding: 10px; border-left: 1px solid #444;">
+    <button id="togglePanelButton">
+        <span class="icon icon-left">◀</span>
+        <span class="icon icon-right">▶</span>
+    </button>
+    <div id="infoPanel" class="hidden" style="position: absolute; top: 0; right: 0; height: 100%; color: white; font-size: 14px; font-family: Arial, sans-serif; padding: 10px; border-left: 1px solid #444;">
         <div id="materialListContainer">
             <div class="collapsible">材质列表</div>
             <div id="materialList" class="collapsible-content" style="margin-top: 10px;">
                 <!-- 材质列表 -->
             </div>
-        </div>
-        <div id="materialDetailsContainer">
             <div class="collapsible">材质详情</div>
             <div id="materialDetails" class="collapsible-content" style="margin-top: 10px; padding-top: 10px; border-top: 1px solid #555;">
                 <p id="selectedMaterialName" style="margin: 0; padding: 5px 0; border-bottom: 1px solid #555;">材质详情</p>
@@ -130,24 +145,15 @@
         const canvas = document.getElementById("renderCanvas");
         const engine = new BABYLON.Engine(canvas, true);
 
-        // 添加隐藏按钮功能
         const infoPanel = document.getElementById("infoPanel");
         const togglePanelButton = document.getElementById("togglePanelButton");
+
         togglePanelButton.addEventListener("click", () => {
             const isHidden = infoPanel.classList.toggle("hidden");
-            togglePanelButton.innerText = isHidden ? ">" : "<";
-            togglePanelButton.style.right = isHidden ? "10px" : "310px"; // 跟随 UI 同步移动
+            togglePanelButton.classList.toggle("hidden"); // 切换图标的显示状态
+            togglePanelButton.style.right = isHidden ? "10px" : "210px"; // 跟随 UI 同步移动
         });
 
-        // 确保按钮移动与菜单栏同步
-        const updateButtonPosition = () => {
-            togglePanelButton.style.transform = infoPanel.classList.contains("hidden") ? "translateY(0)" : "translateY(0)";
-        };
-
-        infoPanel.addEventListener("transitionend", updateButtonPosition);
-        updateButtonPosition();
-
-        // 修改材质列表和材质详情的卷展功能为瞬间显示
         const collapsibles = document.querySelectorAll(".collapsible");
         collapsibles.forEach((collapsible) => {
             collapsible.addEventListener("click", () => {
