@@ -11,52 +11,52 @@
             overflow: hidden;
             width: 100%;
             height: 100%;
-            font-family: "Arial", "Helvetica", sans-serif; /* 使用细等线体 */
+            font-family: "Arial", sans-serif; /* 简化字体声明 */
         }
 
         #togglePanelButton {
             position: absolute;
-            bottom: 20px; /* 位于右下角 */
+            bottom: 20px;
             right: 10px;
             width: 50px;
             height: 50px;
-            background: none; /* 取消背景 */
+            background: none;
             border: none;
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
             z-index: 1000;
-            transition: right 0.3s ease-in-out; /* 同步左右移动动画 */
+            transition: right 0.3s ease-in-out;
         }
 
         #togglePanelButton .icon {
             font-size: 24px;
-            opacity: 0; /* 初始隐藏 */
-            transition: opacity 0.3s ease-in-out; /* 添加逐渐消隐和显示的动画 */
+            opacity: 0;
+            transition: opacity 0.3s ease-in-out;
             position: absolute;
         }
 
         #togglePanelButton .icon-left {
-            opacity: 1; /* 初始显示朝左的图标 */
+            opacity: 1;
         }
 
         #togglePanelButton.hidden .icon-left {
-            opacity: 0; /* 隐藏朝左的图标 */
+            opacity: 0;
         }
 
         #togglePanelButton.hidden .icon-right {
-            opacity: 1; /* 显示朝右的图标 */
+            opacity: 1;
         }
 
         #infoPanel {
-            transition: transform 0.3s ease-in-out; /* 同步左右移动动画 */
-            background: rgba(30, 30, 30, 0.5); /* 模糊较低的毛玻璃效果 */
+            transition: transform 0.3s ease-in-out;
+            background: rgba(30, 30, 30, 0.5);
             backdrop-filter: blur(10px);
             display: flex;
             flex-direction: column;
             height: 100%;
-            width: 200px; /* 缩小为当前的 2/3 */
+            width: 200px;
         }
 
         #infoPanel.hidden {
@@ -65,23 +65,20 @@
 
         .collapsible {
             cursor: pointer;
-            user-select: none;
-            font-weight: normal; /* 使用细等线体 */
+            font-weight: normal;
             margin-bottom: 10px;
-            background: rgba(30, 30, 30, 0.7); /* 按钮背景 */
-            backdrop-filter: blur(15px); /* 模糊较高的毛玻璃效果 */
+            background: rgba(30, 30, 30, 0.7);
             padding: 10px;
             border-radius: 5px;
             transition: box-shadow 0.3s ease-in-out;
         }
 
         .collapsible:active {
-            box-shadow: 0 0 10px rgba(255, 255, 255, 0.8); /* 按下效果 */
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.8);
         }
 
         .collapsible-content {
             display: none;
-            overflow: hidden; /* 取消滚动条 */
         }
 
         .collapsible.open + .collapsible-content {
@@ -94,7 +91,7 @@
             padding: 5px;
             border: 1px solid #555;
             border-radius: 5px;
-            background: rgba(30, 30, 30, 0.5); /* 模糊较低的毛玻璃效果 */
+            background: rgba(30, 30, 30, 0.5);
             margin-bottom: 5px;
             cursor: pointer;
             height: 30px;
@@ -102,7 +99,7 @@
         }
 
         .material-item.active {
-            border-color: rgba(255, 255, 255, 0.8); /* 高亮显示激活的材质 */
+            border-color: rgba(255, 255, 255, 0.8);
         }
 
         .material-item .color-circle {
@@ -116,7 +113,6 @@
             font-size: 12px;
             color: white;
             flex-grow: 1;
-            font-weight: normal; /* 使用细等线体 */
         }
     </style>
     <script src="https://cdn.babylonjs.com/babylon.js"></script>
@@ -128,17 +124,15 @@
         <span class="icon icon-left">◀</span>
         <span class="icon icon-right">▶</span>
     </button>
-    <div id="infoPanel" class="hidden" style="position: absolute; top: 0; right: 0; height: 100%; color: white; font-size: 14px; font-family: Arial, sans-serif; padding: 10px; border-left: 1px solid #444;">
-        <div id="materialListContainer">
-            <div class="collapsible">材质列表</div>
-            <div id="materialList" class="collapsible-content" style="margin-top: 10px;">
-                <!-- 材质列表 -->
-            </div>
-            <div class="collapsible">材质详情</div>
-            <div id="materialDetails" class="collapsible-content" style="margin-top: 10px; padding-top: 10px; border-top: 1px solid #555;">
-                <p id="selectedMaterialName" style="margin: 0; padding: 5px 0; border-bottom: 1px solid #555;">材质详情</p>
-                <div id="materialProperties"></div>
-            </div>
+    <div id="infoPanel" class="hidden" style="position: absolute; top: 0; right: 0; height: 100%; color: white; font-size: 14px; padding: 10px; border-left: 1px solid #444;">
+        <div class="collapsible">材质列表</div>
+        <div id="materialList" class="collapsible-content">
+            <!-- 材质列表 -->
+        </div>
+        <div class="collapsible">材质详情</div>
+        <div id="materialDetails" class="collapsible-content" style="padding-top: 10px; border-top: 1px solid #555;">
+            <p id="selectedMaterialName" style="margin: 0; padding: 5px 0; border-bottom: 1px solid #555;">材质详情</p>
+            <div id="materialProperties"></div>
         </div>
     </div>
     <script>
@@ -150,16 +144,13 @@
 
         togglePanelButton.addEventListener("click", () => {
             const isHidden = infoPanel.classList.toggle("hidden");
-            togglePanelButton.classList.toggle("hidden"); // 切换图标的显示状态
-            togglePanelButton.style.right = isHidden ? "10px" : "210px"; // 跟随 UI 同步移动
+            togglePanelButton.classList.toggle("hidden");
+            togglePanelButton.style.right = isHidden ? "10px" : "210px";
         });
 
-        const collapsibles = document.querySelectorAll(".collapsible");
-        collapsibles.forEach((collapsible) => {
+        document.querySelectorAll(".collapsible").forEach(collapsible => {
             collapsible.addEventListener("click", () => {
                 collapsible.classList.toggle("open");
-                const content = collapsible.nextElementSibling;
-                content.style.display = collapsible.classList.contains("open") ? "block" : "none";
             });
         });
 
@@ -171,33 +162,26 @@
 
             // 替换环境光为方向光
             const light = new BABYLON.DirectionalLight("light", new BABYLON.Vector3(-1, -2, -1), scene);
-            light.intensity = 1.0; // 设置光强度
-            light.position = new BABYLON.Vector3(10, 10, 10); // 设置光源位置
-
-            // 调整光源方向，避免条纹阴影
+            light.intensity = 1.0;
+            light.position = new BABYLON.Vector3(10, 10, 10);
             light.direction = new BABYLON.Vector3(-1, -1, -1);
 
-            // 添加阴影生成器
             const shadowGenerator = new BABYLON.ShadowGenerator(2048, light);
-            shadowGenerator.useBlurExponentialShadowMap = true; // 使用模糊指数阴影
-            shadowGenerator.blurKernel = 32; // 设置模糊内核大小
-            shadowGenerator.useContactHardeningShadow = true; // 启用接触硬化阴影
-            shadowGenerator.contactHardeningLightSizeUVRatio = 0.1; // 设置接触硬化比例
+            shadowGenerator.useBlurExponentialShadowMap = true;
+            shadowGenerator.blurKernel = 32;
+            shadowGenerator.useContactHardeningShadow = true;
+            shadowGenerator.contactHardeningLightSizeUVRatio = 0.1;
 
-            // 添加相机
             const camera = new BABYLON.ArcRotateCamera("Camera", Math.PI / 2, Math.PI / 3, 10, BABYLON.Vector3.Zero(), scene);
             camera.attachControl(canvas, true);
-            camera.wheelDeltaPercentage = 0.1; // 设置滚轮缩放速率为 1/10
+            camera.wheelDeltaPercentage = 0.1;
 
-            // 加载 .glb 模型
             BABYLON.SceneLoader.Append("models/", "model.glb", scene, function () {
                 console.log("模型加载完成！");
                 const materialList = document.getElementById("materialList");
 
-                // 按名称排序材质
                 const sortedMaterials = scene.materials.sort((a, b) => a.name.localeCompare(b.name));
 
-                // 生成材质列表
                 sortedMaterials.forEach((material) => {
                     const materialItem = document.createElement("div");
                     materialItem.className = "material-item";
@@ -214,7 +198,6 @@
                     materialItem.appendChild(materialName);
                     materialList.appendChild(materialItem);
 
-                    // 点击材质显示详细属性并高亮
                     materialItem.addEventListener("click", () => {
                         document.querySelectorAll(".material-item").forEach(item => item.classList.remove("active"));
                         materialItem.classList.add("active");
@@ -225,7 +208,7 @@
 
                         materialDetails.style.display = "block";
                         selectedMaterialName.innerText = `材质详情: ${material.name}`;
-                        materialProperties.innerHTML = ""; // 清空之前的属性
+                        materialProperties.innerHTML = "";
 
                         const createSection = (title) => {
                             const section = document.createElement("div");
@@ -315,11 +298,10 @@
                             return label;
                         };
 
-                        // 基础属性
                         const { section: baseSection, content: baseContent } = createSection("基础属性");
                         baseContent.appendChild(addColorPicker("基础色:", material.albedoColor || BABYLON.Color3.White(), (color) => {
                             material.albedoColor = color;
-                            colorCircle.style.backgroundColor = color.toHexString(); // 同步更新列表颜色
+                            colorCircle.style.backgroundColor = color.toHexString();
                         }));
                         baseContent.appendChild(addRangeInput("金属度:", material.metallic || 0, 0, 1, 0.01, (value) => {
                             material.metallic = value;
@@ -329,7 +311,6 @@
                         }));
                         materialProperties.appendChild(baseSection);
 
-                        // 发光属性
                         const { section: emissiveSection, content: emissiveContent } = createSection("发光属性");
                         emissiveContent.appendChild(addColorPicker("发光颜色:", material.emissiveColor || BABYLON.Color3.Black(), (color) => {
                             material.emissiveColor = color;
@@ -339,7 +320,6 @@
                         }));
                         materialProperties.appendChild(emissiveSection);
 
-                        // 法线和凹凸
                         const { section: bumpSection, content: bumpContent } = createSection("法线和凹凸");
                         bumpContent.appendChild(addRangeInput("凹凸强度:", material.bumpTexture ? material.bumpTexture.level : 0.5, 0, 1, 0.01, (value) => {
                             if (material.bumpTexture) {
@@ -354,14 +334,12 @@
                         }));
                         materialProperties.appendChild(bumpSection);
 
-                        // 环境光和反射
                         const { section: reflectionSection, content: reflectionContent } = createSection("环境光和反射");
                         reflectionContent.appendChild(addColorPicker("反射颜色:", material.reflectivityColor || BABYLON.Color3.White(), (color) => {
                             material.reflectivityColor = color;
                         }));
                         materialProperties.appendChild(reflectionSection);
 
-                        // 透明度和不透明度
                         const { section: alphaSection, content: alphaContent } = createSection("透明度和不透明度");
                         alphaContent.appendChild(addRangeInput("透明度:", material.alpha || 1, 0, 1, 0.01, (value) => {
                             material.alpha = value;
@@ -378,7 +356,6 @@
                         }));
                         materialProperties.appendChild(alphaSection);
 
-                        // 次表面散射（SSS）
                         const { section: sssSection, content: sssContent } = createSection("次表面散射");
                         sssContent.appendChild(addCheckbox("启用折射:", material.subSurface?.isRefractionEnabled || false, (checked) => {
                             material.subSurface.isRefractionEnabled = checked;
@@ -401,7 +378,6 @@
                         }));
                         materialProperties.appendChild(sssSection);
 
-                        // 清漆层
                         const { section: clearCoatSection, content: clearCoatContent } = createSection("清漆层");
                         clearCoatContent.appendChild(addCheckbox("启用清漆层:", material.clearCoat?.isEnabled || false, (checked) => {
                             material.clearCoat.isEnabled = checked;
@@ -421,14 +397,12 @@
                         }));
                         materialProperties.appendChild(clearCoatSection);
 
-                        // 各向异性
                         const { section: anisotropySection, content: anisotropyContent } = createSection("各向异性");
                         anisotropyContent.appendChild(addCheckbox("启用各向异性:", material.anisotropy?.isEnabled || false, (checked) => {
                             material.anisotropy.isEnabled = checked;
                         }));
                         materialProperties.appendChild(anisotropySection);
 
-                        // 其他属性
                         const { section: otherSection, content: otherContent } = createSection("其他属性");
                         otherContent.appendChild(addColorPicker("环境光颜色:", material.ambientColor || BABYLON.Color3.Black(), (color) => {
                             material.ambientColor = color;
@@ -454,9 +428,9 @@
                 });
 
                 scene.meshes.forEach(mesh => {
-                    mesh.scaling = new BABYLON.Vector3(-8, 8, 8); // 确保模型大小合适
-                    mesh.rotation = new BABYLON.Vector3(0, -Math.PI, 0); // 确保模型方向正确
-                    shadowGenerator.addShadowCaster(mesh); // 添加阴影投射
+                    mesh.scaling = new BABYLON.Vector3(-8, 8, 8);
+                    mesh.rotation = new BABYLON.Vector3(0, -Math.PI, 0);
+                    shadowGenerator.addShadowCaster(mesh);
                 });
             });
 
@@ -465,19 +439,8 @@
 
         const scene = createScene();
 
-        // 确保 canvas 填充整个屏幕
-        const resizeCanvas = () => {
-            canvas.style.width = "100vw";
-            canvas.style.height = "100vh";
-            engine.resize();
-        };
-
-        window.addEventListener("resize", resizeCanvas);
-        resizeCanvas();
-
-        engine.runRenderLoop(() => {
-            scene.render();
-        });
+        window.addEventListener("resize", () => engine.resize());
+        engine.runRenderLoop(() => scene.render());
     </script>
 </body>
 </html>
