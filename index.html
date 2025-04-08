@@ -125,11 +125,11 @@
         <span class="icon icon-right">▶</span>
     </button>
     <div id="infoPanel" class="hidden" style="position: absolute; top: 0; right: 0; height: 100%; color: white; font-size: 14px; padding: 10px; border-left: 1px solid #444;">
-        <div class="collapsible">材质列表</div>
+        <div class="collapsible">材质</div>
         <div id="materialList" class="collapsible-content">
             <!-- 材质列表 -->
         </div>
-        <div class="collapsible">材质详情</div>
+        <div class="collapsible">详情</div>
         <div id="materialDetails" class="collapsible-content" style="padding-top: 10px; border-top: 1px solid #555;">
             <p id="selectedMaterialName" style="margin: 0; padding: 5px 0; border-bottom: 1px solid #555;">材质详情</p>
             <div id="materialProperties"></div>
@@ -178,6 +178,18 @@
 
             BABYLON.SceneLoader.Append("models/", "model.glb", scene, function () {
                 console.log("模型加载完成！");
+
+                // 提前设置所有子网格的旋转
+                scene.meshes.forEach(mesh => {
+                    const setRotationRecursively = (node) => {
+                        node.rotation = new BABYLON.Vector3(0, Math.PI, 0);
+                        if (node.getChildMeshes) {
+                            node.getChildMeshes().forEach(setRotationRecursively);
+                        }
+                    };
+                    setRotationRecursively(mesh);
+                });
+
                 const materialList = document.getElementById("materialList");
 
                 const sortedMaterials = scene.materials.sort((a, b) => a.name.localeCompare(b.name));
@@ -428,8 +440,7 @@
                 });
 
                 scene.meshes.forEach(mesh => {
-                    mesh.scaling = new BABYLON.Vector3(-8, 8, 8);
-                    mesh.rotation = new BABYLON.Vector3(0, -Math.PI, 0);
+                    mesh.scaling = new BABYLON.Vector3(8, 8, 8);
                     shadowGenerator.addShadowCaster(mesh);
                 });
             });
