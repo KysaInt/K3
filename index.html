@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>3D Viewer</title>
+    <title>Babylon.js Basic Scene</title>
     <style>
         body, html {
             margin: 0;
@@ -11,437 +11,78 @@
             overflow: hidden;
             width: 100%;
             height: 100%;
-            font-family: "Arial", sans-serif; /* 简化字体声明 */
         }
-
-        #togglePanelButton {
-            position: absolute;
-            bottom: 20px;
-            right: 10px;
-            width: 50px;
-            height: 50px;
-            background: none;
-            border: none;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 1000;
-            transition: right 0.3s ease-in-out;
-        }
-
-        #togglePanelButton .icon {
-            font-size: 24px;
-            opacity: 0;
-            transition: opacity 0.3s ease-in-out;
-            position: absolute;
-        }
-
-        #togglePanelButton .icon-left {
-            opacity: 1;
-        }
-
-        #togglePanelButton.hidden .icon-left {
-            opacity: 0;
-        }
-
-        #togglePanelButton.hidden .icon-right {
-            opacity: 1;
-        }
-
-        #infoPanel {
-            transition: transform 0.3s ease-in-out;
-            background: rgba(30, 30, 30, 0.5);
-            backdrop-filter: blur(10px);
-            display: flex;
-            flex-direction: column;
-            height: 100%;
-            width: 200px;
-        }
-
-        #infoPanel.hidden {
-            transform: translateX(100%);
-        }
-
-        .collapsible {
-            cursor: pointer;
-            font-weight: normal;
-            margin-bottom: 10px;
-            background: rgba(30, 30, 30, 0.7);
-            padding: 10px;
-            border-radius: 5px;
-            transition: box-shadow 0.3s ease-in-out;
-        }
-
-        .collapsible:active {
-            box-shadow: 0 0 10px rgba(255, 255, 255, 0.8);
-        }
-
-        .collapsible-content {
-            display: none;
-        }
-
-        .collapsible.open + .collapsible-content {
+        canvas {
             display: block;
-        }
-
-        .material-item {
-            display: flex;
-            align-items: center;
-            padding: 5px;
-            border: 1px solid #555;
-            border-radius: 5px;
-            background: rgba(30, 30, 30, 0.5);
-            margin-bottom: 5px;
-            cursor: pointer;
-            height: 30px;
-            transition: border-color 0.3s ease-in-out;
-        }
-
-        .material-item.active {
-            border-color: rgba(255, 255, 255, 0.8);
-        }
-
-        .material-item .color-circle {
-            width: 20px;
-            height: 20px;
-            border-radius: 50%;
-            margin-right: 10px;
-        }
-
-        .material-item .material-name {
-            font-size: 12px;
-            color: white;
-            flex-grow: 1;
+            width: 100vw;
+            height: 100vh;
         }
     </style>
     <script src="https://cdn.babylonjs.com/babylon.js"></script>
     <script src="https://cdn.babylonjs.com/loaders/babylonjs.loaders.min.js"></script>
 </head>
 <body>
-    <canvas id="renderCanvas" style="width: 100vw; height: 100vh;"></canvas>
-    <button id="togglePanelButton">
-        <span class="icon icon-left">◀</span>
-        <span class="icon icon-right">▶</span>
-    </button>
-    <div id="infoPanel" class="hidden" style="position: absolute; top: 0; right: 0; height: 100%; color: white; font-size: 14px; padding: 10px; border-left: 1px solid #444;">
-        <div class="collapsible">材质</div>
-        <div id="materialList" class="collapsible-content">
-            <!-- 材质列表 -->
-        </div>
-        <div class="collapsible">详情</div>
-        <div id="materialDetails" class="collapsible-content" style="padding-top: 10px; border-top: 1px solid #555;">
-            <p id="selectedMaterialName" style="margin: 0; padding: 5px 0; border-bottom: 1px solid #555;">材质详情</p>
-            <div id="materialProperties"></div>
-        </div>
-    </div>
+    <canvas id="renderCanvas"></canvas>
     <script>
         const canvas = document.getElementById("renderCanvas");
         const engine = new BABYLON.Engine(canvas, true);
 
-        const infoPanel = document.getElementById("infoPanel");
-        const togglePanelButton = document.getElementById("togglePanelButton");
-
-        togglePanelButton.addEventListener("click", () => {
-            const isHidden = infoPanel.classList.toggle("hidden");
-            togglePanelButton.classList.toggle("hidden");
-            togglePanelButton.style.right = isHidden ? "10px" : "210px";
-        });
-
-        document.querySelectorAll(".collapsible").forEach(collapsible => {
-            collapsible.addEventListener("click", () => {
-                collapsible.classList.toggle("open");
-            });
-        });
-
         const createScene = () => {
             const scene = new BABYLON.Scene(engine);
 
-            // 设置背景颜色为微软 3D Viewer 风格的浅灰色
-            scene.clearColor = new BABYLON.Color4(0.95, 0.95, 0.95, 1);
+            // 添加一个相机
+            const camera = new BABYLON.ArcRotateCamera("Camera", Math.PI / 2, Math.PI / 3, 3, BABYLON.Vector3.Zero(), scene);
+            camera.attachControl(canvas, true);
+            camera.wheelDeltaPercentage = 0.005;
+            camera.minZ = -0;
 
-            // 替换环境光为方向光
-            const light = new BABYLON.DirectionalLight("light", new BABYLON.Vector3(-1, -2, -1), scene);
-            light.intensity = 1.0;
-            light.position = new BABYLON.Vector3(10, 10, 10);
-            light.direction = new BABYLON.Vector3(-1, -1, -1);
+            // 添加全局光照
+            const directionalLight = new BABYLON.DirectionalLight("dirLight", new BABYLON.Vector3(-1, -2, -1), scene);
+            directionalLight.position = new BABYLON.Vector3(10, 10, 10);
+            directionalLight.intensity = 1.0;
 
-            const shadowGenerator = new BABYLON.ShadowGenerator(2048, light);
+            // 添加阴影生成器
+            const shadowGenerator = new BABYLON.ShadowGenerator(2048, directionalLight);
             shadowGenerator.useBlurExponentialShadowMap = true;
             shadowGenerator.blurKernel = 32;
             shadowGenerator.useContactHardeningShadow = true;
             shadowGenerator.contactHardeningLightSizeUVRatio = 0.1;
 
-            const camera = new BABYLON.ArcRotateCamera("Camera", Math.PI / 2, Math.PI / 3, 10, BABYLON.Vector3.Zero(), scene);
-            camera.attachControl(canvas, true);
-            camera.wheelDeltaPercentage = 0.1;
+            // 添加环境光遮蔽效果
+            const ao = new BABYLON.DefaultRenderingPipeline("defaultPipeline", true, scene, [camera]);
+            ao.imageProcessingEnabled = true;
+            ao.imageProcessing.contrast = 1.6;
+            ao.imageProcessing.exposure = 1.0;
+            ao.ambientOcclusionEnabled = true;
+            ao.ssaoRatio = 0.5;
+            ao.ssaoSamples = 16;
+            ao.ssaoRadius = 0.5;
 
-            BABYLON.SceneLoader.Append("models/", "model.glb", scene, function () {
+            // 添加全局环境光
+            const hemisphericLight = new BABYLON.HemisphericLight("hemisphericLight", new BABYLON.Vector3(0, 1, 0), scene);
+            hemisphericLight.intensity = 0.5;
+
+            // 添加底部灯光
+            const bottomLight = new BABYLON.PointLight("bottomLight", new BABYLON.Vector3(0, -5, 0), scene);
+            bottomLight.intensity = 0.8; // 设置灯光强度
+            bottomLight.diffuse = new BABYLON.Color3(1, 1, 1); // 设置灯光颜色
+            bottomLight.specular = new BABYLON.Color3(1, 1, 1); // 设置高光颜色
+
+            // 加载模型
+            BABYLON.SceneLoader.Append("models/", "model.glb", scene, () => {
                 console.log("模型加载完成！");
 
-                // 提前设置所有子网格的旋转
+                // 设置所有模型网格的默认变换
                 scene.meshes.forEach(mesh => {
-                    const setRotationRecursively = (node) => {
-                        node.rotation = new BABYLON.Vector3(0, Math.PI, 0);
-                        if (node.getChildMeshes) {
-                            node.getChildMeshes().forEach(setRotationRecursively);
-                        }
-                    };
-                    setRotationRecursively(mesh);
-                });
+                    if (mesh.name !== "__root__") { // 忽略根节点
+                        mesh.receiveShadows = true;
+                        shadowGenerator.addShadowCaster(mesh);
 
-                const materialList = document.getElementById("materialList");
-
-                const sortedMaterials = scene.materials.sort((a, b) => a.name.localeCompare(b.name));
-
-                sortedMaterials.forEach((material) => {
-                    const materialItem = document.createElement("div");
-                    materialItem.className = "material-item";
-
-                    const colorCircle = document.createElement("div");
-                    colorCircle.className = "color-circle";
-                    colorCircle.style.backgroundColor = material.albedoColor ? material.albedoColor.toHexString() : "#ffffff";
-
-                    const materialName = document.createElement("span");
-                    materialName.className = "material-name";
-                    materialName.innerText = material.name;
-
-                    materialItem.appendChild(colorCircle);
-                    materialItem.appendChild(materialName);
-                    materialList.appendChild(materialItem);
-
-                    materialItem.addEventListener("click", () => {
-                        document.querySelectorAll(".material-item").forEach(item => item.classList.remove("active"));
-                        materialItem.classList.add("active");
-
-                        const materialDetails = document.getElementById("materialDetails");
-                        const selectedMaterialName = document.getElementById("selectedMaterialName");
-                        const materialProperties = document.getElementById("materialProperties");
-
-                        materialDetails.style.display = "block";
-                        selectedMaterialName.innerText = `材质详情: ${material.name}`;
-                        materialProperties.innerHTML = "";
-
-                        const createSection = (title) => {
-                            const section = document.createElement("div");
-                            section.style.marginTop = "10px";
-                            section.style.padding = "10px";
-                            section.style.border = "1px solid #555";
-                            section.style.borderRadius = "5px";
-                            section.style.background = "rgba(30, 30, 30, 0.7)";
-                            section.style.backdropFilter = "blur(10px)";
-                            section.style.cursor = "pointer";
-
-                            const header = document.createElement("h4");
-                            header.innerText = title;
-                            header.style.margin = "0";
-                            header.style.cursor = "pointer";
-                            header.addEventListener("click", () => {
-                                const content = section.querySelector(".content");
-                                content.style.display = content.style.display === "none" ? "block" : "none";
-                            });
-
-                            const content = document.createElement("div");
-                            content.className = "content";
-                            content.style.display = "none";
-
-                            section.appendChild(header);
-                            section.appendChild(content);
-                            return { section, content };
-                        };
-
-                        const addColorPicker = (labelText, color, onChange) => {
-                            const label = document.createElement("label");
-                            label.innerText = labelText;
-                            label.style.display = "block";
-
-                            const input = document.createElement("input");
-                            input.type = "color";
-                            input.value = color.toHexString();
-                            input.style.borderRadius = "50%";
-                            input.style.width = "40px";
-                            input.style.height = "40px";
-                            input.style.border = "none";
-                            input.style.background = "rgba(30, 30, 30, 0.7)";
-                            input.style.backdropFilter = "blur(10px)";
-                            input.style.cursor = "pointer";
-                            input.addEventListener("input", (event) => {
-                                const newColor = BABYLON.Color3.FromHexString(event.target.value);
-                                onChange(newColor);
-                            });
-
-                            label.appendChild(input);
-                            return label;
-                        };
-
-                        const addRangeInput = (labelText, value, min, max, step, onChange) => {
-                            const label = document.createElement("label");
-                            label.innerText = labelText;
-                            label.style.display = "block";
-
-                            const input = document.createElement("input");
-                            input.type = "range";
-                            input.min = min;
-                            input.max = max;
-                            input.step = step;
-                            input.value = value;
-                            input.addEventListener("input", (event) => {
-                                onChange(parseFloat(event.target.value));
-                            });
-
-                            label.appendChild(input);
-                            return label;
-                        };
-
-                        const addCheckbox = (labelText, checked, onChange) => {
-                            const label = document.createElement("label");
-                            label.innerText = labelText;
-                            label.style.display = "block";
-
-                            const input = document.createElement("input");
-                            input.type = "checkbox";
-                            input.checked = checked;
-                            input.style.marginLeft = "5px";
-                            input.addEventListener("change", (event) => {
-                                onChange(event.target.checked);
-                            });
-
-                            label.appendChild(input);
-                            return label;
-                        };
-
-                        const { section: baseSection, content: baseContent } = createSection("基础属性");
-                        baseContent.appendChild(addColorPicker("基础色:", material.albedoColor || BABYLON.Color3.White(), (color) => {
-                            material.albedoColor = color;
-                            colorCircle.style.backgroundColor = color.toHexString();
-                        }));
-                        baseContent.appendChild(addRangeInput("金属度:", material.metallic || 0, 0, 1, 0.01, (value) => {
-                            material.metallic = value;
-                        }));
-                        baseContent.appendChild(addRangeInput("粗糙度:", material.roughness || 0, 0, 1, 0.01, (value) => {
-                            material.roughness = value;
-                        }));
-                        materialProperties.appendChild(baseSection);
-
-                        const { section: emissiveSection, content: emissiveContent } = createSection("发光属性");
-                        emissiveContent.appendChild(addColorPicker("发光颜色:", material.emissiveColor || BABYLON.Color3.Black(), (color) => {
-                            material.emissiveColor = color;
-                        }));
-                        emissiveContent.appendChild(addRangeInput("发光强度:", material.emissiveIntensity || 0, 0, 10, 0.1, (value) => {
-                            material.emissiveIntensity = value;
-                        }));
-                        materialProperties.appendChild(emissiveSection);
-
-                        const { section: bumpSection, content: bumpContent } = createSection("法线和凹凸");
-                        bumpContent.appendChild(addRangeInput("凹凸强度:", material.bumpTexture ? material.bumpTexture.level : 0.5, 0, 1, 0.01, (value) => {
-                            if (material.bumpTexture) {
-                                material.bumpTexture.level = value;
-                            }
-                        }));
-                        bumpContent.appendChild(addCheckbox("反转法线 X:", material.invertNormalMapX || false, (checked) => {
-                            material.invertNormalMapX = checked;
-                        }));
-                        bumpContent.appendChild(addCheckbox("反转法线 Y:", material.invertNormalMapY || false, (checked) => {
-                            material.invertNormalMapY = checked;
-                        }));
-                        materialProperties.appendChild(bumpSection);
-
-                        const { section: reflectionSection, content: reflectionContent } = createSection("环境光和反射");
-                        reflectionContent.appendChild(addColorPicker("反射颜色:", material.reflectivityColor || BABYLON.Color3.White(), (color) => {
-                            material.reflectivityColor = color;
-                        }));
-                        materialProperties.appendChild(reflectionSection);
-
-                        const { section: alphaSection, content: alphaContent } = createSection("透明度和不透明度");
-                        alphaContent.appendChild(addRangeInput("透明度:", material.alpha || 1, 0, 1, 0.01, (value) => {
-                            material.alpha = value;
-                        }));
-                        alphaContent.appendChild(addCheckbox("启用不透明度纹理:", material.opacityTexture !== undefined, (checked) => {
-                            if (checked) {
-                                material.opacityTexture = new BABYLON.Texture("path/to/opacityTexture.jpg", scene);
-                            } else {
-                                material.opacityTexture = null;
-                            }
-                        }));
-                        alphaContent.appendChild(addRangeInput("透明模式:", BABYLON.PBRMaterial.PBRMATERIAL_ALPHABLEND, 0, 2, 1, (value) => {
-                            material.transparencyMode = value;
-                        }));
-                        materialProperties.appendChild(alphaSection);
-
-                        const { section: sssSection, content: sssContent } = createSection("次表面散射");
-                        sssContent.appendChild(addCheckbox("启用折射:", material.subSurface?.isRefractionEnabled || false, (checked) => {
-                            material.subSurface.isRefractionEnabled = checked;
-                        }));
-                        sssContent.appendChild(addCheckbox("启用折射纹理:", material.subSurface?.refractionTexture !== undefined, (checked) => {
-                            if (checked) {
-                                material.subSurface.refractionTexture = new BABYLON.Texture("path/to/refractionTexture.jpg", scene);
-                            } else {
-                                material.subSurface.refractionTexture = null;
-                            }
-                        }));
-                        sssContent.appendChild(addRangeInput("折射率:", material.subSurface?.indexOfRefraction || 1.5, 1, 2.5, 0.01, (value) => {
-                            material.subSurface.indexOfRefraction = value;
-                        }));
-                        sssContent.appendChild(addCheckbox("启用半透明:", material.subSurface?.isTranslucencyEnabled || false, (checked) => {
-                            material.subSurface.isTranslucencyEnabled = checked;
-                        }));
-                        sssContent.appendChild(addRangeInput("半透明强度:", material.subSurface?.translucencyIntensity || 0, 0, 1, 0.01, (value) => {
-                            material.subSurface.translucencyIntensity = value;
-                        }));
-                        materialProperties.appendChild(sssSection);
-
-                        const { section: clearCoatSection, content: clearCoatContent } = createSection("清漆层");
-                        clearCoatContent.appendChild(addCheckbox("启用清漆层:", material.clearCoat?.isEnabled || false, (checked) => {
-                            material.clearCoat.isEnabled = checked;
-                        }));
-                        clearCoatContent.appendChild(addRangeInput("清漆层强度:", material.clearCoat?.intensity || 0, 0, 1, 0.01, (value) => {
-                            material.clearCoat.intensity = value;
-                        }));
-                        clearCoatContent.appendChild(addRangeInput("清漆层粗糙度:", material.clearCoat?.roughness || 0, 0, 1, 0.01, (value) => {
-                            material.clearCoat.roughness = value;
-                        }));
-                        clearCoatContent.appendChild(addCheckbox("启用清漆层纹理:", material.clearCoat?.texture !== undefined, (checked) => {
-                            if (checked) {
-                                material.clearCoat.texture = new BABYLON.Texture("path/to/texture.jpg", scene);
-                            } else {
-                                material.clearCoat.texture = null;
-                            }
-                        }));
-                        materialProperties.appendChild(clearCoatSection);
-
-                        const { section: anisotropySection, content: anisotropyContent } = createSection("各向异性");
-                        anisotropyContent.appendChild(addCheckbox("启用各向异性:", material.anisotropy?.isEnabled || false, (checked) => {
-                            material.anisotropy.isEnabled = checked;
-                        }));
-                        materialProperties.appendChild(anisotropySection);
-
-                        const { section: otherSection, content: otherContent } = createSection("其他属性");
-                        otherContent.appendChild(addColorPicker("环境光颜色:", material.ambientColor || BABYLON.Color3.Black(), (color) => {
-                            material.ambientColor = color;
-                        }));
-                        otherContent.appendChild(addCheckbox("启用环境光纹理:", material.ambientTexture !== undefined, (checked) => {
-                            if (checked) {
-                                material.ambientTexture = new BABYLON.Texture("path/to/ambientTexture.jpg", scene);
-                            } else {
-                                material.ambientTexture = null;
-                            }
-                        }));
-                        otherContent.appendChild(addCheckbox("启用绒面效果:", material.sheen?.isEnabled || false, (checked) => {
-                            material.sheen.isEnabled = checked;
-                        }));
-                        otherContent.appendChild(addRangeInput("绒面强度:", material.sheen?.intensity || 0, 0, 1, 0.01, (value) => {
-                            material.sheen.intensity = value;
-                        }));
-                        otherContent.appendChild(addColorPicker("绒面颜色:", material.sheen?.color || BABYLON.Color3.White(), (color) => {
-                            material.sheen.color = color;
-                        }));
-                        materialProperties.appendChild(otherSection);
-                    });
-                });
-
-                scene.meshes.forEach(mesh => {
-                    mesh.scaling = new BABYLON.Vector3(8, 8, 8);
-                    shadowGenerator.addShadowCaster(mesh);
+                        // 设置默认变换
+                        mesh.scaling = new BABYLON.Vector3(1, 1, 1);
+                        mesh.rotation = new BABYLON.Vector3(0, 0, 0);
+                        mesh.position = new BABYLON.Vector3(0, 0, 0);
+                    }
                 });
             });
 
@@ -450,8 +91,11 @@
 
         const scene = createScene();
 
-        window.addEventListener("resize", () => engine.resize());
         engine.runRenderLoop(() => scene.render());
+
+        window.addEventListener("resize", () => {
+            engine.resize();
+        });
     </script>
 </body>
 </html>
