@@ -166,7 +166,7 @@
             ground.material = groundMaterial;
             ground.receiveShadows = true; // 允许地面接收阴影
 
-            // 添加多个面光源
+     
             const createPlaneLight = (name, position, rotation, scene) => {
                 const planeLight = BABYLON.MeshBuilder.CreatePlane(name, { width: 5, height: 5 }, scene);
                 planeLight.position = position;
@@ -230,23 +230,6 @@
             aoRenderer.fallOff = 0.000001; // 设置遮蔽衰减
             aoRenderer.base = 0.5; // 设置遮蔽基础值
             scene.postProcessRenderPipelineManager.attachCamerasToRenderPipeline("ssao", camera);
-
-            // 添加抗锯齿效果
-            const fxaaPostProcess = new BABYLON.FxaaPostProcess("fxaa", 1.0, camera);
-            fxaaPostProcess.samples = 4; // 设置采样数为 4
-
-            // 添加全局光照（GI）效果
-            const giHelper = new BABYLON.DefaultRenderingPipeline("defaultPipeline", true, scene, [camera]);
-            giHelper.imageProcessingEnabled = true; // 启用图像处理
-            giHelper.imageProcessing.toneMappingEnabled = true; // 启用色调映射
-            giHelper.imageProcessing.toneMappingType = BABYLON.ImageProcessingConfiguration.TONEMAPPING_ACES; // 使用 ACES 色调映射
-            giHelper.imageProcessing.exposure = 1.0; // 设置曝光值
-            giHelper.imageProcessing.contrast = 1.2; // 设置对比度
-
-            // 添加环境光反射
-            const environmentTexture = BABYLON.CubeTexture.CreateFromPrefilteredData("textures/environment.env", scene);
-            scene.environmentTexture = environmentTexture;
-            scene.createDefaultSkybox(environmentTexture, true, 1000); // 创建默认天空盒
 
             // 调整环境光强度
             scene.environmentIntensity = 1.5;
