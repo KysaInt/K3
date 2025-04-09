@@ -162,14 +162,7 @@
             light.intensity = .5; // 增强光源强度
             light.position = new BABYLON.Vector3(15, 30, 15); // 提高光源位置
 
-            // 添加圆盘地面
-            const ground = BABYLON.MeshBuilder.CreateDisc("ground", { radius: 1, tessellation: 64 }, scene); // 模型三倍大的圆盘
-            const groundMaterial = new BABYLON.StandardMaterial("groundMaterial", scene);
-            groundMaterial.diffuseColor = new BABYLON.Color3(0.3, 0.3, 0.3); // 设置地面颜色为深灰色
-            groundMaterial.specularColor = new BABYLON.Color3(.3,.3,.3); // 禁用高光
-            ground.material = groundMaterial;
-            ground.receiveShadows = true; // 允许地面接收阴影
-            ground.rotation.x = Math.PI / 2; // 将圆盘地面旋转为水平
+           
 
             // 添加日光效果
             const sunLight = new BABYLON.DirectionalLight("sunLight", new BABYLON.Vector3(-1, -2, -1), scene);
