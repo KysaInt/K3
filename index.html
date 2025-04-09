@@ -234,6 +234,50 @@
             const fxaaPostProcess = new BABYLON.FxaaPostProcess("fxaa", 1.0, camera);
             fxaaPostProcess.samples = 16; // 设置采样数为 16
 
+            // 添加地面
+            const createGround = () => {
+                const ground = BABYLON.MeshBuilder.CreateGround("ground", {
+                    width: 20,
+                    height: 20
+                }, scene);
+
+                const groundMaterial = new BABYLON.StandardMaterial("groundMaterial", scene);
+                groundMaterial.diffuseColor = new BABYLON.Color3(0.5, 0.5, 0.5); // 灰色
+                groundMaterial.specularColor = new BABYLON.Color3(0, 0, 0); // 无高光
+                ground.material = groundMaterial;
+
+                // 接收阴影
+                ground.receiveShadows = true;
+            };
+
+            createGround();
+
+            // 添加灯光
+            const addLights = () => {
+                // 添加方向光
+                const directionalLight = new BABYLON.DirectionalLight("directionalLight", new BABYLON.Vector3(-1, -1, 0), scene); // 从上往下
+                directionalLight.position = new BABYLON.Vector3(10, 20, 10); // 光源位置
+                directionalLight.intensity = 1.0; // 光强
+
+                // 创建阴影生成器
+                const shadowGenerator = new BABYLON.ShadowGenerator(2048, directionalLight);
+                shadowGenerator.usePercentageCloserFiltering = true; // 启用 PCF
+                shadowGenerator.filteringQuality = BABYLON.ShadowGenerator.QUALITY_HIGH; // 高质量过滤
+
+                // 为场景中的所有模型添加阴影投射
+                scene.onNewMeshAddedObservable.add((mesh) => {
+                    if (mesh.name !== "ground") {
+                        shadowGenerator.addShadowCaster(mesh);
+                    }
+                });
+
+                // 确保阴影范围正确
+                directionalLight.shadowMinZ = 1;
+                directionalLight.shadowMaxZ = 50;
+            };
+
+            addLights();
+
             // 加载模型并更新进度条
             BABYLON.SceneLoader.LoadAssetContainer("models/", "model.glb", scene, (container) => {
                 console.log("模型加载完成！");
