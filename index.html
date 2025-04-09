@@ -200,16 +200,12 @@
             light.intensity = .5; // 增强光源强度
             light.position = new BABYLON.Vector3(15, 30, 15); // 提高光源位置
 
-           
-
             // 添加日光效果
             const sunLight = new BABYLON.DirectionalLight("sunLight", new BABYLON.Vector3(-1, -2, -1), scene);
             sunLight.intensity =1; // 设置日光强度
             sunLight.position = new BABYLON.Vector3(50, 100, 50); // 设置日光位置
             sunLight.diffuse = new BABYLON.Color3(1.0, 1, 1); // 模拟日光的暖色调
             sunLight.specular = new BABYLON.Color3(1.0, 1, 1); // 设置高光颜色
-
-            
 
             // 添加日光阴影
             const sunShadowGenerator = new BABYLON.ShadowGenerator(4096, sunLight);
