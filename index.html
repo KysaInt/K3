@@ -157,26 +157,28 @@
         const createScene = () => {
             const scene = new BABYLON.Scene(engine);
 
+            // 检查并调整方向光设置
+            const light = new BABYLON.DirectionalLight("light", new BABYLON.Vector3(-1, 2, -1), scene);
+            light.intensity = .5; // 增强光源强度
+            light.position = new BABYLON.Vector3(15, 30, 15); // 提高光源位置
+
             // 添加圆盘地面
             const ground = BABYLON.MeshBuilder.CreateDisc("ground", { radius: 1, tessellation: 64 }, scene); // 模型三倍大的圆盘
             const groundMaterial = new BABYLON.StandardMaterial("groundMaterial", scene);
             groundMaterial.diffuseColor = new BABYLON.Color3(0.3, 0.3, 0.3); // 设置地面颜色为深灰色
-            groundMaterial.specularColor = new BABYLON.Color3(0, 0, 0); // 禁用高光
+            groundMaterial.specularColor = new BABYLON.Color3(.3,.3,.3); // 禁用高光
             ground.material = groundMaterial;
             ground.receiveShadows = true; // 允许地面接收阴影
             ground.rotation.x = Math.PI / 2; // 将圆盘地面旋转为水平
 
             // 添加日光效果
             const sunLight = new BABYLON.DirectionalLight("sunLight", new BABYLON.Vector3(-1, -2, -1), scene);
-            sunLight.intensity = 1.5; // 设置日光强度
+            sunLight.intensity =1; // 设置日光强度
             sunLight.position = new BABYLON.Vector3(50, 100, 50); // 设置日光位置
-            sunLight.diffuse = new BABYLON.Color3(1.0, 0.9, 0.7); // 模拟日光的暖色调
-            sunLight.specular = new BABYLON.Color3(1.0, 0.9, 0.7); // 设置高光颜色
+            sunLight.diffuse = new BABYLON.Color3(1.0, 1, 1); // 模拟日光的暖色调
+            sunLight.specular = new BABYLON.Color3(1.0, 1, 1); // 设置高光颜色
 
-            // 检查并调整方向光设置
-            const light = new BABYLON.DirectionalLight("light", new BABYLON.Vector3(-1, 2, -1), scene);
-            light.intensity = .5; // 增强光源强度
-            light.position = new BABYLON.Vector3(15, 30, 15); // 提高光源位置
+            
 
             // 添加日光阴影
             const sunShadowGenerator = new BABYLON.ShadowGenerator(4096, sunLight);
