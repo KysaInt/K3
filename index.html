@@ -192,6 +192,13 @@
         const createScene = () => {
             const scene = new BABYLON.Scene(engine);
 
+            // 加载本地 HDR 环境纹理
+            const hdrTexture = new BABYLON.HDRCubeTexture("env/env2k.hdr", scene, 512);
+            scene.environmentTexture = hdrTexture;
+
+            // 启用环境光效果并创建默认天空盒
+            scene.createDefaultSkybox(hdrTexture, true, 1000);
+
             // 检查并调整方向光设置
             const light = new BABYLON.DirectionalLight("light", new BABYLON.Vector3(-1, 2, -1), scene);
             light.intensity = .5; // 增强光源强度
