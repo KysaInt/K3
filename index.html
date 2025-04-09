@@ -114,11 +114,35 @@
             color: white;
             flex-grow: 1;
         }
+
+        /* 添加进度条样式 */
+        #loadingBarContainer {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 80%;
+            height: 20px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            overflow: hidden;
+            z-index: 2000;
+        }
+
+        #loadingBar {
+            width: 0;s
+            height: 100%;
+            background: #4caf50;
+            transition: width 0.2s ease;
+        }
     </style>
     <script src="https://cdn.babylonjs.com/babylon.js"></script>
     <script src="https://cdn.babylonjs.com/loaders/babylonjs.loaders.min.js"></script>
 </head>
 <body>
+    <div id="loadingBarContainer">
+        <div id="loadingBar"></div>
+    </div>
     <canvas id="renderCanvas" style="width: 100vw; height: 100vh;"></canvas>
     <button id="togglePanelButton">
         <span class="icon icon-left">◀</span>
@@ -138,6 +162,17 @@
     <script>
         const canvas = document.getElementById("renderCanvas");
         const engine = new BABYLON.Engine(canvas, true);
+
+        const loadingBarContainer = document.getElementById("loadingBarContainer");
+        const loadingBar = document.getElementById("loadingBar");
+
+        const updateLoadingBar = (progress) => {
+            loadingBar.style.width = `${progress * 100}%`;
+        };
+
+        const hideLoadingBar = () => {
+            loadingBarContainer.style.display = "none";
+        };
 
         const infoPanel = document.getElementById("infoPanel");
         const togglePanelButton = document.getElementById("togglePanelButton");
@@ -199,9 +234,11 @@
             const fxaaPostProcess = new BABYLON.FxaaPostProcess("fxaa", 1.0, camera);
             fxaaPostProcess.samples = 16; // 设置采样数为 16
 
-            // 加载模型
+            // 加载模型并更新进度条
             BABYLON.SceneLoader.LoadAssetContainer("models/", "model.glb", scene, (container) => {
                 console.log("模型加载完成！");
+                container.addAllToScene();
+                hideLoadingBar(); // 隐藏进度条
 
                 // 将模型添加到场景中
                 container.addAllToScene();
@@ -465,6 +502,11 @@
                         materialProperties.appendChild(otherSection);
                     });
                 });
+            }, null, (evt) => {
+                if (evt.lengthComputable) {
+                    const progress = evt.loaded / evt.total;
+                    updateLoadingBar(progress); // 更新进度条
+                }
             });
 
             return scene;
