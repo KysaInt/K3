@@ -157,44 +157,62 @@
         const createScene = () => {
             const scene = new BABYLON.Scene(engine);
 
-            // 设置背景颜色为微软 3D Viewer 风格的浅灰色
-            scene.clearColor = new BABYLON.Color4(0.95, 0.95, 0.95, 1);
+            // 添加全局光照
+            const hemisphericLight = new BABYLON.HemisphericLight("hemisphericLight", new BABYLON.Vector3(0, 1, 0), scene);
+            hemisphericLight.intensity = 0.8; // 设置全局光照强度
 
             // 替换环境光为方向光
             const light = new BABYLON.DirectionalLight("light", new BABYLON.Vector3(-1, -2, -1), scene);
             light.intensity = 1.0;
             light.position = new BABYLON.Vector3(10, 10, 10);
-            light.direction = new BABYLON.Vector3(-1, -1, -1);
 
+            // 设置高级 SBL 阴影
             const shadowGenerator = new BABYLON.ShadowGenerator(2048, light);
-            shadowGenerator.useBlurExponentialShadowMap = true;
-            shadowGenerator.blurKernel = 32;
-            shadowGenerator.useContactHardeningShadow = true;
-            shadowGenerator.contactHardeningLightSizeUVRatio = 0.1;
+            shadowGenerator.useExponentialShadowMap = false;
+            shadowGenerator.useBlurExponentialShadowMap = false;
+            shadowGenerator.usePercentageCloserFiltering = true; // 启用 PCF（Percentage Closer Filtering）
+            shadowGenerator.filteringQuality = BABYLON.ShadowGenerator.QUALITY_HIGH; // 设置高质量过滤
+            shadowGenerator.contactHardeningLightSizeUVRatio = 0.05; // 设置接触硬化阴影的比例
+            shadowGenerator.useContactHardeningShadow = true; // 启用接触硬化阴影
 
-            const camera = new BABYLON.ArcRotateCamera("Camera", Math.PI / 2, Math.PI / 3, 10, BABYLON.Vector3.Zero(), scene);
+            const camera = new BABYLON.ArcRotateCamera("Camera", Math.PI / 2, Math.PI / 3, 3, BABYLON.Vector3.Zero(), scene);
             camera.attachControl(canvas, true);
-            camera.wheelDeltaPercentage = 0.1;
+            camera.minZ = 0; // 设置最近剪切平面为 0
+            camera.wheelDeltaPercentage = 0.005; // 设置滚动速率为当前的 1/20
+            camera.pinchDeltaPercentage = 0.005; // 设置触摸缩放速率为当前的 1/20
 
-            BABYLON.SceneLoader.Append("models/", "model.glb", scene, function () {
+            // 开启环境光遮蔽
+            const aoRenderer = new BABYLON.SSAORenderingPipeline("ssao", scene, 0.75);
+            aoRenderer.radius = 0.0002; // 设置遮蔽半径
+            aoRenderer.totalStrength = 1.0; // 设置遮蔽强度
+            aoRenderer.area = 0.0075; // 设置遮蔽区域
+            aoRenderer.fallOff = 0.000001; // 设置遮蔽衰减
+            aoRenderer.base = 0.5; // 设置遮蔽基础值
+            scene.postProcessRenderPipelineManager.attachCamerasToRenderPipeline("ssao", camera);
+
+            // 加载模型
+            BABYLON.SceneLoader.LoadAssetContainer("models/", "model.glb", scene, (container) => {
                 console.log("模型加载完成！");
 
-                // 提前设置所有子网格的旋转
-                scene.meshes.forEach(mesh => {
-                    const setRotationRecursively = (node) => {
-                        node.rotation = new BABYLON.Vector3(0, Math.PI, 0);
-                        if (node.getChildMeshes) {
-                            node.getChildMeshes().forEach(setRotationRecursively);
-                        }
-                    };
-                    setRotationRecursively(mesh);
+                // 将模型添加到场景中
+                container.addAllToScene();
+
+                // 设置模型的默认变换
+                container.meshes.forEach(mesh => {
+                    if (mesh.name !== "__root__") { // 忽略根节点
+                        mesh.scaling = new BABYLON.Vector3(8, 8, 8); // 设置缩放
+                        mesh.rotation = new BABYLON.Vector3(0, Math.PI / 4, 0); // 设置旋转
+                        mesh.position = new BABYLON.Vector3(0, 0, 0); // 设置位移
+                        shadowGenerator.addShadowCaster(mesh); // 添加阴影投射器
+                    }
                 });
 
+                // 保持 UI 功能不变
                 const materialList = document.getElementById("materialList");
+                materialList.innerHTML = ""; // 清空材质列表
 
                 const sortedMaterials = scene.materials.sort((a, b) => a.name.localeCompare(b.name));
-
-                sortedMaterials.forEach((material) => {
+                sortedMaterials.forEach(material => {
                     const materialItem = document.createElement("div");
                     materialItem.className = "material-item";
 
@@ -437,11 +455,6 @@
                         }));
                         materialProperties.appendChild(otherSection);
                     });
-                });
-
-                scene.meshes.forEach(mesh => {
-                    mesh.scaling = new BABYLON.Vector3(8, 8, 8);
-                    shadowGenerator.addShadowCaster(mesh);
                 });
             });
 
