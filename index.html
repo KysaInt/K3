@@ -160,35 +160,18 @@
             // 修改地面为灰色
             const ground = BABYLON.MeshBuilder.CreateGround("ground", { width: 1000, height: 1000 }, scene);
             const groundMaterial = new BABYLON.StandardMaterial("groundMaterial", scene);
-            groundMaterial.diffuseColor = new BABYLON.Color3(0.3, 0.3, 0.3); // 设置地面颜色为深灰色
+            groundMaterial.diffuseColor = new BABYLON.Color3(.3,.3,.3); // 设置地面颜色为深灰色
             groundMaterial.specularColor = new BABYLON.Color3(0, 0, 0); // 禁用高光
             ground.material = groundMaterial;
             ground.receiveShadows = true; // 允许地面接收阴影
 
-            // 添加多个面光源
-            const createPlaneLight = (name, position, rotation, scene) => {
-                const planeLight = BABYLON.MeshBuilder.CreatePlane(name, { width: 5, height: 5 }, scene);
-                planeLight.position = position;
-                planeLight.rotation = rotation;
-
-                const lightMaterial = new BABYLON.StandardMaterial(`${name}Material`, scene);
-                lightMaterial.emissiveColor = new BABYLON.Color3(1, 1, 1); // 设置发光颜色为白色
-                lightMaterial.disableLighting = true; // 禁用光照影响
-                planeLight.material = lightMaterial;
-
-                const light = new BABYLON.DirectionalLight(`${name}Light`, new BABYLON.Vector3(-position.x, -position.y, -position.z), scene);
-                light.intensity = 0.8; // 设置光源强度
-                return { planeLight, light };
-            };
-
-            
             // 添加全局光照
             const hemisphericLight = new BABYLON.HemisphericLight("hemisphericLight", new BABYLON.Vector3(0, 1, 0), scene);
-            hemisphericLight.intensity = 2; // 设置全局光照强度
+            hemisphericLight.intensity = 1; // 设置全局光照强度
 
             // 检查并调整方向光设置
-            const light = new BABYLON.DirectionalLight("light", new BABYLON.Vector3(-1, -2, -1), scene);
-            light.intensity = 1.5; // 增强光源强度
+            const light = new BABYLON.DirectionalLight("light", new BABYLON.Vector3(-1, 2, -1), scene);
+            light.intensity = .5; // 增强光源强度
             light.position = new BABYLON.Vector3(15, 30, 15); // 提高光源位置
 
             // 检查并调整阴影生成器设置
@@ -205,17 +188,17 @@
             camera.pinchDeltaPercentage = 0.005; // 设置触摸缩放速率为当前的 1/20
 
             // 开启环境光遮蔽
-            const aoRenderer = new BABYLON.SSAORenderingPipeline("ssao", scene, 0.75);
-            aoRenderer.radius = 0.0002; // 设置遮蔽半径
-            aoRenderer.totalStrength = 1.0; // 设置遮蔽强度
-            aoRenderer.area = 0.0075; // 设置遮蔽区域
+            const aoRenderer = new BABYLON.SSAORenderingPipeline("ssao", scene, 1);
+            aoRenderer.radius = .000001; // 设置遮蔽半径
+            aoRenderer.totalStrength = 1; // 设置遮蔽强度
+            aoRenderer.area = 1; // 设置遮蔽区域
             aoRenderer.fallOff = 0.000001; // 设置遮蔽衰减
-            aoRenderer.base = 0.5; // 设置遮蔽基础值
+            aoRenderer.base = .1; // 设置遮蔽基础值
             scene.postProcessRenderPipelineManager.attachCamerasToRenderPipeline("ssao", camera);
 
             // 添加抗锯齿效果
             const fxaaPostProcess = new BABYLON.FxaaPostProcess("fxaa", 1.0, camera);
-            fxaaPostProcess.samples = 4; // 设置采样数为 4
+            fxaaPostProcess.samples = 8; // 设置采样数为 8
 
             // 加载模型
             BABYLON.SceneLoader.LoadAssetContainer("models/", "model.glb", scene, (container) => {
