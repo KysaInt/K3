@@ -115,34 +115,24 @@
             flex-grow: 1;
         }
 
-        /* 添加进度条样式 */
+        /* 修改进度条样式为显示 "loading..." 动画 */
         #loadingBarContainer {
             position: absolute;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            width: 80%;
-            height: 20px;
-            background: rgba(255, 255, 255, 0.2);
-            border-radius: 10px;
-            overflow: hidden;
+            font-family: "Arial", sans-serif;
+            font-size: 20px;
+            font-weight: 300; /* 使用细等线字体 */
+            color: white; /* 修改文字颜色为白色 */
             z-index: 2000;
-        }
-
-        #loadingBar {
-            width: 0;s
-            height: 100%;
-            background: #4caf50;
-            transition: width 0.2s ease;
         }
     </style>
     <script src="https://cdn.babylonjs.com/babylon.js"></script>
     <script src="https://cdn.babylonjs.com/loaders/babylonjs.loaders.min.js"></script>
 </head>
 <body>
-    <div id="loadingBarContainer">
-        <div id="loadingBar"></div>
-    </div>
+    <div id="loadingBarContainer">loading<span id="loadingDots"></span></div>
     <canvas id="renderCanvas" style="width: 100vw; height: 100vh;"></canvas>
     <button id="togglePanelButton">
         <span class="icon icon-left">◀</span>
@@ -164,13 +154,16 @@
         const engine = new BABYLON.Engine(canvas, true);
 
         const loadingBarContainer = document.getElementById("loadingBarContainer");
-        const loadingBar = document.getElementById("loadingBar");
+        const loadingDots = document.getElementById("loadingDots");
 
-        const updateLoadingBar = (progress) => {
-            loadingBar.style.width = `${progress * 100}%`;
-        };
+        let dotCount = 0;
+        const loadingAnimation = setInterval(() => {
+            dotCount = (dotCount % 3) + 1; // 循环 1 到 3
+            loadingDots.textContent = ".".repeat(dotCount); // 动态更新点的数量
+        }, 500); // 每 500 毫秒更新一次
 
         const hideLoadingBar = () => {
+            clearInterval(loadingAnimation); // 停止动画
             loadingBarContainer.style.display = "none";
         };
 
@@ -191,6 +184,9 @@
 
         const createScene = () => {
             const scene = new BABYLON.Scene(engine);
+
+            // 设置场景背景为黑色
+            scene.clearColor = new BABYLON.Color4(0, 0, 0, 1);
 
             // 加载本地 HDR 环境纹理
             const hdrTexture = new BABYLON.HDRCubeTexture("env/env2k.hdr", scene, 512);
@@ -245,7 +241,7 @@
             BABYLON.SceneLoader.LoadAssetContainer("models/", "model.glb", scene, (container) => {
                 console.log("模型加载完成！");
                 container.addAllToScene();
-                hideLoadingBar(); // 隐藏进度条
+                hideLoadingBar(); // 隐藏加载动画
 
                 // 将模型添加到场景中
                 container.addAllToScene();
@@ -510,9 +506,10 @@
                     });
                 });
             }, null, (evt) => {
+                // 模拟加载进度（可选）
                 if (evt.lengthComputable) {
                     const progress = evt.loaded / evt.total;
-                    updateLoadingBar(progress); // 更新进度条
+                    console.log(`加载进度: ${(progress * 100).toFixed(2)}%`);
                 }
             });
 
