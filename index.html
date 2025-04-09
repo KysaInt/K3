@@ -157,23 +157,64 @@
         const createScene = () => {
             const scene = new BABYLON.Scene(engine);
 
+            // 修改地面为仅接收阴影的透明地面
+            const ground = BABYLON.MeshBuilder.CreateGround("ground", { width: 1000, height: 1000 }, scene);
+            const groundMaterial = new BABYLON.StandardMaterial("groundMaterial", scene);
+            groundMaterial.diffuseColor = new BABYLON.Color3(0, 0, 0); // 设置地面颜色为黑色
+            groundMaterial.specularColor = new BABYLON.Color3(0, 0, 0); // 禁用高光
+            groundMaterial.alpha = 0; // 设置地面完全透明
+            ground.material = groundMaterial;
+            ground.receiveShadows = true; // 允许地面接收阴影
+
+            // 添加多个面光源
+            const createPlaneLight = (name, position, rotation, scene) => {
+                const planeLight = BABYLON.MeshBuilder.CreatePlane(name, { width: 5, height: 5 }, scene);
+                planeLight.position = position;
+                planeLight.rotation = rotation;
+
+                const lightMaterial = new BABYLON.StandardMaterial(`${name}Material`, scene);
+                lightMaterial.emissiveColor = new BABYLON.Color3(1, 1, 1); // 设置发光颜色为白色
+                lightMaterial.disableLighting = true; // 禁用光照影响
+                planeLight.material = lightMaterial;
+
+                const light = new BABYLON.DirectionalLight(`${name}Light`, new BABYLON.Vector3(-position.x, -position.y, -position.z), scene);
+                light.intensity = 0.8; // 设置光源强度
+                return { planeLight, light };
+            };
+
+            
             // 添加全局光照
             const hemisphericLight = new BABYLON.HemisphericLight("hemisphericLight", new BABYLON.Vector3(0, 1, 0), scene);
-            hemisphericLight.intensity = 0.8; // 设置全局光照强度
+            hemisphericLight.intensity = 0; // 设置全局光照强度
 
-            // 替换环境光为方向光
-            const light = new BABYLON.DirectionalLight("light", new BABYLON.Vector3(-1, -2, -1), scene);
-            light.intensity = 1.0;
-            light.position = new BABYLON.Vector3(10, 10, 10);
+            // 检查并调整方向光设置
+            const light = new BABYLON.DirectionalLight("light", new BABYLON.Vector3(1, 1, 1), scene);
+            light.intensity =5; // 增强光源强度
+            light.position = new BABYLON.Vector3(0, 30, 0); // 提高光源位置
 
-            // 设置高级 SBL 阴影
-            const shadowGenerator = new BABYLON.ShadowGenerator(2048, light);
-            shadowGenerator.useExponentialShadowMap = false;
-            shadowGenerator.useBlurExponentialShadowMap = false;
+            // 检查并调整阴影生成器设置
+            const shadowGenerator = new BABYLON.ShadowGenerator(4096, light); // 提高阴影分辨率
             shadowGenerator.usePercentageCloserFiltering = true; // 启用 PCF（Percentage Closer Filtering）
             shadowGenerator.filteringQuality = BABYLON.ShadowGenerator.QUALITY_HIGH; // 设置高质量过滤
-            shadowGenerator.contactHardeningLightSizeUVRatio = 0.05; // 设置接触硬化阴影的比例
+            shadowGenerator.contactHardeningLightSizeUVRatio = 0.1; // 调整接触硬化阴影比例
             shadowGenerator.useContactHardeningShadow = true; // 启用接触硬化阴影
+
+            // 添加模拟日光效果
+            const sunLight = new BABYLON.DirectionalLight("sunLight", new BABYLON.Vector3(-1, -1, 0), scene);
+            sunLight.intensity = 10; // 设置日光强度
+            sunLight.position = new BABYLON.Vector3(50, 100, 50); // 设置日光位置
+
+            // 创建太阳光的颜色渐变
+            const sunColor = new BABYLON.Color3(1.0, 0.9, 0.7); // 模拟日光的暖色调
+            sunLight.diffuse = sunColor;
+            sunLight.specular = sunColor;
+
+            // 添加太阳光的阴影
+            const sunShadowGenerator = new BABYLON.ShadowGenerator(4096, sunLight);
+            sunShadowGenerator.usePercentageCloserFiltering = true; // 启用 PCF
+            sunShadowGenerator.filteringQuality = BABYLON.ShadowGenerator.QUALITY_HIGH; // 设置高质量过滤
+            sunShadowGenerator.contactHardeningLightSizeUVRatio = 0.1; // 调整接触硬化阴影比例
+            sunShadowGenerator.useContactHardeningShadow = true; // 启用接触硬化阴影
 
             const camera = new BABYLON.ArcRotateCamera("Camera", Math.PI / 2, Math.PI / 3, 3, BABYLON.Vector3.Zero(), scene);
             camera.attachControl(canvas, true);
@@ -190,6 +231,26 @@
             aoRenderer.base = 0.5; // 设置遮蔽基础值
             scene.postProcessRenderPipelineManager.attachCamerasToRenderPipeline("ssao", camera);
 
+            // 添加抗锯齿效果
+            const fxaaPostProcess = new BABYLON.FxaaPostProcess("fxaa", 1.0, camera);
+            fxaaPostProcess.samples = 4; // 设置采样数为 4
+
+            // 添加全局光照（GI）效果
+            const giHelper = new BABYLON.DefaultRenderingPipeline("defaultPipeline", true, scene, [camera]);
+            giHelper.imageProcessingEnabled = true; // 启用图像处理
+            giHelper.imageProcessing.toneMappingEnabled = true; // 启用色调映射
+            giHelper.imageProcessing.toneMappingType = BABYLON.ImageProcessingConfiguration.TONEMAPPING_ACES; // 使用 ACES 色调映射
+            giHelper.imageProcessing.exposure = 1.0; // 设置曝光值
+            giHelper.imageProcessing.contrast = 1.2; // 设置对比度
+
+            // 添加环境光反射
+            const environmentTexture = BABYLON.CubeTexture.CreateFromPrefilteredData("textures/environment.env", scene);
+            scene.environmentTexture = environmentTexture;
+            scene.createDefaultSkybox(environmentTexture, true, 1000); // 创建默认天空盒
+
+            // 调整环境光强度
+            scene.environmentIntensity = 1.5;
+
             // 加载模型
             BABYLON.SceneLoader.LoadAssetContainer("models/", "model.glb", scene, (container) => {
                 console.log("模型加载完成！");
@@ -204,6 +265,7 @@
                         mesh.rotation = new BABYLON.Vector3(0, Math.PI / 4, 0); // 设置旋转
                         mesh.position = new BABYLON.Vector3(0, 0, 0); // 设置位移
                         shadowGenerator.addShadowCaster(mesh); // 添加阴影投射器
+                        sunShadowGenerator.addShadowCaster(mesh); // 添加阴影投射器
                     }
                 });
 
