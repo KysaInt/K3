@@ -188,12 +188,20 @@
             // 设置场景背景为黑色
             scene.clearColor = new BABYLON.Color4(0, 0, 0, 1);
 
-            // 加载本地 HDR 环境纹理
-            const hdrTexture = new BABYLON.HDRCubeTexture("env/env2k.hdr", scene, 512);
+            // 加载本地 HDR 环境纹理，分辨率提高到 2048
+            const hdrTexture = new BABYLON.HDRCubeTexture("env/env2k.hdr", scene, 2048);
             scene.environmentTexture = hdrTexture;
 
             // 启用环境光效果并创建默认天空盒
-            scene.createDefaultSkybox(hdrTexture, true, 1000);
+            const skybox = scene.createDefaultSkybox(hdrTexture, true, 1000);
+
+            // 添加 HDR 和天空盒反向旋转动画，速度为当前的 1/5
+            scene.registerBeforeRender(() => {
+                hdrTexture.rotationY += 0.001 / 5; // 每帧增加 HDR 旋转角度，速度为原来的 1/5
+                if (skybox) {
+                    skybox.rotation.y = -hdrTexture.rotationY; // 天空盒旋转方向为 HDR 的相反方向
+                }
+            });
 
             // 检查并调整方向光设置
             const light = new BABYLON.DirectionalLight("light", new BABYLON.Vector3(-1, 2, -1), scene);
