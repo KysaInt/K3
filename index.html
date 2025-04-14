@@ -230,6 +230,10 @@
             camera.wheelDeltaPercentage = 0.005; // 设置滚动速率为当前的 1/20
             camera.pinchDeltaPercentage = 0.005; // 设置触摸缩放速率为当前的 1/20
 
+            // 禁用滚轮缩放功能
+            camera.inputs.removeByType("ArcRotateCameraMouseWheelInput");
+
+
             // 开启环境光遮蔽
             const aoRenderer = new BABYLON.SSAORenderingPipeline("ssao", scene, 1);
             aoRenderer.radius = .000001; // 设置遮蔽半径
