@@ -222,7 +222,9 @@
             sunShadowGenerator.contactHardeningLightSizeUVRatio = 0.1; // 调整接触硬化阴影比例
             sunShadowGenerator.useContactHardeningShadow = true; // 启用接触硬化阴影
 
-            const camera = new BABYLON.ArcRotateCamera("Camera", Math.PI / 2, Math.PI / 3, 3, BABYLON.Vector3.Zero(), scene);
+            const camera = new BABYLON.ArcRotateCamera("Camera", Math.PI*0, Math.PI/3, 2.5, BABYLON.Vector3.Zero(), scene);
+
+            
             camera.attachControl(canvas, true);
             camera.minZ = 0; // 设置最近剪切平面为 0
             camera.wheelDeltaPercentage = 0.005; // 设置滚动速率为当前的 1/20
