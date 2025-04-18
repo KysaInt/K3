@@ -233,6 +233,17 @@
             // 禁用滚轮缩放功能
             camera.inputs.removeByType("ArcRotateCameraMouseWheelInput");
 
+            // 为移动设备添加陀螺仪控制
+            if (window.DeviceOrientationEvent) {
+                window.addEventListener("deviceorientation", (event) => {
+                    const alpha = event.alpha ? BABYLON.Tools.ToRadians(event.alpha) : 0; // 水平旋转
+                    const beta = event.beta ? BABYLON.Tools.ToRadians(event.beta) : 0; // 前后倾斜
+                    const gamma = event.gamma ? BABYLON.Tools.ToRadians(event.gamma) : 0; // 左右倾斜
+
+                    camera.alpha = -alpha; // 设置水平旋转
+                    camera.beta = Math.PI / 2 - beta; // 设置前后倾斜
+                });
+            }
 
             // 开启环境光遮蔽
             const aoRenderer = new BABYLON.SSAORenderingPipeline("ssao", scene, 1);
