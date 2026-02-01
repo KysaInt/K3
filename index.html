@@ -17,36 +17,58 @@
         #togglePanelButton {
             position: absolute;
             bottom: 20px;
-            right: 10px;
-            width: 50px;
-            height: 50px;
-            background: none;
+            right: 210px;
+            width: 40px;
+            height: 40px;
+            background: transparent;
             border: none;
             cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
             z-index: 1000;
             transition: right 0.3s ease-in-out;
         }
 
-        #togglePanelButton .icon {
-            font-size: 24px;
-            opacity: 0;
-            transition: opacity 0.3s ease-in-out;
+        #togglePanelButton.hidden {
+            right: 10px;
+        }
+
+        .toggle-arrow {
             position: absolute;
-        }
-
-        #togglePanelButton .icon-left {
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 18px;
+            height: 18px;
+            transition: opacity 0.3s ease;
+            background-color: #fff !important;
+            backface-visibility: hidden;
             opacity: 1;
+            forced-color-adjust: none;
         }
 
-        #togglePanelButton.hidden .icon-left {
+        .arrow-left {
+            -webkit-clip-path: polygon(100% 0%, 0% 50%, 100% 100%);
+            clip-path: polygon(100% 0%, 0% 50%, 100% 100%);
+        }
+
+        .arrow-right {
+            -webkit-clip-path: polygon(0% 0%, 100% 50%, 0% 100%);
+            clip-path: polygon(0% 0%, 100% 50%, 0% 100%);
+        }
+
+        #togglePanelButton .arrow-left {
             opacity: 0;
         }
 
-        #togglePanelButton.hidden .icon-right {
+        #togglePanelButton .arrow-right {
             opacity: 1;
+        }
+
+        #togglePanelButton.hidden .arrow-left {
+            opacity: 1;
+        }
+
+        #togglePanelButton.hidden .arrow-right {
+            opacity: 0;
         }
 
         #infoPanel {
@@ -58,7 +80,46 @@
             height: 100%;
             width: 200px;
             overflow-y: auto;
+            overflow-x: hidden;
+            overscroll-behavior: contain;
+            -webkit-overflow-scrolling: touch;
             padding-bottom: 20px;
+            box-sizing: border-box;
+        }
+
+        /* 滚动条样式 */
+        #infoPanel::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        #infoPanel::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.2);
+        }
+
+        #infoPanel::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 3px;
+        }
+
+        #infoPanel::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.5);
+        }
+
+        #materialPanel::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        #materialPanel::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.2);
+        }
+
+        #materialPanel::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 3px;
+        }
+
+        #materialPanel::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.5);
         }
 
         #infoPanel.hidden {
@@ -68,42 +129,67 @@
         .collapsible {
             cursor: pointer;
             font-weight: normal;
-            margin-bottom: 10px;
-            background: rgba(30, 30, 30, 0.7);
+            background: rgba(30, 30, 30, 0.5);
             padding: 10px;
-            border-radius: 5px;
-            transition: box-shadow 0.3s ease-in-out;
+            border: none;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+            transition: background 0.2s ease-in-out;
             display: flex;
             align-items: center;
             justify-content: space-between;
             user-select: none;
+            margin: 0;
         }
 
-        .collapsible::after {
-            content: "▸";
-            font-size: 12px;
-            opacity: 0.8;
-            transition: transform 0.2s ease-in-out;
+        .collapsible:first-of-type {
+            border-top-left-radius: 5px;
+            border-top-right-radius: 5px;
         }
 
-        .collapsible.open::after {
-            transform: rotate(90deg);
+        .collapsible.open {
+            background: rgba(45, 45, 45, 0.7);
         }
 
         .collapsible.sub {
-            margin-left: 10px;
+            margin-left: 0;
+            padding-left: 20px;
             font-size: 13px;
-            background: rgba(30, 30, 30, 0.5);
+            background: rgba(20, 20, 20, 0.4);
+            border: none;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 0;
+        }
+
+        .collapsible.sub.open {
+            background: rgba(30, 30, 30, 0.6);
         }
 
         .collapsible:active {
             box-shadow: 0 0 10px rgba(255, 255, 255, 0.8);
         }
 
+        /* 抽屉式菜单 - 整体容器边框 */
+        .menu-section {
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 5px;
+            margin-bottom: 0;
+            overflow: hidden;
+        }
+
+        .menu-section > .collapsible {
+            border-radius: 0;
+        }
+
+        .menu-section > .collapsible:first-child {
+            border-top-left-radius: 4px;
+            border-top-right-radius: 4px;
+        }
+
         .collapsible-content {
             max-height: 0;
             overflow: hidden;
             transition: max-height 0.25s ease-in-out;
+            background: rgba(15, 15, 15, 0.3);
         }
 
         .collapsible.open + .collapsible-content {
@@ -111,11 +197,11 @@
         }
 
         .collapsible-content .control-group {
-            margin: 8px 0;
+            margin: 0;
             padding: 8px;
-            border: 1px solid #555;
-            border-radius: 5px;
-            background: rgba(30, 30, 30, 0.5);
+            border: none;
+            border-radius: 0;
+            background: transparent;
         }
 
         .panel-section-title {
@@ -125,9 +211,47 @@
         }
 
         .material-list {
-            max-height: 180px;
-            overflow-y: auto;
-            padding-right: 4px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            max-height: none;
+            overflow-y: visible;
+            padding-right: 0;
+        }
+
+        .material-item {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0;
+            border: 2px solid transparent;
+            border-radius: 50%;
+            background: transparent;
+            margin-bottom: 0;
+            cursor: pointer;
+            width: 24px;
+            height: 24px;
+            transition: border-color 0.3s ease-in-out, transform 0.2s ease;
+        }
+
+        .material-item:hover {
+            transform: scale(1.15);
+        }
+
+        .material-item.active {
+            border-color: rgba(255, 255, 255, 0.9);
+        }
+
+        .material-item .color-circle {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            margin: 0;
+            border: 1px solid rgba(255,255,255,0.3);
+        }
+
+        .material-item .material-name {
+            display: none;
         }
 
         .collapsible-content label {
@@ -137,9 +261,29 @@
         }
 
         .collapsible-content input[type="range"],
-        .collapsible-content select,
-        .collapsible-content input[type="color"] {
+        .collapsible-content select {
             width: 100%;
+        }
+
+        /* 颜色选择器样式 - 单独一行显示 */
+        .collapsible-content input[type="color"] {
+            display: block;
+            width: 100%;
+            height: 32px;
+            padding: 0;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 4px;
+            cursor: pointer;
+            background: transparent;
+        }
+
+        .collapsible-content input[type="color"]::-webkit-color-swatch-wrapper {
+            padding: 2px;
+        }
+
+        .collapsible-content input[type="color"]::-webkit-color-swatch {
+            border: none;
+            border-radius: 2px;
         }
 
         .range-row {
@@ -161,47 +305,142 @@
             padding: 2px 4px;
         }
 
-        .material-item {
-            display: flex;
-            align-items: center;
-            padding: 5px;
-            border: 1px solid #555;
-            border-radius: 5px;
-            background: rgba(30, 30, 30, 0.5);
-            margin-bottom: 5px;
-            cursor: pointer;
-            height: 30px;
-            transition: border-color 0.3s ease-in-out;
-        }
-
-        .material-item.active {
-            border-color: rgba(255, 255, 255, 0.8);
-        }
-
-        .material-item .color-circle {
-            width: 20px;
-            height: 20px;
-            border-radius: 50%;
-            margin-right: 10px;
-        }
-
-        .material-item .material-name {
-            font-size: 12px;
-            color: white;
-            flex-grow: 1;
-        }
-
-        /* 修改进度条样式为显示 "loading..." 动画 */
+        /* 加载进度遮罩 */
         #loadingBarContainer {
             position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
+            inset: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
             font-family: "Arial", sans-serif;
-            font-size: 20px;
-            font-weight: 300; /* 使用细等线字体 */
-            color: white; /* 修改文字颜色为白色 */
+            font-size: 14px;
+            font-weight: 300;
+            color: white;
             z-index: 2000;
+            background: #000;
+        }
+
+        #loadingBarLabel {
+            font-size: 24px;
+            letter-spacing: 2px;
+            font-weight: 300;
+        }
+
+        #loadingDots {
+            display: inline-flex;
+            align-items: center;
+            margin-left: 6px;
+        }
+
+        #loadingDots span {
+            opacity: 0.2;
+            animation: dotBlink 1.0s infinite;
+        }
+
+        #loadingDots span:nth-child(1) { animation-delay: 0s; }
+        #loadingDots span:nth-child(2) { animation-delay: 0.15s; }
+        #loadingDots span:nth-child(3) { animation-delay: 0.30s; }
+
+        @keyframes dotBlink {
+            0%, 80%, 100% { opacity: 0.2; }
+            40% { opacity: 1; }
+        }
+
+        #loadingPercent {
+            font-size: 10px;
+            opacity: 0.65;
+            letter-spacing: 0.5px;
+        }
+
+        /* 左侧材质属性面板 */
+        #materialPanel {
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 100%;
+            width: 200px;
+            background: rgba(30, 30, 30, 0.5);
+            backdrop-filter: blur(10px);
+            color: white;
+            display: flex;
+            flex-direction: column;
+            padding: 10px;
+            padding-bottom: 20px;
+            box-sizing: border-box;
+            border-right: 1px solid #444;
+            transform: translateX(-100%);
+            transition: transform 0.3s ease-in-out;
+            overflow-y: auto;
+            overscroll-behavior: contain;
+            -webkit-overflow-scrolling: touch;
+            z-index: 1200;
+            font-size: 14px;
+        }
+
+        #materialPanel.visible {
+            transform: translateX(0);
+        }
+
+        /* 左侧折叠按钮 */
+        #toggleLeftPanelButton {
+            position: absolute;
+            bottom: 20px;
+            left: 10px;
+            width: 40px;
+            height: 40px;
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            z-index: 1100;
+            transition: left 0.3s ease-in-out;
+        }
+
+        #toggleLeftPanelButton.panel-visible {
+            left: 210px;
+        }
+
+        #toggleLeftPanelButton .arrow-right {
+            opacity: 1;
+        }
+
+        #toggleLeftPanelButton .arrow-left {
+            opacity: 0;
+        }
+
+        #toggleLeftPanelButton.panel-visible .arrow-right {
+            opacity: 0;
+        }
+
+        #toggleLeftPanelButton.panel-visible .arrow-left {
+            opacity: 1;
+        }
+
+        /* 材质复位按钮 */
+        #resetMaterialButton {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 4px;
+            color: white;
+            cursor: pointer;
+            padding: 4px 8px;
+            font-size: 18px;
+            transition: background 0.2s;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #resetMaterialButton:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .material-list-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
         }
     </style>
     <script src="https://cdn.babylonjs.com/babylon.js"></script>
@@ -209,33 +448,45 @@
     <script src="https://cdn.babylonjs.com/materialsLibrary/babylonjs.materials.min.js"></script>
 </head>
 <body>
-    <div id="loadingBarContainer">loading<span id="loadingDots"></span></div>
-    <canvas id="renderCanvas" style="width: 100vw; height: 100vh;"></canvas>
-    <button id="togglePanelButton">
-        <span class="icon icon-left">◀</span>
-        <span class="icon icon-right">▶</span>
+    <div id="loadingBarContainer">
+        <div id="loadingBarLabel">Loading<span id="loadingDots" aria-hidden="true"><span>.</span><span>.</span><span>.</span></span></div>
+        <div id="loadingPercent">Created by Aye</div>
+    </div>
+    <canvas id="renderCanvas" style="width: 100vw; height: 100vh; visibility: hidden;"></canvas>
+    <button id="togglePanelButton" class="hidden">
+        <div class="toggle-arrow arrow-left"></div>
+        <div class="toggle-arrow arrow-right"></div>
     </button>
-    <div id="infoPanel" class="hidden" style="position: absolute; top: 0; right: 0; height: 100%; color: white; font-size: 14px; padding: 10px; border-left: 1px solid #444;">
-        <div class="collapsible open">模型&材质</div>
-        <div class="collapsible-content">
-            <div class="control-group">
-                <div class="panel-section-title">材质搜索</div>
-                <input type="text" id="materialSearch" placeholder="搜索材质..." style="width: 100%;">
-            </div>
-            <div class="control-group">
-                <div class="panel-section-title">材质列表</div>
-                <div id="materialList" class="material-list">
-                    <!-- 材质列表 -->
+    <button id="toggleLeftPanelButton">
+        <div class="toggle-arrow arrow-left"></div>
+        <div class="toggle-arrow arrow-right"></div>
+    </button>
+    <div id="materialPanel">
+        <div class="menu-section">
+            <div class="collapsible open">材质列表</div>
+            <div class="collapsible-content">
+                <div class="control-group">
+                    <div class="material-list-header">
+                        <span style="font-size: 12px; color: rgba(255,255,255,0.8);">所有材质</span>
+                        <button id="resetMaterialButton" title="复位所有材质">↻</button>
+                    </div>
+                    <div id="materialList" class="material-list">
+                        <!-- 材质列表 -->
+                    </div>
                 </div>
             </div>
-            <div class="control-group" id="materialDetails" style="padding-top: 10px; border-top: 1px solid #555;">
-                <p id="selectedMaterialName" style="margin: 0; padding: 5px 0; border-bottom: 1px solid #555;">材质详情</p>
+        </div>
+        <div class="menu-section">
+            <div class="collapsible open" id="materialDetailHeader">材质详情</div>
+            <div class="collapsible-content">
                 <div id="materialProperties"></div>
             </div>
         </div>
-
-        <div class="collapsible open">渲染表现</div>
-        <div class="collapsible-content">
+    </div>
+    <div id="infoPanel" class="hidden" style="position: absolute; top: 0; right: 0; height: 100%; color: white; font-size: 14px; padding: 10px; border-left: 1px solid #444;">
+        <div class="menu-section">
+            <div class="collapsible open">渲染表现</div>
+            <div class="collapsible-content">
             <div class="collapsible sub open">控制</div>
             <div id="controlControls" class="collapsible-content">
                 <div class="control-group">
@@ -386,8 +637,8 @@
                         <label for="hdrSelect">HDR 贴图</label>
                         <select id="hdrSelect">
                             <option value="A">A.hdr</option>
-                            <option value="B">B.hdr</option>
-                            <option value="C" selected>C.hdr</option>
+                            <option value="B" selected>B.hdr</option>
+                            <option value="C">C.hdr</option>
                             <option value="D">D.hdr</option>
                         </select>
                         <label>
@@ -406,6 +657,23 @@
                     </div>
                 </div>
 
+                <div class="collapsible sub">背景层</div>
+                <div id="backgroundLayerControls" class="collapsible-content">
+                    <div class="control-group">
+                        <label>
+                            启用背景层
+                            <input type="checkbox" id="backgroundLayerEnable" style="margin-left: 6px;">
+                        </label>
+                        <label for="backgroundLayerColor">背景颜色</label>
+                        <input type="color" id="backgroundLayerColor" value="#1a1a1a">
+                        <label for="backgroundLayerOpacity">透明度</label>
+                        <div class="range-row">
+                            <input type="range" id="backgroundLayerOpacity" min="0" max="1" step="0.01" value="1">
+                            <input type="number" id="backgroundLayerOpacityValue" min="0" max="1" step="0.01" value="1">
+                        </div>
+                    </div>
+                </div>
+
                 <div class="collapsible sub">格线圆盘地面</div>
                 <div id="groundControls" class="collapsible-content">
                     <div class="control-group">
@@ -417,6 +685,11 @@
                         <div class="range-row">
                             <input type="range" id="gridGroundRadius" min="1" max="100" step="1" value="40">
                             <input type="number" id="gridGroundRadiusValue" min="1" max="100" step="1" value="40">
+                        </div>
+                        <label for="gridFadeWidth">过渡宽度</label>
+                        <div class="range-row">
+                            <input type="range" id="gridFadeWidth" min="0.01" max="0.5" step="0.01" value="0.15">
+                            <input type="number" id="gridFadeWidthValue" min="0.01" max="0.5" step="0.01" value="0.15">
                         </div>
                         <label for="gridGroundScale">圆盘缩放</label>
                         <div class="range-row">
@@ -430,8 +703,8 @@
                         </div>
                         <label for="gridLineThickness">格线粗细</label>
                         <div class="range-row">
-                            <input type="range" id="gridLineThickness" min="0.25" max="6" step="0.25" value="1">
-                            <input type="number" id="gridLineThicknessValue" min="0.25" max="6" step="0.25" value="1">
+                            <input type="range" id="gridLineThickness" min="0.1" max="6" step="0.1" value="0.5">
+                            <input type="number" id="gridLineThicknessValue" min="0.1" max="6" step="0.1" value="0.5">
                         </div>
                         <label for="gridLineColor">格线颜色</label>
                         <input type="color" id="gridLineColor" value="#9a9a9a">
@@ -484,33 +757,221 @@
                 </div>
             </div>
         </div>
+        </div>
     </div>
     <script>
         const canvas = document.getElementById("renderCanvas");
         const engine = new BABYLON.Engine(canvas, true);
 
         const loadingBarContainer = document.getElementById("loadingBarContainer");
-        const loadingDots = document.getElementById("loadingDots");
-
-        let dotCount = 0;
-        const loadingAnimation = setInterval(() => {
-            dotCount = (dotCount % 3) + 1; // 循环 1 到 3
-            loadingDots.textContent = ".".repeat(dotCount); // 动态更新点的数量
-        }, 500); // 每 500 毫秒更新一次
+        const loadingPercent = document.getElementById("loadingPercent");
 
         const hideLoadingBar = () => {
-            clearInterval(loadingAnimation); // 停止动画
             loadingBarContainer.style.display = "none";
         };
 
         const infoPanel = document.getElementById("infoPanel");
         const togglePanelButton = document.getElementById("togglePanelButton");
+        const toggleLeftPanelButton = document.getElementById("toggleLeftPanelButton");
+        const materialPanel = document.getElementById("materialPanel");
+        const materialDetailHeader = document.getElementById("materialDetailHeader");
+        const materialProperties = document.getElementById("materialProperties");
+
+        const CONFIG_STORAGE_KEY = "k3-ui-config-v1";
+        const MATERIAL_CONFIG_KEY = "k3-material-config-v1";
+
+        // 材质配置保存/加载
+        const saveMaterialConfig = (materialName, propertyName, value) => {
+            let config = {};
+            try {
+                const raw = localStorage.getItem(MATERIAL_CONFIG_KEY);
+                if (raw) config = JSON.parse(raw);
+            } catch (e) {
+                console.warn("材质配置读取失败", e);
+            }
+            if (!config[materialName]) config[materialName] = {};
+            config[materialName][propertyName] = value;
+            localStorage.setItem(MATERIAL_CONFIG_KEY, JSON.stringify(config));
+        };
+
+        const loadMaterialConfig = () => {
+            try {
+                const raw = localStorage.getItem(MATERIAL_CONFIG_KEY);
+                return raw ? JSON.parse(raw) : {};
+            } catch (e) {
+                console.warn("材质配置读取失败", e);
+                return {};
+            }
+        };
+
+        const applyMaterialConfig = (material, config) => {
+            if (!config) return;
+            
+            if (config.albedoColor) {
+                material.albedoColor = BABYLON.Color3.FromHexString(config.albedoColor);
+            }
+            if (config.metallic !== undefined) material.metallic = config.metallic;
+            if (config.roughness !== undefined) material.roughness = config.roughness;
+            if (config.emissiveColor) {
+                material.emissiveColor = BABYLON.Color3.FromHexString(config.emissiveColor);
+            }
+            if (config.emissiveIntensity !== undefined) material.emissiveIntensity = config.emissiveIntensity;
+            if (config.alpha !== undefined) material.alpha = config.alpha;
+            if (config.bumpLevel !== undefined && material.bumpTexture) {
+                material.bumpTexture.level = config.bumpLevel;
+            }
+            if (config.invertNormalMapX !== undefined) material.invertNormalMapX = config.invertNormalMapX;
+            if (config.invertNormalMapY !== undefined) material.invertNormalMapY = config.invertNormalMapY;
+            if (config.reflectivityColor) {
+                material.reflectivityColor = BABYLON.Color3.FromHexString(config.reflectivityColor);
+            }
+            if (config.ambientColor) {
+                material.ambientColor = BABYLON.Color3.FromHexString(config.ambientColor);
+            }
+            // clearCoat
+            if (config.clearCoatEnabled !== undefined && material.clearCoat) {
+                material.clearCoat.isEnabled = config.clearCoatEnabled;
+            }
+            if (config.clearCoatIntensity !== undefined && material.clearCoat) {
+                material.clearCoat.intensity = config.clearCoatIntensity;
+            }
+            if (config.clearCoatRoughness !== undefined && material.clearCoat) {
+                material.clearCoat.roughness = config.clearCoatRoughness;
+            }
+            // subSurface
+            if (config.refractionEnabled !== undefined && material.subSurface) {
+                material.subSurface.isRefractionEnabled = config.refractionEnabled;
+            }
+            if (config.indexOfRefraction !== undefined && material.subSurface) {
+                material.subSurface.indexOfRefraction = config.indexOfRefraction;
+            }
+            if (config.translucencyEnabled !== undefined && material.subSurface) {
+                material.subSurface.isTranslucencyEnabled = config.translucencyEnabled;
+            }
+            if (config.translucencyIntensity !== undefined && material.subSurface) {
+                material.subSurface.translucencyIntensity = config.translucencyIntensity;
+            }
+            // sheen
+            if (config.sheenEnabled !== undefined && material.sheen) {
+                material.sheen.isEnabled = config.sheenEnabled;
+            }
+            if (config.sheenIntensity !== undefined && material.sheen) {
+                material.sheen.intensity = config.sheenIntensity;
+            }
+            if (config.sheenColor && material.sheen) {
+                material.sheen.color = BABYLON.Color3.FromHexString(config.sheenColor);
+            }
+            // anisotropy
+            if (config.anisotropyEnabled !== undefined && material.anisotropy) {
+                material.anisotropy.isEnabled = config.anisotropyEnabled;
+            }
+            // transparencyMode
+            if (config.transparencyMode !== undefined) {
+                material.transparencyMode = config.transparencyMode;
+                material.markAsDirty(BABYLON.Material.MiscDirtyFlag);
+            }
+        };
+
+        const getConfigFromUI = () => {
+            const inputIds = [
+                "envMode", "solidColor", "solidOpacity",
+                "skyLuminance", "skyTurbidity", "skyRayleigh", "skyMieCoefficient", "skyMieDirectionalG",
+                "hdrEnable", "hdrSelect", "hdrShowSkybox", "hdrRotation", "hdrRotationSpeed",
+                "backgroundLayerEnable", "backgroundLayerColor", "backgroundLayerOpacity",
+                "gridGroundToggle", "gridGroundRadius", "gridGroundScale", "gridSpacing",
+                "gridLineThickness", "gridLineColor", "gridLineOpacity", "gridBaseColor", "gridBaseOpacity",
+                "dirLightIntensity", "dirLightX", "dirLightY", "dirLightZ", "dirLightColor", "dirLightOpacity",
+                "fxaaToggle", "ssaoToggle", "gyroToggle", "renderScale", "exposure", "contrast",
+                "shadowFilter", "shadowDarkness", "shadowBias", "shadowNormalBias", "shadowBlurKernel",
+                "mouseSensitivity", "keyboardMoveSpeed", "verticalMoveSpeed", "jumpSpeed"
+            ];
+
+            const values = {};
+            inputIds.forEach((id) => {
+                const el = document.getElementById(id);
+                if (!el) return;
+                values[id] = el.type === "checkbox" ? el.checked : el.value;
+            });
+
+            values.infoPanelHidden = infoPanel.classList.contains("hidden");
+            values.leftPanelVisible = materialPanel.classList.contains("visible");
+            return values;
+        };
+
+        const applyConfigToUI = (config) => {
+            if (!config || typeof config !== "object") return;
+            
+            Object.entries(config).forEach(([id, value]) => {
+                if (id === "infoPanelHidden") return;
+                const el = document.getElementById(id);
+                if (!el) return;
+                
+                if (el.type === "checkbox") {
+                    el.checked = Boolean(value);
+                } else if (value !== undefined && value !== null) {
+                    el.value = value;
+                }
+            });
+
+            if (typeof config.infoPanelHidden === "boolean") {
+                if (config.infoPanelHidden) {
+                    infoPanel.classList.add("hidden");
+                    togglePanelButton.classList.add("hidden");
+                } else {
+                    infoPanel.classList.remove("hidden");
+                    togglePanelButton.classList.remove("hidden");
+                }
+            }
+            
+            if (typeof config.leftPanelVisible === "boolean") {
+                if (config.leftPanelVisible) {
+                    materialPanel.classList.add("visible");
+                    toggleLeftPanelButton.classList.add("panel-visible");
+                } else {
+                    materialPanel.classList.remove("visible");
+                    toggleLeftPanelButton.classList.remove("panel-visible");
+                }
+            }
+        };
+
+        const saveConfig = () => {
+            const config = getConfigFromUI();
+            localStorage.setItem(CONFIG_STORAGE_KEY, JSON.stringify(config));
+        };
+
+        const scheduleSaveConfig = (() => {
+            let timer = null;
+            return () => {
+                if (timer) clearTimeout(timer);
+                timer = setTimeout(saveConfig, 200);
+            };
+        })();
+
+        const loadConfig = () => {
+            try {
+                const raw = localStorage.getItem(CONFIG_STORAGE_KEY);
+                return raw ? JSON.parse(raw) : null;
+            } catch (error) {
+                console.warn("配置读取失败", error);
+                return null;
+            }
+        };
 
         togglePanelButton.addEventListener("click", () => {
             const isHidden = infoPanel.classList.toggle("hidden");
             togglePanelButton.classList.toggle("hidden");
-            togglePanelButton.style.right = isHidden ? "10px" : "210px";
+            scheduleSaveConfig();
         });
+
+        // 左侧面板折叠按钮
+        toggleLeftPanelButton.addEventListener("click", () => {
+            const isVisible = materialPanel.classList.toggle("visible");
+            toggleLeftPanelButton.classList.toggle("panel-visible");
+            scheduleSaveConfig();
+        });
+
+        // 材质复位按钮 - 稍后在材质加载后绑定
+        let resetMaterialButton = null;
 
         document.querySelectorAll(".collapsible").forEach(collapsible => {
             collapsible.addEventListener("click", () => {
@@ -537,11 +998,17 @@
         const skyRayleighValue = document.getElementById("skyRayleighValue");
         const skyMieCoefficientValue = document.getElementById("skyMieCoefficientValue");
         const skyMieDirectionalGValue = document.getElementById("skyMieDirectionalGValue");
-        const materialSearchInput = document.getElementById("materialSearch");
+
+        const backgroundLayerEnable = document.getElementById("backgroundLayerEnable");
+        const backgroundLayerColor = document.getElementById("backgroundLayerColor");
+        const backgroundLayerOpacity = document.getElementById("backgroundLayerOpacity");
+        const backgroundLayerOpacityValue = document.getElementById("backgroundLayerOpacityValue");
 
         const gridGroundToggle = document.getElementById("gridGroundToggle");
         const gridGroundRadiusInput = document.getElementById("gridGroundRadius");
         const gridGroundRadiusValue = document.getElementById("gridGroundRadiusValue");
+        const gridFadeWidthInput = document.getElementById("gridFadeWidth");
+        const gridFadeWidthValue = document.getElementById("gridFadeWidthValue");
         const gridGroundScaleInput = document.getElementById("gridGroundScale");
         const gridGroundScaleValue = document.getElementById("gridGroundScaleValue");
         const gridSpacingInput = document.getElementById("gridSpacing");
@@ -614,30 +1081,33 @@
             if (!rangeEl || !numberEl) {
                 return;
             }
-            const clamp = (value) => {
-                const min = parseFloat(rangeEl.min);
-                const max = parseFloat(rangeEl.max);
-                const step = parseFloat(rangeEl.step) || 1;
-                let num = parseFloat(value);
-                if (Number.isNaN(num)) {
-                    num = parseFloat(rangeEl.value);
-                }
-                num = Math.min(max, Math.max(min, num));
-                const snapped = Math.round(num / step) * step;
-                return Number.isFinite(snapped) ? snapped : num;
-            };
-
+            // 移除数字输入的min/max限制，允许突破范围
+            numberEl.removeAttribute('min');
+            numberEl.removeAttribute('max');
+            
             const syncFromRange = () => {
                 numberEl.value = rangeEl.value;
             };
 
-            rangeEl.addEventListener("input", syncFromRange);
-            numberEl.addEventListener("input", (event) => {
-                const value = clamp(event.target.value);
-                rangeEl.value = value;
-                numberEl.value = value;
+            const syncFromNumber = () => {
+                const step = parseFloat(rangeEl.step) || 1;
+                let num = parseFloat(numberEl.value);
+                if (Number.isNaN(num)) {
+                    num = parseFloat(rangeEl.value);
+                }
+                // 对滑块范围内的值进行同步
+                const min = parseFloat(rangeEl.min);
+                const max = parseFloat(rangeEl.max);
+                const clampedForSlider = Math.min(max, Math.max(min, num));
+                rangeEl.value = clampedForSlider;
+                // 但数字输入保持用户输入的值
+                numberEl.value = num;
                 rangeEl.dispatchEvent(new Event("input"));
-            });
+            };
+
+            rangeEl.addEventListener("input", syncFromRange);
+            numberEl.addEventListener("input", syncFromNumber);
+            numberEl.addEventListener("change", syncFromNumber);
 
             syncFromRange();
         };
@@ -651,8 +1121,10 @@
         linkRangeNumber(skyMieCoefficientInput, skyMieCoefficientValue);
         linkRangeNumber(skyMieDirectionalGInput, skyMieDirectionalGValue);
         linkRangeNumber(hdrRotationSpeedInput, hdrRotationSpeedValue);
+        linkRangeNumber(backgroundLayerOpacity, backgroundLayerOpacityValue);
 
         linkRangeNumber(gridGroundRadiusInput, gridGroundRadiusValue);
+        linkRangeNumber(gridFadeWidthInput, gridFadeWidthValue);
         linkRangeNumber(gridGroundScaleInput, gridGroundScaleValue);
         linkRangeNumber(gridSpacingInput, gridSpacingValue);
         linkRangeNumber(gridLineThicknessInput, gridLineThicknessValue);
@@ -678,6 +1150,38 @@
         linkRangeNumber(keyboardMoveSpeedInput, keyboardMoveSpeedValue);
         linkRangeNumber(verticalMoveSpeedInput, verticalMoveSpeedValue);
         linkRangeNumber(jumpSpeedInput, jumpSpeedValue);
+
+        // 应用保存的配置
+        const initialConfig = loadConfig();
+        applyConfigToUI(initialConfig);
+        updateEnvironmentUI();
+
+        // 为所有配置项添加自动保存监听器
+        [
+            "envMode", "solidColor", "solidOpacity",
+            "skyLuminance", "skyTurbidity", "skyRayleigh", "skyMieCoefficient", "skyMieDirectionalG",
+            "hdrEnable", "hdrSelect", "hdrShowSkybox", "hdrRotation", "hdrRotationSpeed",
+            "backgroundLayerEnable", "backgroundLayerColor", "backgroundLayerOpacity",
+            "gridGroundToggle", "gridGroundRadius", "gridGroundScale", "gridSpacing",
+            "gridLineThickness", "gridLineColor", "gridLineOpacity", "gridBaseColor", "gridBaseOpacity",
+            "dirLightIntensity", "dirLightX", "dirLightY", "dirLightZ", "dirLightColor", "dirLightOpacity",
+            "fxaaToggle", "ssaoToggle", "gyroToggle", "renderScale", "exposure", "contrast",
+            "shadowFilter", "shadowDarkness", "shadowBias", "shadowNormalBias", "shadowBlurKernel",
+            "mouseSensitivity", "keyboardMoveSpeed", "verticalMoveSpeed", "jumpSpeed"
+        ].forEach((id) => {
+            const el = document.getElementById(id);
+            if (!el) return;
+            const eventName = el.type === "checkbox" || el.tagName === "SELECT" ? "change" : "input";
+            el.addEventListener(eventName, scheduleSaveConfig);
+        });
+
+        let scene = null;
+        let renderLoopStarted = false;
+        const startRenderLoop = () => {
+            if (renderLoopStarted || !scene) return;
+            renderLoopStarted = true;
+            engine.runRenderLoop(() => scene.render());
+        };
 
         const createScene = () => {
             const scene = new BABYLON.Scene(engine);
@@ -756,8 +1260,8 @@
                 const spacing = parseFloat(gridSpacingInput.value);
                 const lineWidth = parseFloat(gridLineThicknessInput.value);
 
-                const lineColor = BABYLON.Color3.FromHexString(gridLineColorInput.value);
-                const baseColor = BABYLON.Color3.FromHexString(gridBaseColorInput.value);
+                const lineColor = BABYLON.Color3.FromHexString(gridLineColorInput.value || "#9a9a9a");
+                const baseColor = BABYLON.Color3.FromHexString(gridBaseColorInput.value || "#2b2b2b");
                 const lineAlpha = parseFloat(gridLineOpacityInput.value);
                 const baseAlpha = parseFloat(gridBaseOpacityInput.value);
 
@@ -788,9 +1292,11 @@
                 const fadeRadius = Math.max(1, Math.min(gridMeshRadius, parseFloat(gridGroundRadiusInput.value)));
                 const fadeRatio = fadeRadius / gridMeshRadius;
                 const fadeRadiusPx = maxRadiusPx * fadeRatio;
+                const fadeWidth = parseFloat(gridFadeWidthInput.value); // 获取过渡宽度
+                const fadeStart = Math.max(0, 1 - fadeWidth); // 计算过渡开始位置
                 const gradient = ctx.createRadialGradient(center, center, 0, center, center, fadeRadiusPx);
                 gradient.addColorStop(0, "rgba(255,255,255,1)");
-                gradient.addColorStop(0.85, "rgba(255,255,255,1)");
+                gradient.addColorStop(fadeStart, "rgba(255,255,255,1)");
                 gradient.addColorStop(1, "rgba(255,255,255,0)");
                 ctx.fillStyle = gradient;
                 ctx.fillRect(0, 0, size, size);
@@ -821,30 +1327,40 @@
                 const mode = envModeSelect.value;
                 disposeEnvironment();
 
+                // 检查是否启用背景层
+                const backgroundLayerEnabled = backgroundLayerEnable.checked;
+
                 if (mode === "solid") {
                     scene.environmentTexture = null;
-                    const color = BABYLON.Color3.FromHexString(solidColorInput.value);
+                    const color = BABYLON.Color3.FromHexString(solidColorInput.value || "#000000");
                     const alpha = parseFloat(solidOpacityInput.value);
                     scene.clearColor = new BABYLON.Color4(color.r, color.g, color.b, alpha);
                 }
 
                 if (mode === "procedural") {
                     scene.environmentTexture = null;
-                    scene.clearColor = new BABYLON.Color4(0, 0, 0, 1);
-                    const skybox = BABYLON.MeshBuilder.CreateBox("proceduralSkyBox", { size: 1000 }, scene);
-                    const skyMaterial = new BABYLON.SkyMaterial("skyMaterial", scene);
-                    skyMaterial.backFaceCulling = false;
-                    skyMaterial.disableLighting = true;
-                    skyMaterial.luminance = parseFloat(skyLuminanceInput.value);
-                    skyMaterial.turbidity = parseFloat(skyTurbidityInput.value);
-                    skyMaterial.rayleigh = parseFloat(skyRayleighInput.value);
-                    skyMaterial.mieCoefficient = parseFloat(skyMieCoefficientInput.value);
-                    skyMaterial.mieDirectionalG = parseFloat(skyMieDirectionalGInput.value);
-                    skybox.material = skyMaterial;
-                    skybox.infiniteDistance = true;
-                    skybox.isPickable = false;
-                    currentSkybox = skybox;
-                    currentSkyMaterial = skyMaterial;
+                    if (!backgroundLayerEnabled) {
+                        scene.clearColor = new BABYLON.Color4(0, 0, 0, 1);
+                        const skybox = BABYLON.MeshBuilder.CreateBox("proceduralSkyBox", { size: 1000 }, scene);
+                        const skyMaterial = new BABYLON.SkyMaterial("skyMaterial", scene);
+                        skyMaterial.backFaceCulling = false;
+                        skyMaterial.disableLighting = true;
+                        skyMaterial.luminance = parseFloat(skyLuminanceInput.value);
+                        skyMaterial.turbidity = parseFloat(skyTurbidityInput.value);
+                        skyMaterial.rayleigh = parseFloat(skyRayleighInput.value);
+                        skyMaterial.mieCoefficient = parseFloat(skyMieCoefficientInput.value);
+                        skyMaterial.mieDirectionalG = parseFloat(skyMieDirectionalGInput.value);
+                        skybox.material = skyMaterial;
+                        skybox.infiniteDistance = true;
+                        skybox.isPickable = false;
+                        currentSkybox = skybox;
+                        currentSkyMaterial = skyMaterial;
+                    } else {
+                        // 应用背景层颜色
+                        const bgColor = BABYLON.Color3.FromHexString(backgroundLayerColor.value || "#1a1a1a");
+                        const bgAlpha = parseFloat(backgroundLayerOpacity.value);
+                        scene.clearColor = new BABYLON.Color4(bgColor.r, bgColor.g, bgColor.b, bgAlpha);
+                    }
                 }
 
                 if (mode === "hdr") {
@@ -853,12 +1369,23 @@
                         scene.clearColor = new BABYLON.Color4(0, 0, 0, 1);
                         return;
                     }
-                    scene.clearColor = new BABYLON.Color4(0, 0, 0, 1);
+                    
+                    // HDR环境贴图始终加载（用于反射和光照）
                     const hdrTexture = new BABYLON.HDRCubeTexture(hdrFiles[hdrSelect.value], scene, 2048);
                     scene.environmentTexture = hdrTexture;
                     currentHdrTexture = hdrTexture;
-                    if (showHdrSkybox) {
-                        currentSkybox = scene.createDefaultSkybox(hdrTexture, true, 1000);
+                    
+                    if (backgroundLayerEnabled) {
+                        // 启用背景层时：不显示天空盒，使用背景层颜色
+                        const bgColor = BABYLON.Color3.FromHexString(backgroundLayerColor.value || "#1a1a1a");
+                        const bgAlpha = parseFloat(backgroundLayerOpacity.value);
+                        scene.clearColor = new BABYLON.Color4(bgColor.r, bgColor.g, bgColor.b, bgAlpha);
+                    } else {
+                        // 未启用背景层时：根据设置决定是否显示天空盒
+                        scene.clearColor = new BABYLON.Color4(0, 0, 0, 1);
+                        if (showHdrSkybox) {
+                            currentSkybox = scene.createDefaultSkybox(hdrTexture, true, 1000);
+                        }
                     }
                 }
             };
@@ -887,7 +1414,7 @@
             // 额外可调 DirectionalLight
             const uiDirectionalLight = new BABYLON.DirectionalLight("uiDirectionalLight", new BABYLON.Vector3(-1, -2, -1), scene);
             uiDirectionalLight.intensity = parseFloat(dirLightIntensityInput.value);
-            uiDirectionalLight.diffuse = BABYLON.Color3.FromHexString(dirLightColorInput.value);
+            uiDirectionalLight.diffuse = BABYLON.Color3.FromHexString(dirLightColorInput.value || "#ffffff");
 
             // 添加日光阴影
             const sunShadowGenerator = new BABYLON.ShadowGenerator(4096, sunLight);
@@ -934,8 +1461,8 @@
                 if (event.code === "KeyS") movementState.back = true;
                 if (event.code === "KeyA") movementState.left = true;
                 if (event.code === "KeyD") movementState.right = true;
-                if (event.code === "KeyQ") movementState.down = true;
-                if (event.code === "KeyE") movementState.up = true;
+                if (event.code === "KeyE") movementState.down = true;
+                if (event.code === "KeyQ") movementState.up = true;
                 if (event.code === "Space") movementState.jump = true;
             });
 
@@ -944,8 +1471,8 @@
                 if (event.code === "KeyS") movementState.back = false;
                 if (event.code === "KeyA") movementState.left = false;
                 if (event.code === "KeyD") movementState.right = false;
-                if (event.code === "KeyQ") movementState.down = false;
-                if (event.code === "KeyE") movementState.up = false;
+                if (event.code === "KeyE") movementState.down = false;
+                if (event.code === "KeyQ") movementState.up = false;
                 if (event.code === "Space") movementState.jump = false;
             });
 
@@ -975,7 +1502,7 @@
                 );
                 uiDirectionalLight.direction = direction;
                 uiDirectionalLight.intensity = parseFloat(dirLightIntensityInput.value);
-                const lightColor = BABYLON.Color3.FromHexString(dirLightColorInput.value);
+                const lightColor = BABYLON.Color3.FromHexString(dirLightColorInput.value || "#ffffff");
                 const lightAlpha = parseFloat(dirLightOpacityInput.value);
                 uiDirectionalLight.diffuse = lightColor.scale(lightAlpha);
             };
@@ -1091,7 +1618,6 @@
                 updateEnvironmentUI();
                 applyEnvironment();
             });
-            solidColorInput.addEventListener("input", applyEnvironment);
             solidOpacityInput.addEventListener("input", applyEnvironment);
             hdrEnableToggle.addEventListener("change", (event) => {
                 hdrEnabled = event.target.checked;
@@ -1109,6 +1635,24 @@
                 hdrRotationSpeed = parseFloat(event.target.value);
             });
 
+            backgroundLayerEnable.addEventListener("change", applyEnvironment);
+            // 优化背景层颜色/透明度更改 - 只更新clearColor
+            const updateBackgroundLayer = () => {
+                const backgroundLayerEnabled = backgroundLayerEnable.checked;
+                if (backgroundLayerEnabled) {
+                    const bgColor = BABYLON.Color3.FromHexString(backgroundLayerColor.value || "#1a1a1a");
+                    const bgAlpha = parseFloat(backgroundLayerOpacity.value);
+                    scene.clearColor = new BABYLON.Color4(bgColor.r, bgColor.g, bgColor.b, bgAlpha);
+                } else {
+                    // 如果背景层未启用，恢复默认
+                    if (envModeSelect.value === "hdr" && hdrEnableToggle.checked) {
+                        scene.clearColor = new BABYLON.Color4(0, 0, 0, 1);
+                    }
+                }
+                scheduleSaveConfig();
+            };
+            backgroundLayerOpacity.addEventListener("input", updateBackgroundLayer);
+
             const updateProceduralSky = () => {
                 if (currentSkyMaterial) {
                     currentSkyMaterial.luminance = parseFloat(skyLuminanceInput.value);
@@ -1125,11 +1669,17 @@
             skyMieCoefficientInput.addEventListener("input", updateProceduralSky);
             skyMieDirectionalGInput.addEventListener("input", updateProceduralSky);
 
+            // 颜色输入事件监听
+            dirLightColorInput.addEventListener("input", updateDirectionalLight);
+            solidColorInput.addEventListener("input", applyEnvironment);
+            backgroundLayerColor.addEventListener("input", updateBackgroundLayer);
+            gridLineColorInput.addEventListener("input", updateGridGround);
+            gridBaseColorInput.addEventListener("input", updateGridGround);
+
             dirLightIntensityInput.addEventListener("input", updateDirectionalLight);
             dirLightXInput.addEventListener("input", updateDirectionalLight);
             dirLightYInput.addEventListener("input", updateDirectionalLight);
             dirLightZInput.addEventListener("input", updateDirectionalLight);
-            dirLightColorInput.addEventListener("input", updateDirectionalLight);
             dirLightOpacityInput.addEventListener("input", updateDirectionalLight);
 
             fxaaToggle.addEventListener("change", updateRenderSettings);
@@ -1140,12 +1690,11 @@
 
             gridGroundToggle.addEventListener("change", updateGridGround);
             gridGroundRadiusInput.addEventListener("input", updateGridGround);
+            gridFadeWidthInput.addEventListener("input", updateGridGround);
             gridGroundScaleInput.addEventListener("input", updateGridGround);
             gridSpacingInput.addEventListener("input", updateGridGround);
             gridLineThicknessInput.addEventListener("input", updateGridGround);
-            gridLineColorInput.addEventListener("input", updateGridGround);
             gridLineOpacityInput.addEventListener("input", updateGridGround);
-            gridBaseColorInput.addEventListener("input", updateGridGround);
             gridBaseOpacityInput.addEventListener("input", updateGridGround);
 
             gyroToggle.addEventListener("change", updateGyroControl);
@@ -1176,14 +1725,22 @@
             updateControlSettings();
             updateGridGround();
 
-            // 加载模型并更新进度条
-            BABYLON.SceneLoader.LoadAssetContainer("models/", "model.glb", scene, (container) => {
-                console.log("模型加载完成！");
-                container.addAllToScene();
-                hideLoadingBar(); // 隐藏加载动画
+            // 显示加载动画
+            loadingBarContainer.style.display = "flex";
+            // 让 canvas 在 loading 期间就开始渲染/编译（遮罩盖在上面）
+            canvas.style.visibility = "visible";
+            if (loadingPercent) loadingPercent.textContent = "Created by Aye";
 
-                // 将模型添加到场景中
-                container.addAllToScene();
+            // 加载模型
+            BABYLON.SceneLoader.LoadAssetContainer(
+                "models/", 
+                "model.glb", 
+                scene, 
+                (container) => {
+                    console.log("模型加载完成！");
+                    container.addAllToScene();
+                    
+                    startRenderLoop();
 
                 // 设置模型的默认变换
                 container.meshes.forEach(mesh => {
@@ -1210,7 +1767,31 @@
                 const materialList = document.getElementById("materialList");
                 materialList.innerHTML = ""; // 清空材质列表
 
+                // 绑定材质复位按钮
+                resetMaterialButton = document.getElementById("resetMaterialButton");
+                if (resetMaterialButton) {
+                    resetMaterialButton.addEventListener("click", () => {
+                        // 清除所有保存的材质配置
+                        localStorage.removeItem(MATERIAL_CONFIG_KEY);
+                        
+                        // 重新加载模型以恢复默认材质
+                        alert("材质已复位，即将重新加载模型...");
+                        location.reload();
+                    });
+                }
+
+                // 加载并应用保存的材质配置
+                const savedMaterialConfigs = loadMaterialConfig();
                 const sortedMaterials = scene.materials.sort((a, b) => a.name.localeCompare(b.name));
+                
+                // 应用保存的材质配置
+                sortedMaterials.forEach(material => {
+                    const config = savedMaterialConfigs[material.name];
+                    if (config) {
+                        applyMaterialConfig(material, config);
+                    }
+                });
+
                 const materialItems = [];
                 const renderMaterialList = (filterText = "") => {
                     materialList.innerHTML = "";
@@ -1227,6 +1808,7 @@
                 sortedMaterials.forEach(material => {
                     const materialItem = document.createElement("div");
                     materialItem.className = "material-item";
+                    materialItem.title = material.name; // 悬停显示材质名称
 
                     const colorCircle = document.createElement("div");
                     colorCircle.className = "color-circle";
@@ -1245,40 +1827,43 @@
                         document.querySelectorAll(".material-item").forEach(item => item.classList.remove("active"));
                         materialItem.classList.add("active");
 
-                        const materialDetails = document.getElementById("materialDetails");
-                        const selectedMaterialName = document.getElementById("selectedMaterialName");
-                        const materialProperties = document.getElementById("materialProperties");
-
-                        materialDetails.style.display = "block";
-                        selectedMaterialName.innerText = `材质详情: ${material.name}`;
+                        // 确保左侧面板可见
+                        if (!materialPanel.classList.contains("visible")) {
+                            materialPanel.classList.add("visible");
+                            toggleLeftPanelButton.classList.add("panel-visible");
+                        }
+                        materialDetailHeader.innerText = `材质: ${material.name}`;
                         materialProperties.innerHTML = "";
 
-                        const createSection = (title) => {
+                        // 使用与右侧相同的折叠样式
+                        const createMaterialSection = (title, isOpen = false) => {
                             const section = document.createElement("div");
-                            section.style.marginTop = "10px";
-                            section.style.padding = "10px";
-                            section.style.border = "1px solid #555";
-                            section.style.borderRadius = "5px";
-                            section.style.background = "rgba(30, 30, 30, 0.7)";
-                            section.style.backdropFilter = "blur(10px)";
-                            section.style.cursor = "pointer";
-
-                            const header = document.createElement("h4");
-                            header.innerText = title;
-                            header.style.margin = "0";
-                            header.style.cursor = "pointer";
-                            header.addEventListener("click", () => {
-                                const content = section.querySelector(".content");
-                                content.style.display = content.style.display === "none" ? "block" : "none";
-                            });
-
+                            section.className = "collapsible sub" + (isOpen ? " open" : "");
+                            section.innerText = title;
+                            
                             const content = document.createElement("div");
-                            content.className = "content";
-                            content.style.display = "none";
-
-                            section.appendChild(header);
-                            section.appendChild(content);
+                            content.className = "collapsible-content";
+                            if (!isOpen) {
+                                content.style.maxHeight = "0";
+                            }
+                            
+                            section.addEventListener("click", () => {
+                                section.classList.toggle("open");
+                                if (section.classList.contains("open")) {
+                                    content.style.maxHeight = "2000px";
+                                } else {
+                                    content.style.maxHeight = "0";
+                                }
+                            });
+                            
                             return { section, content };
+                        };
+
+                        const addControlGroup = (items) => {
+                            const group = document.createElement("div");
+                            group.className = "control-group";
+                            items.forEach(item => group.appendChild(item));
+                            return group;
                         };
 
                         const addColorPicker = (labelText, color, onChange) => {
@@ -1289,13 +1874,6 @@
                             const input = document.createElement("input");
                             input.type = "color";
                             input.value = color.toHexString();
-                            input.style.borderRadius = "50%";
-                            input.style.width = "40px";
-                            input.style.height = "40px";
-                            input.style.border = "none";
-                            input.style.background = "rgba(30, 30, 30, 0.7)";
-                            input.style.backdropFilter = "blur(10px)";
-                            input.style.cursor = "pointer";
                             input.addEventListener("input", (event) => {
                                 const newColor = BABYLON.Color3.FromHexString(event.target.value);
                                 onChange(newColor);
@@ -1316,10 +1894,10 @@
                             input.max = max;
                             input.step = step;
                             input.value = value;
+                            
                             const numberInput = document.createElement("input");
                             numberInput.type = "number";
-                            numberInput.min = min;
-                            numberInput.max = max;
+                            // 移除min/max限制，允许突破范围
                             numberInput.step = step;
                             numberInput.value = value;
 
@@ -1328,22 +1906,26 @@
                             wrapper.appendChild(input);
                             wrapper.appendChild(numberInput);
 
-                            const sync = (val) => {
-                                const num = parseFloat(val);
-                                if (Number.isNaN(num)) {
-                                    return;
-                                }
-                                input.value = num;
-                                numberInput.value = num;
-                                onChange(num);
+                            const syncFromRange = () => {
+                                const val = parseFloat(input.value);
+                                numberInput.value = val;
+                                onChange(val);
                             };
 
-                            input.addEventListener("input", (event) => {
-                                sync(event.target.value);
-                            });
-                            numberInput.addEventListener("input", (event) => {
-                                sync(event.target.value);
-                            });
+                            const syncFromNumber = () => {
+                                const val = parseFloat(numberInput.value);
+                                if (!Number.isNaN(val)) {
+                                    // 如果数值在范围内，同步滑块
+                                    if (val >= min && val <= max) {
+                                        input.value = val;
+                                    }
+                                    onChange(val);
+                                }
+                            };
+
+                            input.addEventListener("input", syncFromRange);
+                            numberInput.addEventListener("input", syncFromNumber);
+                            numberInput.addEventListener("change", syncFromNumber);
 
                             label.appendChild(wrapper);
                             return label;
@@ -1366,154 +1948,218 @@
                             return label;
                         };
 
-                        const { section: baseSection, content: baseContent } = createSection("基础属性");
-                        baseContent.appendChild(addColorPicker("基础色:", material.albedoColor || BABYLON.Color3.White(), (color) => {
-                            material.albedoColor = color;
-                            colorCircle.style.backgroundColor = color.toHexString();
-                        }));
-                        baseContent.appendChild(addRangeInput("金属度:", material.metallic || 0, 0, 1, 0.01, (value) => {
-                            material.metallic = value;
-                        }));
-                        baseContent.appendChild(addRangeInput("粗糙度:", material.roughness || 0, 0, 1, 0.01, (value) => {
-                            material.roughness = value;
-                        }));
+                        const { section: baseSection, content: baseContent } = createMaterialSection("基础属性", true);
+                        const baseGroup = addControlGroup([
+                            addColorPicker("基础色:", material.albedoColor || BABYLON.Color3.White(), (color) => {
+                                material.albedoColor = color;
+                                colorCircle.style.backgroundColor = color.toHexString();
+                                saveMaterialConfig(material.name, "albedoColor", color.toHexString());
+                            }),
+                            addRangeInput("金属度:", material.metallic || 0, 0, 1, 0.01, (value) => {
+                                material.metallic = value;
+                                saveMaterialConfig(material.name, "metallic", value);
+                            }),
+                            addRangeInput("粗糙度:", material.roughness || 0, 0, 1, 0.01, (value) => {
+                                material.roughness = value;
+                                saveMaterialConfig(material.name, "roughness", value);
+                            }),
+                            addColorPicker("发光颜色:", material.emissiveColor || BABYLON.Color3.Black(), (color) => {
+                                material.emissiveColor = color;
+                                saveMaterialConfig(material.name, "emissiveColor", color.toHexString());
+                            }),
+                            addRangeInput("发光强度:", material.emissiveIntensity || 0, 0, 10, 0.1, (value) => {
+                                material.emissiveIntensity = value;
+                                saveMaterialConfig(material.name, "emissiveIntensity", value);
+                            }),
+                            addRangeInput("透明度:", material.alpha || 1, 0, 1, 0.01, (value) => {
+                                material.alpha = value;
+                                saveMaterialConfig(material.name, "alpha", value);
+                            }),
+                            addRangeInput("透明模式:", material.transparencyMode !== null ? material.transparencyMode : 0, 0, 2, 1, (value) => {
+                                material.transparencyMode = parseInt(value);
+                                material.markAsDirty(BABYLON.Material.MiscDirtyFlag);
+                                saveMaterialConfig(material.name, "transparencyMode", parseInt(value));
+                            }),
+                            addRangeInput("折射率 (IOR):", material.indexOfRefraction || 1.5, 1, 3, 0.01, (value) => {
+                                material.indexOfRefraction = value;
+                                saveMaterialConfig(material.name, "indexOfRefraction", value);
+                            })
+                        ]);
+                        baseContent.appendChild(baseGroup);
                         materialProperties.appendChild(baseSection);
+                        materialProperties.appendChild(baseContent);
 
-                        const { section: emissiveSection, content: emissiveContent } = createSection("发光属性");
-                        emissiveContent.appendChild(addColorPicker("发光颜色:", material.emissiveColor || BABYLON.Color3.Black(), (color) => {
-                            material.emissiveColor = color;
-                        }));
-                        emissiveContent.appendChild(addRangeInput("发光强度:", material.emissiveIntensity || 0, 0, 10, 0.1, (value) => {
-                            material.emissiveIntensity = value;
-                        }));
-                        materialProperties.appendChild(emissiveSection);
-
-                        const { section: bumpSection, content: bumpContent } = createSection("法线和凹凸");
-                        bumpContent.appendChild(addRangeInput("凹凸强度:", material.bumpTexture ? material.bumpTexture.level : 0.5, 0, 1, 0.01, (value) => {
-                            if (material.bumpTexture) {
-                                material.bumpTexture.level = value;
-                            }
-                        }));
-                        bumpContent.appendChild(addCheckbox("反转法线 X:", material.invertNormalMapX || false, (checked) => {
-                            material.invertNormalMapX = checked;
-                        }));
-                        bumpContent.appendChild(addCheckbox("反转法线 Y:", material.invertNormalMapY || false, (checked) => {
-                            material.invertNormalMapY = checked;
-                        }));
+                        const { section: bumpSection, content: bumpContent } = createMaterialSection("法线和凹凸");
+                        const bumpGroup = addControlGroup([
+                            addRangeInput("凹凸强度:", material.bumpTexture ? material.bumpTexture.level : 0.5, 0, 2, 0.01, (value) => {
+                                if (material.bumpTexture) {
+                                    material.bumpTexture.level = value;
+                                    saveMaterialConfig(material.name, "bumpLevel", value);
+                                }
+                            }),
+                            addCheckbox("反转法线 X:", material.invertNormalMapX || false, (checked) => {
+                                material.invertNormalMapX = checked;
+                                saveMaterialConfig(material.name, "invertNormalMapX", checked);
+                            }),
+                            addCheckbox("反转法线 Y:", material.invertNormalMapY || false, (checked) => {
+                                material.invertNormalMapY = checked;
+                                saveMaterialConfig(material.name, "invertNormalMapY", checked);
+                            })
+                        ]);
+                        bumpContent.appendChild(bumpGroup);
                         materialProperties.appendChild(bumpSection);
+                        materialProperties.appendChild(bumpContent);
 
-                        const { section: reflectionSection, content: reflectionContent } = createSection("环境光和反射");
-                        reflectionContent.appendChild(addColorPicker("反射颜色:", material.reflectivityColor || BABYLON.Color3.White(), (color) => {
-                            material.reflectivityColor = color;
-                        }));
+                        const { section: reflectionSection, content: reflectionContent } = createMaterialSection("反射和高光");
+                        const reflectionGroup = addControlGroup([
+                            addColorPicker("反射颜色:", material.reflectivityColor || BABYLON.Color3.White(), (color) => {
+                                material.reflectivityColor = color;
+                                saveMaterialConfig(material.name, "reflectivityColor", color.toHexString());
+                            }),
+                            addColorPicker("高光颜色:", material.specularColor || BABYLON.Color3.White(), (color) => {
+                                material.specularColor = color;
+                                saveMaterialConfig(material.name, "specularColor", color.toHexString());
+                            }),
+                            addRangeInput("高光强度:", material.specularIntensity || 1, 0, 1, 0.01, (value) => {
+                                material.specularIntensity = value;
+                                saveMaterialConfig(material.name, "specularIntensity", value);
+                            }),
+                            addColorPicker("环境光颜色:", material.ambientColor || BABYLON.Color3.Black(), (color) => {
+                                material.ambientColor = color;
+                                saveMaterialConfig(material.name, "ambientColor", color.toHexString());
+                            })
+                        ]);
+                        reflectionContent.appendChild(reflectionGroup);
                         materialProperties.appendChild(reflectionSection);
+                        materialProperties.appendChild(reflectionContent);
 
-                        const { section: alphaSection, content: alphaContent } = createSection("透明度和不透明度");
-                        alphaContent.appendChild(addRangeInput("透明度:", material.alpha || 1, 0, 1, 0.01, (value) => {
-                            material.alpha = value;
-                        }));
-                        alphaContent.appendChild(addCheckbox("启用不透明度纹理:", material.opacityTexture !== undefined, (checked) => {
-                            if (checked) {
-                                material.opacityTexture = new BABYLON.Texture("path/to/opacityTexture.jpg", scene);
-                            } else {
-                                material.opacityTexture = null;
-                            }
-                        }));
-                        alphaContent.appendChild(addRangeInput("透明模式:", BABYLON.PBRMaterial.PBRMATERIAL_ALPHABLEND, 0, 2, 1, (value) => {
-                            material.transparencyMode = value;
-                        }));
-                        materialProperties.appendChild(alphaSection);
-
-                        const { section: sssSection, content: sssContent } = createSection("次表面散射");
-                        sssContent.appendChild(addCheckbox("启用折射:", material.subSurface?.isRefractionEnabled || false, (checked) => {
-                            material.subSurface.isRefractionEnabled = checked;
-                        }));
-                        sssContent.appendChild(addCheckbox("启用折射纹理:", material.subSurface?.refractionTexture !== undefined, (checked) => {
-                            if (checked) {
-                                material.subSurface.refractionTexture = new BABYLON.Texture("path/to/refractionTexture.jpg", scene);
-                            } else {
-                                material.subSurface.refractionTexture = null;
-                            }
-                        }));
-                        sssContent.appendChild(addRangeInput("折射率:", material.subSurface?.indexOfRefraction || 1.5, 1, 2.5, 0.01, (value) => {
-                            material.subSurface.indexOfRefraction = value;
-                        }));
-                        sssContent.appendChild(addCheckbox("启用半透明:", material.subSurface?.isTranslucencyEnabled || false, (checked) => {
-                            material.subSurface.isTranslucencyEnabled = checked;
-                        }));
-                        sssContent.appendChild(addRangeInput("半透明强度:", material.subSurface?.translucencyIntensity || 0, 0, 1, 0.01, (value) => {
-                            material.subSurface.translucencyIntensity = value;
-                        }));
+                        const { section: sssSection, content: sssContent } = createMaterialSection("次表面散射");
+                        const sssGroup = addControlGroup([
+                            addCheckbox("启用折射:", material.subSurface?.isRefractionEnabled || false, (checked) => {
+                                material.subSurface.isRefractionEnabled = checked;
+                                saveMaterialConfig(material.name, "refractionEnabled", checked);
+                            }),
+                            addRangeInput("折射率:", material.subSurface?.indexOfRefraction || 1.5, 1, 2.5, 0.01, (value) => {
+                                material.subSurface.indexOfRefraction = value;
+                                saveMaterialConfig(material.name, "indexOfRefraction", value);
+                            }),
+                            addCheckbox("启用半透明:", material.subSurface?.isTranslucencyEnabled || false, (checked) => {
+                                material.subSurface.isTranslucencyEnabled = checked;
+                                saveMaterialConfig(material.name, "translucencyEnabled", checked);
+                            }),
+                            addRangeInput("半透明强度:", material.subSurface?.translucencyIntensity || 0, 0, 1, 0.01, (value) => {
+                                material.subSurface.translucencyIntensity = value;
+                                saveMaterialConfig(material.name, "translucencyIntensity", value);
+                            }),
+                            addColorPicker("半透明颜色:", material.subSurface?.tintColor || BABYLON.Color3.White(), (color) => {
+                                if (material.subSurface) {
+                                    material.subSurface.tintColor = color;
+                                    saveMaterialConfig(material.name, "subSurfaceTintColor", color.toHexString());
+                                }
+                            })
+                        ]);
+                        sssContent.appendChild(sssGroup);
                         materialProperties.appendChild(sssSection);
+                        materialProperties.appendChild(sssContent);
 
-                        const { section: clearCoatSection, content: clearCoatContent } = createSection("清漆层");
-                        clearCoatContent.appendChild(addCheckbox("启用清漆层:", material.clearCoat?.isEnabled || false, (checked) => {
-                            material.clearCoat.isEnabled = checked;
-                        }));
-                        clearCoatContent.appendChild(addRangeInput("清漆层强度:", material.clearCoat?.intensity || 0, 0, 1, 0.01, (value) => {
-                            material.clearCoat.intensity = value;
-                        }));
-                        clearCoatContent.appendChild(addRangeInput("清漆层粗糙度:", material.clearCoat?.roughness || 0, 0, 1, 0.01, (value) => {
-                            material.clearCoat.roughness = value;
-                        }));
-                        clearCoatContent.appendChild(addCheckbox("启用清漆层纹理:", material.clearCoat?.texture !== undefined, (checked) => {
-                            if (checked) {
-                                material.clearCoat.texture = new BABYLON.Texture("path/to/texture.jpg", scene);
-                            } else {
-                                material.clearCoat.texture = null;
-                            }
-                        }));
+                        const { section: clearCoatSection, content: clearCoatContent } = createMaterialSection("清漆层");
+                        const clearCoatGroup = addControlGroup([
+                            addCheckbox("启用清漆层:", material.clearCoat?.isEnabled || false, (checked) => {
+                                material.clearCoat.isEnabled = checked;
+                                saveMaterialConfig(material.name, "clearCoatEnabled", checked);
+                            }),
+                            addRangeInput("清漆层强度:", material.clearCoat?.intensity || 0, 0, 1, 0.01, (value) => {
+                                material.clearCoat.intensity = value;
+                                saveMaterialConfig(material.name, "clearCoatIntensity", value);
+                            }),
+                            addRangeInput("清漆层粗糙度:", material.clearCoat?.roughness || 0, 0, 1, 0.01, (value) => {
+                                material.clearCoat.roughness = value;
+                                saveMaterialConfig(material.name, "clearCoatRoughness", value);
+                            }),
+                            addRangeInput("清漆层IOR:", material.clearCoat?.indexOfRefraction || 1.5, 1, 3, 0.01, (value) => {
+                                material.clearCoat.indexOfRefraction = value;
+                                saveMaterialConfig(material.name, "clearCoatIOR", value);
+                            })
+                        ]);
+                        clearCoatContent.appendChild(clearCoatGroup);
                         materialProperties.appendChild(clearCoatSection);
+                        materialProperties.appendChild(clearCoatContent);
 
-                        const { section: anisotropySection, content: anisotropyContent } = createSection("各向异性");
-                        anisotropyContent.appendChild(addCheckbox("启用各向异性:", material.anisotropy?.isEnabled || false, (checked) => {
-                            material.anisotropy.isEnabled = checked;
-                        }));
+                        const { section: sheenSection, content: sheenContent } = createMaterialSection("绒面效果");
+                        const sheenGroup = addControlGroup([
+                            addCheckbox("启用绒面效果:", material.sheen?.isEnabled || false, (checked) => {
+                                material.sheen.isEnabled = checked;
+                                saveMaterialConfig(material.name, "sheenEnabled", checked);
+                            }),
+                            addRangeInput("绒面强度:", material.sheen?.intensity || 0, 0, 1, 0.01, (value) => {
+                                material.sheen.intensity = value;
+                                saveMaterialConfig(material.name, "sheenIntensity", value);
+                            }),
+                            addColorPicker("绒面颜色:", material.sheen?.color || BABYLON.Color3.White(), (color) => {
+                                material.sheen.color = color;
+                                saveMaterialConfig(material.name, "sheenColor", color.toHexString());
+                            }),
+                            addRangeInput("绒面粗糙度:", material.sheen?.roughness || 0.1, 0, 1, 0.01, (value) => {
+                                if (material.sheen) {
+                                    material.sheen.roughness = value;
+                                    saveMaterialConfig(material.name, "sheenRoughness", value);
+                                }
+                            })
+                        ]);
+                        sheenContent.appendChild(sheenGroup);
+                        materialProperties.appendChild(sheenSection);
+                        materialProperties.appendChild(sheenContent);
+
+                        const { section: anisotropySection, content: anisotropyContent } = createMaterialSection("各向异性");
+                        const anisotropyGroup = addControlGroup([
+                            addCheckbox("启用各向异性:", material.anisotropy?.isEnabled || false, (checked) => {
+                                material.anisotropy.isEnabled = checked;
+                                saveMaterialConfig(material.name, "anisotropyEnabled", checked);
+                            }),
+                            addRangeInput("各向异性强度:", material.anisotropy?.intensity || 0, 0, 1, 0.01, (value) => {
+                                if (material.anisotropy) {
+                                    material.anisotropy.intensity = value;
+                                    saveMaterialConfig(material.name, "anisotropyIntensity", value);
+                                }
+                            }),
+                            addRangeInput("各向异性角度:", material.anisotropy?.angle || 0, 0, Math.PI * 2, 0.01, (value) => {
+                                if (material.anisotropy) {
+                                    material.anisotropy.angle = value;
+                                    saveMaterialConfig(material.name, "anisotropyAngle", value);
+                                }
+                            })
+                        ]);
+                        anisotropyContent.appendChild(anisotropyGroup);
                         materialProperties.appendChild(anisotropySection);
-
-                        const { section: otherSection, content: otherContent } = createSection("其他属性");
-                        otherContent.appendChild(addColorPicker("环境光颜色:", material.ambientColor || BABYLON.Color3.Black(), (color) => {
-                            material.ambientColor = color;
-                        }));
-                        otherContent.appendChild(addCheckbox("启用环境光纹理:", material.ambientTexture !== undefined, (checked) => {
-                            if (checked) {
-                                material.ambientTexture = new BABYLON.Texture("path/to/ambientTexture.jpg", scene);
-                            } else {
-                                material.ambientTexture = null;
-                            }
-                        }));
-                        otherContent.appendChild(addCheckbox("启用绒面效果:", material.sheen?.isEnabled || false, (checked) => {
-                            material.sheen.isEnabled = checked;
-                        }));
-                        otherContent.appendChild(addRangeInput("绒面强度:", material.sheen?.intensity || 0, 0, 1, 0.01, (value) => {
-                            material.sheen.intensity = value;
-                        }));
-                        otherContent.appendChild(addColorPicker("绒面颜色:", material.sheen?.color || BABYLON.Color3.White(), (color) => {
-                            material.sheen.color = color;
-                        }));
-                        materialProperties.appendChild(otherSection);
+                        materialProperties.appendChild(anisotropyContent);
                     });
                 });
 
-                materialSearchInput.addEventListener("input", (event) => {
-                    renderMaterialList(event.target.value);
+                renderMaterialList("");
+
+                // 等场景真正 ready（含材质/纹理/着色器准备）后再结束 loading
+                scene.executeWhenReady(() => {
+                    hideLoadingBar();
                 });
-                renderMaterialList(materialSearchInput.value || "");
-            }, null, (evt) => {
-                // 模拟加载进度（可选）
-                if (evt.lengthComputable) {
-                    const progress = evt.loaded / evt.total;
-                    console.log(`加载进度: ${(progress * 100).toFixed(2)}%`);
+            }, (evt) => {
+                // 加载进度回调
+                if (evt && evt.lengthComputable && evt.total > 0) {
+                    const progress = Math.round((evt.loaded / evt.total) * 100);
+                    // 保持署名文本，不在这里覆盖
+                    void progress;
                 }
+            }, (evt) => {
+                console.warn("模型加载失败", evt);
+                showLoadError("模型加载失败");
+                startRenderLoop();
             });
 
             return scene;
         };
 
-        const scene = createScene();
+        scene = createScene();
 
         window.addEventListener("resize", () => engine.resize());
-        engine.runRenderLoop(() => scene.render());
     </script>
 </body>
 </html>
