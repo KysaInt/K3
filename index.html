@@ -779,29 +779,67 @@
 
         const CONFIG_STORAGE_KEY = "k3-ui-config-v1";
         const MATERIAL_CONFIG_KEY = "k3-material-config-v1";
+        const DEFAULT_UI_CONFIG_KEY = "k3-ui-default-v1";
+        const DEFAULT_MATERIAL_CONFIG_KEY = "k3-material-default-v1";
+
+        const readStorageJson = (key) => {
+            try {
+                const raw = localStorage.getItem(key);
+                return raw ? JSON.parse(raw) : null;
+            } catch (error) {
+                console.warn("配置读取失败", error);
+                return null;
+            }
+        };
+
+        const writeStorageJson = (key, value) => {
+            try {
+                localStorage.setItem(key, JSON.stringify(value));
+            } catch (error) {
+                console.warn("配置保存失败", error);
+            }
+        };
 
         // 材质配置保存/加载
-        const saveMaterialConfig = (materialName, propertyName, value) => {
-            let config = {};
-            try {
-                const raw = localStorage.getItem(MATERIAL_CONFIG_KEY);
-                if (raw) config = JSON.parse(raw);
-            } catch (e) {
-                console.warn("材质配置读取失败", e);
+        const mergeMaterialConfigs = (baseConfig, overrideConfig) => {
+            const merged = { ...(baseConfig || {}) };
+            if (!overrideConfig || typeof overrideConfig !== "object") {
+                return merged;
             }
+            Object.entries(overrideConfig).forEach(([materialName, properties]) => {
+                merged[materialName] = {
+                    ...(merged[materialName] || {}),
+                    ...(properties || {})
+                };
+            });
+            return merged;
+        };
+
+        const getDefaultMaterialConfig = () => {
+            const storedDefault = readStorageJson(DEFAULT_MATERIAL_CONFIG_KEY);
+            if (storedDefault) {
+                return storedDefault;
+            }
+            const saved = readStorageJson(MATERIAL_CONFIG_KEY);
+            if (saved && typeof saved === "object") {
+                writeStorageJson(DEFAULT_MATERIAL_CONFIG_KEY, saved);
+                return saved;
+            }
+            return {};
+        };
+
+        const saveMaterialConfig = (materialName, propertyName, value) => {
+            const config = readStorageJson(MATERIAL_CONFIG_KEY) || {};
             if (!config[materialName]) config[materialName] = {};
             config[materialName][propertyName] = value;
-            localStorage.setItem(MATERIAL_CONFIG_KEY, JSON.stringify(config));
+            writeStorageJson(MATERIAL_CONFIG_KEY, config);
+            writeStorageJson(DEFAULT_MATERIAL_CONFIG_KEY, config);
         };
 
         const loadMaterialConfig = () => {
-            try {
-                const raw = localStorage.getItem(MATERIAL_CONFIG_KEY);
-                return raw ? JSON.parse(raw) : {};
-            } catch (e) {
-                console.warn("材质配置读取失败", e);
-                return {};
-            }
+            const defaultConfig = getDefaultMaterialConfig();
+            const savedConfig = readStorageJson(MATERIAL_CONFIG_KEY) || {};
+            return mergeMaterialConfigs(defaultConfig, savedConfig);
         };
 
         const applyMaterialConfig = (material, config) => {
@@ -898,6 +936,25 @@
             return values;
         };
 
+        const mergeUiConfig = (baseConfig, overrideConfig) => {
+            return { ...(baseConfig || {}), ...(overrideConfig || {}) };
+        };
+
+        const getDefaultUiConfig = () => {
+            const baseDefaults = getConfigFromUI();
+            const storedDefault = readStorageJson(DEFAULT_UI_CONFIG_KEY);
+            if (storedDefault) {
+                return mergeUiConfig(baseDefaults, storedDefault);
+            }
+            const saved = readStorageJson(CONFIG_STORAGE_KEY);
+            if (saved && typeof saved === "object") {
+                const merged = mergeUiConfig(baseDefaults, saved);
+                writeStorageJson(DEFAULT_UI_CONFIG_KEY, merged);
+                return merged;
+            }
+            return baseDefaults;
+        };
+
         const applyConfigToUI = (config) => {
             if (!config || typeof config !== "object") return;
             
@@ -936,7 +993,8 @@
 
         const saveConfig = () => {
             const config = getConfigFromUI();
-            localStorage.setItem(CONFIG_STORAGE_KEY, JSON.stringify(config));
+            writeStorageJson(CONFIG_STORAGE_KEY, config);
+            writeStorageJson(DEFAULT_UI_CONFIG_KEY, config);
         };
 
         const scheduleSaveConfig = (() => {
@@ -948,13 +1006,9 @@
         })();
 
         const loadConfig = () => {
-            try {
-                const raw = localStorage.getItem(CONFIG_STORAGE_KEY);
-                return raw ? JSON.parse(raw) : null;
-            } catch (error) {
-                console.warn("配置读取失败", error);
-                return null;
-            }
+            const defaults = getDefaultUiConfig();
+            const saved = readStorageJson(CONFIG_STORAGE_KEY);
+            return mergeUiConfig(defaults, saved || {});
         };
 
         togglePanelButton.addEventListener("click", () => {
@@ -1155,6 +1209,7 @@
         const initialConfig = loadConfig();
         applyConfigToUI(initialConfig);
         updateEnvironmentUI();
+        writeStorageJson(DEFAULT_UI_CONFIG_KEY, getConfigFromUI());
 
         // 为所有配置项添加自动保存监听器
         [
@@ -1789,6 +1844,7 @@
                     resetMaterialButton.addEventListener("click", () => {
                         // 清除所有保存的材质配置
                         localStorage.removeItem(MATERIAL_CONFIG_KEY);
+                        localStorage.removeItem(DEFAULT_MATERIAL_CONFIG_KEY);
                         
                         // 重新加载模型以恢复默认材质
                         alert("材质已复位，即将重新加载模型...");
