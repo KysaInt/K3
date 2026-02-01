@@ -655,7 +655,7 @@
                         </select>
                         <label>
                             显示天空盒
-                            <input type="checkbox" id="hdrShowSkybox" checked style="margin-left: 6px;">
+                            <input type="checkbox" id="hdrShowSkybox" style="margin-left: 6px;">
                         </label>
                         <label>
                             HDR 旋转
@@ -812,13 +812,30 @@
             }
         };
 
-        const CONFIG_SERVER_BASE = "/api/config";
+        const CONFIG_SERVER_BASE = `${window.location.origin}/api/config`;
+        const FALLBACK_CONFIG_SERVER_BASE = "http://localhost:3000/api/config";
         let serverConfigAvailable = false;
+
+        const requestConfig = async (base, type, options = {}) => {
+            const res = await fetch(`${base}/${type}`, options);
+            if (!res.ok) return null;
+            return res;
+        };
 
         const loadServerConfig = async (type) => {
             try {
-                const res = await fetch(`${CONFIG_SERVER_BASE}/${type}`, { cache: "no-store" });
-                if (!res.ok) return null;
+                const res = await requestConfig(CONFIG_SERVER_BASE, type, { cache: "no-store" });
+                if (res) {
+                    const data = await res.json();
+                    serverConfigAvailable = true;
+                    return data;
+                }
+            } catch (error) {
+                // ignore
+            }
+            try {
+                const res = await requestConfig(FALLBACK_CONFIG_SERVER_BASE, type, { cache: "no-store" });
+                if (!res) return null;
                 const data = await res.json();
                 serverConfigAvailable = true;
                 return data;
@@ -828,16 +845,27 @@
         };
 
         const saveServerConfig = async (type, data) => {
+            const options = {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(data)
+            };
             try {
-                const res = await fetch(`${CONFIG_SERVER_BASE}/${type}`, {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify(data)
-                });
-                if (res.ok) {
+                const res = await requestConfig(CONFIG_SERVER_BASE, type, options);
+                if (res) {
                     serverConfigAvailable = true;
+                    return true;
                 }
-                return res.ok;
+            } catch (error) {
+                // ignore
+            }
+            try {
+                const res = await requestConfig(FALLBACK_CONFIG_SERVER_BASE, type, options);
+                if (res) {
+                    serverConfigAvailable = true;
+                    return true;
+                }
+                return false;
             } catch (error) {
                 return false;
             }
