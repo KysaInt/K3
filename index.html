@@ -73,6 +73,12 @@
             transition: box-shadow 0.3s ease-in-out;
         }
 
+        .collapsible.sub {
+            margin-left: 10px;
+            font-size: 13px;
+            background: rgba(30, 30, 30, 0.5);
+        }
+
         .collapsible:active {
             box-shadow: 0 0 10px rgba(255, 255, 255, 0.8);
         }
@@ -83,6 +89,26 @@
 
         .collapsible.open + .collapsible-content {
             display: block;
+        }
+
+        .collapsible-content .control-group {
+            margin: 8px 0;
+            padding: 8px;
+            border: 1px solid #555;
+            border-radius: 5px;
+            background: rgba(30, 30, 30, 0.5);
+        }
+
+        .collapsible-content label {
+            display: block;
+            font-size: 12px;
+            margin: 6px 0 4px;
+        }
+
+        .collapsible-content input[type="range"],
+        .collapsible-content select,
+        .collapsible-content input[type="color"] {
+            width: 100%;
         }
 
         .material-item {
@@ -130,6 +156,7 @@
     </style>
     <script src="https://cdn.babylonjs.com/babylon.js"></script>
     <script src="https://cdn.babylonjs.com/loaders/babylonjs.loaders.min.js"></script>
+    <script src="https://cdn.babylonjs.com/materialsLibrary/babylonjs.materials.min.js"></script>
 </head>
 <body>
     <div id="loadingBarContainer">loading<span id="loadingDots"></span></div>
@@ -139,14 +166,118 @@
         <span class="icon icon-right">▶</span>
     </button>
     <div id="infoPanel" class="hidden" style="position: absolute; top: 0; right: 0; height: 100%; color: white; font-size: 14px; padding: 10px; border-left: 1px solid #444;">
-        <div class="collapsible">材质</div>
-        <div id="materialList" class="collapsible-content">
-            <!-- 材质列表 -->
+        <div class="collapsible">模型&材质</div>
+        <div class="collapsible-content">
+            <div class="collapsible sub">材质列表</div>
+            <div id="materialList" class="collapsible-content">
+                <!-- 材质列表 -->
+            </div>
+            <div class="collapsible sub">详情</div>
+            <div id="materialDetails" class="collapsible-content" style="padding-top: 10px; border-top: 1px solid #555;">
+                <p id="selectedMaterialName" style="margin: 0; padding: 5px 0; border-bottom: 1px solid #555;">材质详情</p>
+                <div id="materialProperties"></div>
+            </div>
         </div>
-        <div class="collapsible">详情</div>
-        <div id="materialDetails" class="collapsible-content" style="padding-top: 10px; border-top: 1px solid #555;">
-            <p id="selectedMaterialName" style="margin: 0; padding: 5px 0; border-bottom: 1px solid #555;">材质详情</p>
-            <div id="materialProperties"></div>
+
+        <div class="collapsible">环境</div>
+        <div id="environmentControls" class="collapsible-content">
+            <div class="control-group">
+                <label for="envMode">环境样式</label>
+                <select id="envMode">
+                    <option value="solid">纯色</option>
+                    <option value="procedural">Procedural Sky</option>
+                    <option value="hdr" selected>HDR 贴图</option>
+                </select>
+            </div>
+            <div id="solidControls" class="control-group">
+                <label for="solidColor">纯色颜色</label>
+                <input type="color" id="solidColor" value="#000000">
+            </div>
+            <div id="proceduralControls" class="control-group" style="display: none;">
+                <label for="skyLuminance">天空亮度</label>
+                <input type="range" id="skyLuminance" min="0" max="2" step="0.01" value="1">
+                <label for="skyTurbidity">浑浊度</label>
+                <input type="range" id="skyTurbidity" min="0" max="50" step="0.5" value="10">
+                <label for="skyRayleigh">瑞利散射</label>
+                <input type="range" id="skyRayleigh" min="0" max="4" step="0.01" value="2">
+                <label for="skyMieCoefficient">米氏系数</label>
+                <input type="range" id="skyMieCoefficient" min="0" max="0.01" step="0.0001" value="0.005">
+                <label for="skyMieDirectionalG">米氏方向性</label>
+                <input type="range" id="skyMieDirectionalG" min="0" max="1" step="0.01" value="0.8">
+            </div>
+            <div id="hdrControls" class="control-group">
+                <label for="hdrSelect">HDR 贴图</label>
+                <select id="hdrSelect">
+                    <option value="A">A.hdr</option>
+                    <option value="B">B.hdr</option>
+                    <option value="C" selected>C.hdr</option>
+                    <option value="D">D.hdr</option>
+                </select>
+                <label>
+                    显示天空盒
+                    <input type="checkbox" id="hdrShowSkybox" checked style="margin-left: 6px;">
+                </label>
+                <label>
+                    HDR 旋转
+                    <input type="checkbox" id="hdrRotation" checked style="margin-left: 6px;">
+                </label>
+                <label for="hdrRotationSpeed">旋转速度</label>
+                <input type="range" id="hdrRotationSpeed" min="0" max="0.01" step="0.0001" value="0.0002">
+            </div>
+            <div id="groundControls" class="control-group">
+                <label>
+                    启用格线圆盘地面
+                    <input type="checkbox" id="gridGroundToggle" checked style="margin-left: 6px;">
+                </label>
+                <label for="gridGroundRadius">地面半径</label>
+                <input type="range" id="gridGroundRadius" min="1" max="100" step="1" value="40">
+                <label for="gridLineThickness">格线粗细</label>
+                <input type="range" id="gridLineThickness" min="1" max="8" step="1" value="2">
+                <label for="gridLineColor">格线颜色</label>
+                <input type="color" id="gridLineColor" value="#9a9a9a">
+                <label for="gridBaseColor">地面颜色</label>
+                <input type="color" id="gridBaseColor" value="#2b2b2b">
+            </div>
+        </div>
+
+        <div class="collapsible">光照</div>
+        <div id="lightControls" class="collapsible-content">
+            <div class="control-group">
+                <label for="dirLightIntensity">方向光强度</label>
+                <input type="range" id="dirLightIntensity" min="0" max="5" step="0.05" value="0.8">
+                <label for="dirLightX">方向 X</label>
+                <input type="range" id="dirLightX" min="-1" max="1" step="0.01" value="-1">
+                <label for="dirLightY">方向 Y</label>
+                <input type="range" id="dirLightY" min="-1" max="1" step="0.01" value="-2">
+                <label for="dirLightZ">方向 Z</label>
+                <input type="range" id="dirLightZ" min="-1" max="1" step="0.01" value="-1">
+                <label for="dirLightColor">方向光颜色</label>
+                <input type="color" id="dirLightColor" value="#ffffff">
+            </div>
+        </div>
+
+        <div class="collapsible">渲染设置</div>
+        <div id="renderControls" class="collapsible-content">
+            <div class="control-group">
+                <label>
+                    启用 FXAA
+                    <input type="checkbox" id="fxaaToggle" checked style="margin-left: 6px;">
+                </label>
+                <label>
+                    启用 SSAO
+                    <input type="checkbox" id="ssaoToggle" checked style="margin-left: 6px;">
+                </label>
+                <label>
+                    启用陀螺仪控制
+                    <input type="checkbox" id="gyroToggle" style="margin-left: 6px;">
+                </label>
+                <label for="renderScale">渲染比例</label>
+                <input type="range" id="renderScale" min="0.5" max="1.5" step="0.05" value="1">
+                <label for="exposure">曝光</label>
+                <input type="range" id="exposure" min="0" max="2" step="0.01" value="1">
+                <label for="contrast">对比度</label>
+                <input type="range" id="contrast" min="0" max="2" step="0.01" value="1">
+            </div>
         </div>
     </div>
     <script>
@@ -182,38 +313,244 @@
             });
         });
 
+        const envModeSelect = document.getElementById("envMode");
+        const solidControls = document.getElementById("solidControls");
+        const proceduralControls = document.getElementById("proceduralControls");
+        const hdrControls = document.getElementById("hdrControls");
+        const solidColorInput = document.getElementById("solidColor");
+        const hdrSelect = document.getElementById("hdrSelect");
+        const hdrShowSkyboxToggle = document.getElementById("hdrShowSkybox");
+        const hdrRotationToggle = document.getElementById("hdrRotation");
+        const hdrRotationSpeedInput = document.getElementById("hdrRotationSpeed");
+
+        const gridGroundToggle = document.getElementById("gridGroundToggle");
+        const gridGroundRadiusInput = document.getElementById("gridGroundRadius");
+        const gridLineThicknessInput = document.getElementById("gridLineThickness");
+        const gridLineColorInput = document.getElementById("gridLineColor");
+        const gridBaseColorInput = document.getElementById("gridBaseColor");
+
+        const skyLuminanceInput = document.getElementById("skyLuminance");
+        const skyTurbidityInput = document.getElementById("skyTurbidity");
+        const skyRayleighInput = document.getElementById("skyRayleigh");
+        const skyMieCoefficientInput = document.getElementById("skyMieCoefficient");
+        const skyMieDirectionalGInput = document.getElementById("skyMieDirectionalG");
+
+        const dirLightIntensityInput = document.getElementById("dirLightIntensity");
+        const dirLightXInput = document.getElementById("dirLightX");
+        const dirLightYInput = document.getElementById("dirLightY");
+        const dirLightZInput = document.getElementById("dirLightZ");
+        const dirLightColorInput = document.getElementById("dirLightColor");
+
+        const fxaaToggle = document.getElementById("fxaaToggle");
+        const ssaoToggle = document.getElementById("ssaoToggle");
+        const gyroToggle = document.getElementById("gyroToggle");
+        const renderScaleInput = document.getElementById("renderScale");
+        const exposureInput = document.getElementById("exposure");
+        const contrastInput = document.getElementById("contrast");
+
+        const updateEnvironmentUI = () => {
+            const mode = envModeSelect.value;
+            solidControls.style.display = mode === "solid" ? "block" : "none";
+            proceduralControls.style.display = mode === "procedural" ? "block" : "none";
+            hdrControls.style.display = mode === "hdr" ? "block" : "none";
+        };
+
+        updateEnvironmentUI();
+
         const createScene = () => {
             const scene = new BABYLON.Scene(engine);
 
             // 设置场景背景为黑色
             scene.clearColor = new BABYLON.Color4(0, 0, 0, 1);
 
-            // 加载本地 HDR 环境纹理，分辨率提高到 2048
-            const hdrTexture = new BABYLON.HDRCubeTexture("env/env2k.hdr", scene, 2048);
-            scene.environmentTexture = hdrTexture;
+            const hdrFiles = {
+                A: "env/A.hdr",
+                B: "env/B.hdr",
+                C: "env/C.hdr",
+                D: "env/D.hdr"
+            };
 
-            // 启用环境光效果并创建默认天空盒
-            const skybox = scene.createDefaultSkybox(hdrTexture, true, 1000);
+            let currentHdrTexture = null;
+            let currentSkybox = null;
+            let currentSkyMaterial = null;
+            let hdrRotationEnabled = hdrRotationToggle.checked;
+            let hdrRotationSpeed = parseFloat(hdrRotationSpeedInput.value);
+            let showHdrSkybox = hdrShowSkyboxToggle.checked;
 
-            // 添加 HDR 和天空盒反向旋转动画，速度为当前的 1/5
+            const gridBaseRadius = 1;
+            let gridGround = null;
+            let gridGroundMaterial = null;
+            let gridGroundTexture = null;
+            let modelMinY = null;
+
+            const disposeEnvironment = () => {
+                if (currentSkybox) {
+                    currentSkybox.dispose();
+                    currentSkybox = null;
+                }
+                if (currentSkyMaterial) {
+                    currentSkyMaterial.dispose();
+                    currentSkyMaterial = null;
+                }
+                if (currentHdrTexture) {
+                    currentHdrTexture.dispose();
+                    currentHdrTexture = null;
+                }
+            };
+
+            const ensureGridGround = () => {
+                if (!gridGround) {
+                    gridGround = BABYLON.MeshBuilder.CreateDisc("gridGround", { radius: gridBaseRadius, tessellation: 128 }, scene);
+                    gridGround.rotation.x = Math.PI / 2;
+                    gridGround.isPickable = false;
+                    gridGround.receiveShadows = true;
+                    gridGround.setPivotPoint(BABYLON.Vector3.Zero());
+
+                    gridGroundMaterial = new BABYLON.StandardMaterial("gridGroundMat", scene);
+                    gridGroundMaterial.backFaceCulling = false;
+                    gridGroundMaterial.specularColor = new BABYLON.Color3(0, 0, 0);
+
+                    gridGroundTexture = new BABYLON.DynamicTexture("gridGroundTex", { width: 1024, height: 1024 }, scene, false);
+                    gridGroundTexture.hasAlpha = true;
+                    gridGroundTexture.wrapU = BABYLON.Texture.CLAMP_ADDRESSMODE;
+                    gridGroundTexture.wrapV = BABYLON.Texture.CLAMP_ADDRESSMODE;
+
+                    gridGroundMaterial.diffuseTexture = gridGroundTexture;
+                    gridGroundMaterial.opacityTexture = gridGroundTexture;
+                    gridGroundMaterial.transparencyMode = BABYLON.Material.MATERIAL_ALPHABLEND;
+                    gridGround.material = gridGroundMaterial;
+                }
+            };
+
+            const redrawGridTexture = () => {
+                if (!gridGroundTexture) {
+                    return;
+                }
+                const ctx = gridGroundTexture.getContext();
+                const size = 1024;
+                const spacing = 64;
+                const lineWidth = parseFloat(gridLineThicknessInput.value);
+
+                const lineColor = BABYLON.Color3.FromHexString(gridLineColorInput.value);
+                const baseColor = BABYLON.Color3.FromHexString(gridBaseColorInput.value);
+
+                ctx.clearRect(0, 0, size, size);
+                ctx.fillStyle = `rgb(${Math.round(baseColor.r * 255)}, ${Math.round(baseColor.g * 255)}, ${Math.round(baseColor.b * 255)})`;
+                ctx.fillRect(0, 0, size, size);
+
+                ctx.strokeStyle = `rgb(${Math.round(lineColor.r * 255)}, ${Math.round(lineColor.g * 255)}, ${Math.round(lineColor.b * 255)})`;
+                ctx.lineWidth = lineWidth;
+
+                for (let x = 0; x <= size; x += spacing) {
+                    ctx.beginPath();
+                    ctx.moveTo(x + 0.5, 0);
+                    ctx.lineTo(x + 0.5, size);
+                    ctx.stroke();
+                }
+                for (let y = 0; y <= size; y += spacing) {
+                    ctx.beginPath();
+                    ctx.moveTo(0, y + 0.5);
+                    ctx.lineTo(size, y + 0.5);
+                    ctx.stroke();
+                }
+
+                ctx.globalCompositeOperation = "destination-in";
+                const center = size / 2;
+                const radiusPx = size / 2;
+                const gradient = ctx.createRadialGradient(center, center, 0, center, center, radiusPx);
+                gradient.addColorStop(0, "rgba(255,255,255,1)");
+                gradient.addColorStop(0.6, "rgba(255,255,255,1)");
+                gradient.addColorStop(1, "rgba(255,255,255,0)");
+                ctx.fillStyle = gradient;
+                ctx.fillRect(0, 0, size, size);
+                ctx.globalCompositeOperation = "source-over";
+
+                gridGroundTexture.update(false);
+            };
+
+            const updateGridGround = () => {
+                ensureGridGround();
+                const enabled = gridGroundToggle.checked;
+                gridGround.setEnabled(enabled);
+                if (enabled) {
+                    const baseY = modelMinY !== null ? modelMinY : 0;
+                    gridGround.position.set(0, baseY, 0);
+                    const radius = parseFloat(gridGroundRadiusInput.value);
+                    // Disc is in XY plane by default; scale X/Y then rotate to XZ
+                    gridGround.scaling.set(radius, radius, 1);
+                    gridGroundTexture.uScale = 1;
+                    gridGroundTexture.vScale = 1;
+                    gridGround.rotationQuaternion = null;
+                    gridGround.rotation.x = Math.PI / 2;
+                }
+                redrawGridTexture();
+            };
+
+            const applyEnvironment = () => {
+                const mode = envModeSelect.value;
+                disposeEnvironment();
+
+                if (mode === "solid") {
+                    scene.environmentTexture = null;
+                    const color = BABYLON.Color3.FromHexString(solidColorInput.value);
+                    scene.clearColor = new BABYLON.Color4(color.r, color.g, color.b, 1);
+                }
+
+                if (mode === "procedural") {
+                    scene.environmentTexture = null;
+                    scene.clearColor = new BABYLON.Color4(0, 0, 0, 1);
+                    const skybox = BABYLON.MeshBuilder.CreateBox("proceduralSkyBox", { size: 1000 }, scene);
+                    const skyMaterial = new BABYLON.SkyMaterial("skyMaterial", scene);
+                    skyMaterial.backFaceCulling = false;
+                    skyMaterial.disableLighting = true;
+                    skyMaterial.luminance = parseFloat(skyLuminanceInput.value);
+                    skyMaterial.turbidity = parseFloat(skyTurbidityInput.value);
+                    skyMaterial.rayleigh = parseFloat(skyRayleighInput.value);
+                    skyMaterial.mieCoefficient = parseFloat(skyMieCoefficientInput.value);
+                    skyMaterial.mieDirectionalG = parseFloat(skyMieDirectionalGInput.value);
+                    skybox.material = skyMaterial;
+                    skybox.infiniteDistance = true;
+                    skybox.isPickable = false;
+                    currentSkybox = skybox;
+                    currentSkyMaterial = skyMaterial;
+                }
+
+                if (mode === "hdr") {
+                    scene.clearColor = new BABYLON.Color4(0, 0, 0, 1);
+                    const hdrTexture = new BABYLON.HDRCubeTexture(hdrFiles[hdrSelect.value], scene, 2048);
+                    scene.environmentTexture = hdrTexture;
+                    currentHdrTexture = hdrTexture;
+                    if (showHdrSkybox) {
+                        currentSkybox = scene.createDefaultSkybox(hdrTexture, true, 1000);
+                    }
+                }
+            };
+
             scene.registerBeforeRender(() => {
-                hdrTexture.rotationY += 0.001 / 5; // 每帧增加 HDR 旋转角度，速度为原来的 1/5
-                if (skybox) {
-                    skybox.rotation.y = -hdrTexture.rotationY; // 天空盒旋转方向为 HDR 的相反方向
+                if (currentHdrTexture && hdrRotationEnabled && envModeSelect.value === "hdr") {
+                    currentHdrTexture.rotationY += hdrRotationSpeed;
+                    if (currentSkybox) {
+                        currentSkybox.rotation.y = -currentHdrTexture.rotationY;
+                    }
                 }
             });
 
             // 检查并调整方向光设置
             const light = new BABYLON.DirectionalLight("light", new BABYLON.Vector3(-1, 2, -1), scene);
-            light.intensity = .5; // 增强光源强度
+            light.intensity = 0.5; // 增强光源强度
             light.position = new BABYLON.Vector3(15, 30, 15); // 提高光源位置
 
             // 添加日光效果
             const sunLight = new BABYLON.DirectionalLight("sunLight", new BABYLON.Vector3(-1, -2, -1), scene);
-            sunLight.intensity =1; // 设置日光强度
+            sunLight.intensity = 1; // 设置日光强度
             sunLight.position = new BABYLON.Vector3(50, 100, 50); // 设置日光位置
             sunLight.diffuse = new BABYLON.Color3(1.0, 1, 1); // 模拟日光的暖色调
             sunLight.specular = new BABYLON.Color3(1.0, 1, 1); // 设置高光颜色
+
+            // 额外可调 DirectionalLight
+            const uiDirectionalLight = new BABYLON.DirectionalLight("uiDirectionalLight", new BABYLON.Vector3(-1, -2, -1), scene);
+            uiDirectionalLight.intensity = parseFloat(dirLightIntensityInput.value);
+            uiDirectionalLight.diffuse = BABYLON.Color3.FromHexString(dirLightColorInput.value);
 
             // 添加日光阴影
             const sunShadowGenerator = new BABYLON.ShadowGenerator(4096, sunLight);
@@ -221,6 +558,7 @@
             sunShadowGenerator.filteringQuality = BABYLON.ShadowGenerator.QUALITY_HIGH; // 设置高质量过滤
             sunShadowGenerator.contactHardeningLightSizeUVRatio = 0.1; // 调整接触硬化阴影比例
             sunShadowGenerator.useContactHardeningShadow = true; // 启用接触硬化阴影
+            sunShadowGenerator.enableTransparentShadow = true;
 
             const camera = new BABYLON.ArcRotateCamera("Camera", Math.PI*0, Math.PI/3, 2, BABYLON.Vector3.Zero(), scene);
 
@@ -230,8 +568,7 @@
             camera.wheelDeltaPercentage = 0.005; // 设置滚动速率为当前的 1/20
             camera.pinchDeltaPercentage = 0.005; // 设置触摸缩放速率为当前的 1/20
 
-            // 禁用滚轮缩放功能
-            camera.inputs.removeByType("ArcRotateCameraMouseWheelInput");
+            camera.wheelPrecision = 100; // 适中滚轮缩放精度
 
 
             // 开启环境光遮蔽
@@ -246,6 +583,101 @@
             // 添加抗锯齿效果
             const fxaaPostProcess = new BABYLON.FxaaPostProcess("fxaa", 1.0, camera);
             fxaaPostProcess.samples = 16; // 设置采样数为 16
+
+            scene.imageProcessingConfiguration.toneMappingEnabled = true;
+            scene.imageProcessingConfiguration.exposure = parseFloat(exposureInput.value);
+            scene.imageProcessingConfiguration.contrast = parseFloat(contrastInput.value);
+
+            const updateDirectionalLight = () => {
+                const direction = new BABYLON.Vector3(
+                    parseFloat(dirLightXInput.value),
+                    parseFloat(dirLightYInput.value),
+                    parseFloat(dirLightZInput.value)
+                );
+                uiDirectionalLight.direction = direction;
+                uiDirectionalLight.intensity = parseFloat(dirLightIntensityInput.value);
+                uiDirectionalLight.diffuse = BABYLON.Color3.FromHexString(dirLightColorInput.value);
+            };
+
+            const updateRenderSettings = () => {
+                fxaaPostProcess.enabled = fxaaToggle.checked;
+                if (ssaoToggle.checked) {
+                    scene.postProcessRenderPipelineManager.attachCamerasToRenderPipeline("ssao", camera);
+                } else {
+                    scene.postProcessRenderPipelineManager.detachCamerasFromRenderPipeline("ssao", camera);
+                }
+                const scale = parseFloat(renderScaleInput.value);
+                engine.setHardwareScalingLevel(1 / scale);
+                scene.imageProcessingConfiguration.exposure = parseFloat(exposureInput.value);
+                scene.imageProcessingConfiguration.contrast = parseFloat(contrastInput.value);
+            };
+
+            const updateGyroControl = () => {
+                if (gyroToggle.checked) {
+                    camera.inputs.addDeviceOrientation();
+                } else {
+                    camera.inputs.removeByType("ArcRotateCameraDeviceOrientationInput");
+                }
+            };
+
+            envModeSelect.addEventListener("change", () => {
+                updateEnvironmentUI();
+                applyEnvironment();
+            });
+            solidColorInput.addEventListener("input", applyEnvironment);
+            hdrSelect.addEventListener("change", applyEnvironment);
+            hdrShowSkyboxToggle.addEventListener("change", (event) => {
+                showHdrSkybox = event.target.checked;
+                applyEnvironment();
+            });
+            hdrRotationToggle.addEventListener("change", (event) => {
+                hdrRotationEnabled = event.target.checked;
+            });
+            hdrRotationSpeedInput.addEventListener("input", (event) => {
+                hdrRotationSpeed = parseFloat(event.target.value);
+            });
+
+            const updateProceduralSky = () => {
+                if (currentSkyMaterial) {
+                    currentSkyMaterial.luminance = parseFloat(skyLuminanceInput.value);
+                    currentSkyMaterial.turbidity = parseFloat(skyTurbidityInput.value);
+                    currentSkyMaterial.rayleigh = parseFloat(skyRayleighInput.value);
+                    currentSkyMaterial.mieCoefficient = parseFloat(skyMieCoefficientInput.value);
+                    currentSkyMaterial.mieDirectionalG = parseFloat(skyMieDirectionalGInput.value);
+                }
+            };
+
+            skyLuminanceInput.addEventListener("input", updateProceduralSky);
+            skyTurbidityInput.addEventListener("input", updateProceduralSky);
+            skyRayleighInput.addEventListener("input", updateProceduralSky);
+            skyMieCoefficientInput.addEventListener("input", updateProceduralSky);
+            skyMieDirectionalGInput.addEventListener("input", updateProceduralSky);
+
+            dirLightIntensityInput.addEventListener("input", updateDirectionalLight);
+            dirLightXInput.addEventListener("input", updateDirectionalLight);
+            dirLightYInput.addEventListener("input", updateDirectionalLight);
+            dirLightZInput.addEventListener("input", updateDirectionalLight);
+            dirLightColorInput.addEventListener("input", updateDirectionalLight);
+
+            fxaaToggle.addEventListener("change", updateRenderSettings);
+            ssaoToggle.addEventListener("change", updateRenderSettings);
+            renderScaleInput.addEventListener("input", updateRenderSettings);
+            exposureInput.addEventListener("input", updateRenderSettings);
+            contrastInput.addEventListener("input", updateRenderSettings);
+
+            gridGroundToggle.addEventListener("change", updateGridGround);
+            gridGroundRadiusInput.addEventListener("input", updateGridGround);
+            gridLineThicknessInput.addEventListener("input", updateGridGround);
+            gridLineColorInput.addEventListener("input", updateGridGround);
+            gridBaseColorInput.addEventListener("input", updateGridGround);
+
+            gyroToggle.addEventListener("change", updateGyroControl);
+
+            applyEnvironment();
+            updateDirectionalLight();
+            updateRenderSettings();
+            updateGyroControl();
+            updateGridGround();
 
             // 加载模型并更新进度条
             BABYLON.SceneLoader.LoadAssetContainer("models/", "model.glb", scene, (container) => {
@@ -265,6 +697,17 @@
                         sunShadowGenerator.addShadowCaster(mesh); // 添加阴影投射器
                     }
                 });
+
+                const modelMeshes = container.meshes.filter(mesh => mesh.name !== "__root__");
+                if (modelMeshes.length > 0) {
+                    let minY = Infinity;
+                    modelMeshes.forEach(mesh => {
+                        const bounds = mesh.getBoundingInfo().boundingBox;
+                        minY = Math.min(minY, bounds.minimumWorld.y);
+                    });
+                    modelMinY = minY;
+                    updateGridGround();
+                }
 
                 // 保持 UI 功能不变
                 const materialList = document.getElementById("materialList");
