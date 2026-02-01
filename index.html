@@ -57,6 +57,8 @@
             flex-direction: column;
             height: 100%;
             width: 200px;
+            overflow-y: auto;
+            padding-bottom: 20px;
         }
 
         #infoPanel.hidden {
@@ -71,6 +73,21 @@
             padding: 10px;
             border-radius: 5px;
             transition: box-shadow 0.3s ease-in-out;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            user-select: none;
+        }
+
+        .collapsible::after {
+            content: "▸";
+            font-size: 12px;
+            opacity: 0.8;
+            transition: transform 0.2s ease-in-out;
+        }
+
+        .collapsible.open::after {
+            transform: rotate(90deg);
         }
 
         .collapsible.sub {
@@ -84,11 +101,13 @@
         }
 
         .collapsible-content {
-            display: none;
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.25s ease-in-out;
         }
 
         .collapsible.open + .collapsible-content {
-            display: block;
+            max-height: 2000px;
         }
 
         .collapsible-content .control-group {
@@ -97,6 +116,18 @@
             border: 1px solid #555;
             border-radius: 5px;
             background: rgba(30, 30, 30, 0.5);
+        }
+
+        .panel-section-title {
+            font-size: 12px;
+            margin: 6px 0 4px;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .material-list {
+            max-height: 180px;
+            overflow-y: auto;
+            padding-right: 4px;
         }
 
         .collapsible-content label {
@@ -109,6 +140,25 @@
         .collapsible-content select,
         .collapsible-content input[type="color"] {
             width: 100%;
+        }
+
+        .range-row {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .range-row input[type="range"] {
+            flex: 1;
+        }
+
+        .range-row input[type="number"] {
+            width: 60px;
+            background: rgba(20, 20, 20, 0.6);
+            color: white;
+            border: 1px solid #555;
+            border-radius: 4px;
+            padding: 2px 4px;
         }
 
         .material-item {
@@ -166,117 +216,272 @@
         <span class="icon icon-right">▶</span>
     </button>
     <div id="infoPanel" class="hidden" style="position: absolute; top: 0; right: 0; height: 100%; color: white; font-size: 14px; padding: 10px; border-left: 1px solid #444;">
-        <div class="collapsible">模型&材质</div>
+        <div class="collapsible open">模型&材质</div>
         <div class="collapsible-content">
-            <div class="collapsible sub">材质列表</div>
-            <div id="materialList" class="collapsible-content">
-                <!-- 材质列表 -->
+            <div class="control-group">
+                <div class="panel-section-title">材质搜索</div>
+                <input type="text" id="materialSearch" placeholder="搜索材质..." style="width: 100%;">
             </div>
-            <div class="collapsible sub">详情</div>
-            <div id="materialDetails" class="collapsible-content" style="padding-top: 10px; border-top: 1px solid #555;">
+            <div class="control-group">
+                <div class="panel-section-title">材质列表</div>
+                <div id="materialList" class="material-list">
+                    <!-- 材质列表 -->
+                </div>
+            </div>
+            <div class="control-group" id="materialDetails" style="padding-top: 10px; border-top: 1px solid #555;">
                 <p id="selectedMaterialName" style="margin: 0; padding: 5px 0; border-bottom: 1px solid #555;">材质详情</p>
                 <div id="materialProperties"></div>
             </div>
         </div>
 
-        <div class="collapsible">环境</div>
-        <div id="environmentControls" class="collapsible-content">
-            <div class="control-group">
-                <label for="envMode">环境样式</label>
-                <select id="envMode">
-                    <option value="solid">纯色</option>
-                    <option value="procedural">Procedural Sky</option>
-                    <option value="hdr" selected>HDR 贴图</option>
-                </select>
+        <div class="collapsible open">渲染表现</div>
+        <div class="collapsible-content">
+            <div class="collapsible sub open">控制</div>
+            <div id="controlControls" class="collapsible-content">
+                <div class="control-group">
+                    <button id="resetCameraButton" style="width: 100%; padding: 6px;">复位视角</button>
+                    <label for="mouseSensitivity">鼠标旋转灵敏度</label>
+                    <div class="range-row">
+                        <input type="range" id="mouseSensitivity" min="100" max="3000" step="50" value="800">
+                        <input type="number" id="mouseSensitivityValue" min="100" max="3000" step="50" value="800">
+                    </div>
+                    <label for="keyboardMoveSpeed">键盘移动速度</label>
+                    <div class="range-row">
+                        <input type="range" id="keyboardMoveSpeed" min="0" max="10" step="0.1" value="2">
+                        <input type="number" id="keyboardMoveSpeedValue" min="0" max="10" step="0.1" value="2">
+                    </div>
+                    <label for="verticalMoveSpeed">上下移动速度</label>
+                    <div class="range-row">
+                        <input type="range" id="verticalMoveSpeed" min="0" max="10" step="0.1" value="2">
+                        <input type="number" id="verticalMoveSpeedValue" min="0" max="10" step="0.1" value="2">
+                    </div>
+                    <label for="jumpSpeed">跳跃速度</label>
+                    <div class="range-row">
+                        <input type="range" id="jumpSpeed" min="0" max="20" step="0.2" value="6">
+                        <input type="number" id="jumpSpeedValue" min="0" max="20" step="0.2" value="6">
+                    </div>
+                </div>
             </div>
-            <div id="solidControls" class="control-group">
-                <label for="solidColor">纯色颜色</label>
-                <input type="color" id="solidColor" value="#000000">
+            <div class="collapsible sub open">光照</div>
+            <div id="lightControls" class="collapsible-content">
+                <div class="control-group">
+                    <label for="dirLightIntensity">方向光强度</label>
+                    <div class="range-row">
+                        <input type="range" id="dirLightIntensity" min="0" max="5" step="0.05" value="0.8">
+                        <input type="number" id="dirLightIntensityValue" min="0" max="5" step="0.05" value="0.8">
+                    </div>
+                    <label for="dirLightX">方向 X</label>
+                    <div class="range-row">
+                        <input type="range" id="dirLightX" min="-1" max="1" step="0.01" value="-1">
+                        <input type="number" id="dirLightXValue" min="-1" max="1" step="0.01" value="-1">
+                    </div>
+                    <label for="dirLightY">方向 Y</label>
+                    <div class="range-row">
+                        <input type="range" id="dirLightY" min="-1" max="1" step="0.01" value="-2">
+                        <input type="number" id="dirLightYValue" min="-1" max="1" step="0.01" value="-2">
+                    </div>
+                    <label for="dirLightZ">方向 Z</label>
+                    <div class="range-row">
+                        <input type="range" id="dirLightZ" min="-1" max="1" step="0.01" value="-1">
+                        <input type="number" id="dirLightZValue" min="-1" max="1" step="0.01" value="-1">
+                    </div>
+                    <label for="dirLightColor">方向光颜色</label>
+                    <input type="color" id="dirLightColor" value="#ffffff">
+                    <label for="dirLightOpacity">方向光透明度</label>
+                    <div class="range-row">
+                        <input type="range" id="dirLightOpacity" min="0" max="1" step="0.01" value="1">
+                        <input type="number" id="dirLightOpacityValue" min="0" max="1" step="0.01" value="1">
+                    </div>
+                </div>
             </div>
-            <div id="proceduralControls" class="control-group" style="display: none;">
-                <label for="skyLuminance">天空亮度</label>
-                <input type="range" id="skyLuminance" min="0" max="2" step="0.01" value="1">
-                <label for="skyTurbidity">浑浊度</label>
-                <input type="range" id="skyTurbidity" min="0" max="50" step="0.5" value="10">
-                <label for="skyRayleigh">瑞利散射</label>
-                <input type="range" id="skyRayleigh" min="0" max="4" step="0.01" value="2">
-                <label for="skyMieCoefficient">米氏系数</label>
-                <input type="range" id="skyMieCoefficient" min="0" max="0.01" step="0.0001" value="0.005">
-                <label for="skyMieDirectionalG">米氏方向性</label>
-                <input type="range" id="skyMieDirectionalG" min="0" max="1" step="0.01" value="0.8">
-            </div>
-            <div id="hdrControls" class="control-group">
-                <label for="hdrSelect">HDR 贴图</label>
-                <select id="hdrSelect">
-                    <option value="A">A.hdr</option>
-                    <option value="B">B.hdr</option>
-                    <option value="C" selected>C.hdr</option>
-                    <option value="D">D.hdr</option>
-                </select>
-                <label>
-                    显示天空盒
-                    <input type="checkbox" id="hdrShowSkybox" checked style="margin-left: 6px;">
-                </label>
-                <label>
-                    HDR 旋转
-                    <input type="checkbox" id="hdrRotation" checked style="margin-left: 6px;">
-                </label>
-                <label for="hdrRotationSpeed">旋转速度</label>
-                <input type="range" id="hdrRotationSpeed" min="0" max="0.01" step="0.0001" value="0.0002">
-            </div>
-            <div id="groundControls" class="control-group">
-                <label>
-                    启用格线圆盘地面
-                    <input type="checkbox" id="gridGroundToggle" checked style="margin-left: 6px;">
-                </label>
-                <label for="gridGroundRadius">地面半径</label>
-                <input type="range" id="gridGroundRadius" min="1" max="100" step="1" value="40">
-                <label for="gridLineThickness">格线粗细</label>
-                <input type="range" id="gridLineThickness" min="1" max="8" step="1" value="2">
-                <label for="gridLineColor">格线颜色</label>
-                <input type="color" id="gridLineColor" value="#9a9a9a">
-                <label for="gridBaseColor">地面颜色</label>
-                <input type="color" id="gridBaseColor" value="#2b2b2b">
-            </div>
-        </div>
 
-        <div class="collapsible">光照</div>
-        <div id="lightControls" class="collapsible-content">
-            <div class="control-group">
-                <label for="dirLightIntensity">方向光强度</label>
-                <input type="range" id="dirLightIntensity" min="0" max="5" step="0.05" value="0.8">
-                <label for="dirLightX">方向 X</label>
-                <input type="range" id="dirLightX" min="-1" max="1" step="0.01" value="-1">
-                <label for="dirLightY">方向 Y</label>
-                <input type="range" id="dirLightY" min="-1" max="1" step="0.01" value="-2">
-                <label for="dirLightZ">方向 Z</label>
-                <input type="range" id="dirLightZ" min="-1" max="1" step="0.01" value="-1">
-                <label for="dirLightColor">方向光颜色</label>
-                <input type="color" id="dirLightColor" value="#ffffff">
+            <div class="collapsible sub">阴影</div>
+            <div id="shadowControls" class="collapsible-content">
+                <div class="control-group">
+                    <label for="shadowFilter">阴影模式</label>
+                    <select id="shadowFilter">
+                        <option value="none">None</option>
+                        <option value="pcf" selected>PCF</option>
+                        <option value="pcss">PCSS</option>
+                        <option value="blurbox">Blur Box</option>
+                        <option value="blurexp">Blur Exponential</option>
+                    </select>
+                    <label for="shadowDarkness">阴影强度</label>
+                    <div class="range-row">
+                        <input type="range" id="shadowDarkness" min="0" max="1" step="0.01" value="0.2">
+                        <input type="number" id="shadowDarknessValue" min="0" max="1" step="0.01" value="0.2">
+                    </div>
+                    <label for="shadowBias">Shadow Bias</label>
+                    <div class="range-row">
+                        <input type="range" id="shadowBias" min="0" max="0.01" step="0.0001" value="0.001">
+                        <input type="number" id="shadowBiasValue" min="0" max="0.01" step="0.0001" value="0.001">
+                    </div>
+                    <label for="shadowNormalBias">Normal Bias</label>
+                    <div class="range-row">
+                        <input type="range" id="shadowNormalBias" min="0" max="1" step="0.01" value="0.2">
+                        <input type="number" id="shadowNormalBiasValue" min="0" max="1" step="0.01" value="0.2">
+                    </div>
+                    <label for="shadowBlurKernel">Blur Kernel</label>
+                    <div class="range-row">
+                        <input type="range" id="shadowBlurKernel" min="1" max="64" step="1" value="16">
+                        <input type="number" id="shadowBlurKernelValue" min="1" max="64" step="1" value="16">
+                    </div>
+                </div>
             </div>
-        </div>
 
-        <div class="collapsible">渲染设置</div>
-        <div id="renderControls" class="collapsible-content">
-            <div class="control-group">
-                <label>
-                    启用 FXAA
-                    <input type="checkbox" id="fxaaToggle" checked style="margin-left: 6px;">
-                </label>
-                <label>
-                    启用 SSAO
-                    <input type="checkbox" id="ssaoToggle" checked style="margin-left: 6px;">
-                </label>
-                <label>
-                    启用陀螺仪控制
-                    <input type="checkbox" id="gyroToggle" style="margin-left: 6px;">
-                </label>
-                <label for="renderScale">渲染比例</label>
-                <input type="range" id="renderScale" min="0.5" max="1.5" step="0.05" value="1">
-                <label for="exposure">曝光</label>
-                <input type="range" id="exposure" min="0" max="2" step="0.01" value="1">
-                <label for="contrast">对比度</label>
-                <input type="range" id="contrast" min="0" max="2" step="0.01" value="1">
+            <div class="collapsible sub open">环境</div>
+            <div id="environmentControls" class="collapsible-content">
+                <div class="control-group">
+                    <label for="envMode">环境样式</label>
+                    <select id="envMode">
+                        <option value="solid">纯色</option>
+                        <option value="procedural">Procedural Sky</option>
+                        <option value="hdr" selected>HDR 贴图</option>
+                    </select>
+                </div>
+                <div id="solidControls" class="control-group">
+                    <label for="solidColor">纯色颜色</label>
+                    <input type="color" id="solidColor" value="#000000">
+                    <label for="solidOpacity">透明度</label>
+                    <div class="range-row">
+                        <input type="range" id="solidOpacity" min="0" max="1" step="0.01" value="1">
+                        <input type="number" id="solidOpacityValue" min="0" max="1" step="0.01" value="1">
+                    </div>
+                </div>
+                <div id="proceduralControls" class="control-group" style="display: none;">
+                    <label for="skyLuminance">天空亮度</label>
+                    <div class="range-row">
+                        <input type="range" id="skyLuminance" min="0" max="2" step="0.01" value="1">
+                        <input type="number" id="skyLuminanceValue" min="0" max="2" step="0.01" value="1">
+                    </div>
+                    <label for="skyTurbidity">浑浊度</label>
+                    <div class="range-row">
+                        <input type="range" id="skyTurbidity" min="0" max="50" step="0.5" value="10">
+                        <input type="number" id="skyTurbidityValue" min="0" max="50" step="0.5" value="10">
+                    </div>
+                    <label for="skyRayleigh">瑞利散射</label>
+                    <div class="range-row">
+                        <input type="range" id="skyRayleigh" min="0" max="4" step="0.01" value="2">
+                        <input type="number" id="skyRayleighValue" min="0" max="4" step="0.01" value="2">
+                    </div>
+                    <label for="skyMieCoefficient">米氏系数</label>
+                    <div class="range-row">
+                        <input type="range" id="skyMieCoefficient" min="0" max="0.01" step="0.0001" value="0.005">
+                        <input type="number" id="skyMieCoefficientValue" min="0" max="0.01" step="0.0001" value="0.005">
+                    </div>
+                    <label for="skyMieDirectionalG">米氏方向性</label>
+                    <div class="range-row">
+                        <input type="range" id="skyMieDirectionalG" min="0" max="1" step="0.01" value="0.8">
+                        <input type="number" id="skyMieDirectionalGValue" min="0" max="1" step="0.01" value="0.8">
+                    </div>
+                </div>
+
+                <div class="collapsible sub" id="hdrSectionHeader">HDR 贴图</div>
+                <div id="hdrControls" class="collapsible-content">
+                    <div class="control-group">
+                        <label>
+                            启用 HDR 贴图
+                            <input type="checkbox" id="hdrEnable" checked style="margin-left: 6px;">
+                        </label>
+                        <label for="hdrSelect">HDR 贴图</label>
+                        <select id="hdrSelect">
+                            <option value="A">A.hdr</option>
+                            <option value="B">B.hdr</option>
+                            <option value="C" selected>C.hdr</option>
+                            <option value="D">D.hdr</option>
+                        </select>
+                        <label>
+                            显示天空盒
+                            <input type="checkbox" id="hdrShowSkybox" checked style="margin-left: 6px;">
+                        </label>
+                        <label>
+                            HDR 旋转
+                            <input type="checkbox" id="hdrRotation" checked style="margin-left: 6px;">
+                        </label>
+                        <label for="hdrRotationSpeed">旋转速度</label>
+                        <div class="range-row">
+                            <input type="range" id="hdrRotationSpeed" min="0" max="0.01" step="0.0001" value="0.0002">
+                            <input type="number" id="hdrRotationSpeedValue" min="0" max="0.01" step="0.0001" value="0.0002">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="collapsible sub">格线圆盘地面</div>
+                <div id="groundControls" class="collapsible-content">
+                    <div class="control-group">
+                        <label>
+                            启用格线圆盘地面
+                            <input type="checkbox" id="gridGroundToggle" checked style="margin-left: 6px;">
+                        </label>
+                        <label for="gridGroundRadius">消隐半径</label>
+                        <div class="range-row">
+                            <input type="range" id="gridGroundRadius" min="1" max="100" step="1" value="40">
+                            <input type="number" id="gridGroundRadiusValue" min="1" max="100" step="1" value="40">
+                        </div>
+                        <label for="gridGroundScale">圆盘缩放</label>
+                        <div class="range-row">
+                            <input type="range" id="gridGroundScale" min="0.2" max="5" step="0.1" value="1">
+                            <input type="number" id="gridGroundScaleValue" min="0.2" max="5" step="0.1" value="1">
+                        </div>
+                        <label for="gridSpacing">格线间距</label>
+                        <div class="range-row">
+                            <input type="range" id="gridSpacing" min="8" max="128" step="4" value="64">
+                            <input type="number" id="gridSpacingValue" min="8" max="128" step="4" value="64">
+                        </div>
+                        <label for="gridLineThickness">格线粗细</label>
+                        <div class="range-row">
+                            <input type="range" id="gridLineThickness" min="0.25" max="6" step="0.25" value="1">
+                            <input type="number" id="gridLineThicknessValue" min="0.25" max="6" step="0.25" value="1">
+                        </div>
+                        <label for="gridLineColor">格线颜色</label>
+                        <input type="color" id="gridLineColor" value="#9a9a9a">
+                        <label for="gridLineOpacity">格线透明度</label>
+                        <div class="range-row">
+                            <input type="range" id="gridLineOpacity" min="0" max="1" step="0.01" value="1">
+                            <input type="number" id="gridLineOpacityValue" min="0" max="1" step="0.01" value="1">
+                        </div>
+                        <label for="gridBaseColor">地面颜色</label>
+                        <input type="color" id="gridBaseColor" value="#2b2b2b">
+                        <label for="gridBaseOpacity">地面透明度</label>
+                        <div class="range-row">
+                            <input type="range" id="gridBaseOpacity" min="0" max="1" step="0.01" value="1">
+                            <input type="number" id="gridBaseOpacityValue" min="0" max="1" step="0.01" value="1">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="collapsible sub">引擎</div>
+            <div id="renderControls" class="collapsible-content">
+                <div class="control-group">
+                    <label>
+                        启用 FXAA
+                        <input type="checkbox" id="fxaaToggle" checked style="margin-left: 6px;">
+                    </label>
+                    <label>
+                        启用 SSAO
+                        <input type="checkbox" id="ssaoToggle" checked style="margin-left: 6px;">
+                    </label>
+                    <label>
+                        启用陀螺仪控制
+                        <input type="checkbox" id="gyroToggle" style="margin-left: 6px;">
+                    </label>
+                    <label for="renderScale">渲染比例</label>
+                    <div class="range-row">
+                        <input type="range" id="renderScale" min="0.5" max="1.5" step="0.05" value="1">
+                        <input type="number" id="renderScaleValue" min="0.5" max="1.5" step="0.05" value="1">
+                    </div>
+                    <label for="exposure">曝光</label>
+                    <div class="range-row">
+                        <input type="range" id="exposure" min="0" max="2" step="0.01" value="1">
+                        <input type="number" id="exposureValue" min="0" max="2" step="0.01" value="1">
+                    </div>
+                    <label for="contrast">对比度</label>
+                    <div class="range-row">
+                        <input type="range" id="contrast" min="0" max="2" step="0.01" value="1">
+                        <input type="number" id="contrastValue" min="0" max="2" step="0.01" value="1">
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -317,17 +522,38 @@
         const solidControls = document.getElementById("solidControls");
         const proceduralControls = document.getElementById("proceduralControls");
         const hdrControls = document.getElementById("hdrControls");
+        const hdrSectionHeader = document.getElementById("hdrSectionHeader");
         const solidColorInput = document.getElementById("solidColor");
+        const solidOpacityInput = document.getElementById("solidOpacity");
+        const solidOpacityValue = document.getElementById("solidOpacityValue");
+        const hdrEnableToggle = document.getElementById("hdrEnable");
         const hdrSelect = document.getElementById("hdrSelect");
         const hdrShowSkyboxToggle = document.getElementById("hdrShowSkybox");
         const hdrRotationToggle = document.getElementById("hdrRotation");
         const hdrRotationSpeedInput = document.getElementById("hdrRotationSpeed");
+        const hdrRotationSpeedValue = document.getElementById("hdrRotationSpeedValue");
+        const skyLuminanceValue = document.getElementById("skyLuminanceValue");
+        const skyTurbidityValue = document.getElementById("skyTurbidityValue");
+        const skyRayleighValue = document.getElementById("skyRayleighValue");
+        const skyMieCoefficientValue = document.getElementById("skyMieCoefficientValue");
+        const skyMieDirectionalGValue = document.getElementById("skyMieDirectionalGValue");
+        const materialSearchInput = document.getElementById("materialSearch");
 
         const gridGroundToggle = document.getElementById("gridGroundToggle");
         const gridGroundRadiusInput = document.getElementById("gridGroundRadius");
+        const gridGroundRadiusValue = document.getElementById("gridGroundRadiusValue");
+        const gridGroundScaleInput = document.getElementById("gridGroundScale");
+        const gridGroundScaleValue = document.getElementById("gridGroundScaleValue");
+        const gridSpacingInput = document.getElementById("gridSpacing");
+        const gridSpacingValue = document.getElementById("gridSpacingValue");
         const gridLineThicknessInput = document.getElementById("gridLineThickness");
+        const gridLineThicknessValue = document.getElementById("gridLineThicknessValue");
         const gridLineColorInput = document.getElementById("gridLineColor");
+        const gridLineOpacityInput = document.getElementById("gridLineOpacity");
+        const gridLineOpacityValue = document.getElementById("gridLineOpacityValue");
         const gridBaseColorInput = document.getElementById("gridBaseColor");
+        const gridBaseOpacityInput = document.getElementById("gridBaseOpacity");
+        const gridBaseOpacityValue = document.getElementById("gridBaseOpacityValue");
 
         const skyLuminanceInput = document.getElementById("skyLuminance");
         const skyTurbidityInput = document.getElementById("skyTurbidity");
@@ -337,25 +563,121 @@
 
         const dirLightIntensityInput = document.getElementById("dirLightIntensity");
         const dirLightXInput = document.getElementById("dirLightX");
+        const dirLightXValue = document.getElementById("dirLightXValue");
         const dirLightYInput = document.getElementById("dirLightY");
+        const dirLightYValue = document.getElementById("dirLightYValue");
         const dirLightZInput = document.getElementById("dirLightZ");
+        const dirLightZValue = document.getElementById("dirLightZValue");
         const dirLightColorInput = document.getElementById("dirLightColor");
+        const dirLightOpacityInput = document.getElementById("dirLightOpacity");
+        const dirLightIntensityValue = document.getElementById("dirLightIntensityValue");
+        const dirLightOpacityValue = document.getElementById("dirLightOpacityValue");
 
         const fxaaToggle = document.getElementById("fxaaToggle");
         const ssaoToggle = document.getElementById("ssaoToggle");
         const gyroToggle = document.getElementById("gyroToggle");
         const renderScaleInput = document.getElementById("renderScale");
+        const renderScaleValue = document.getElementById("renderScaleValue");
         const exposureInput = document.getElementById("exposure");
+        const exposureValue = document.getElementById("exposureValue");
         const contrastInput = document.getElementById("contrast");
+        const contrastValue = document.getElementById("contrastValue");
+        const shadowFilterSelect = document.getElementById("shadowFilter");
+        const shadowDarknessInput = document.getElementById("shadowDarkness");
+        const shadowDarknessValue = document.getElementById("shadowDarknessValue");
+        const shadowBiasInput = document.getElementById("shadowBias");
+        const shadowBiasValue = document.getElementById("shadowBiasValue");
+        const shadowNormalBiasInput = document.getElementById("shadowNormalBias");
+        const shadowNormalBiasValue = document.getElementById("shadowNormalBiasValue");
+        const shadowBlurKernelInput = document.getElementById("shadowBlurKernel");
+        const shadowBlurKernelValue = document.getElementById("shadowBlurKernelValue");
+
+        const resetCameraButton = document.getElementById("resetCameraButton");
+        const mouseSensitivityInput = document.getElementById("mouseSensitivity");
+        const mouseSensitivityValue = document.getElementById("mouseSensitivityValue");
+        const keyboardMoveSpeedInput = document.getElementById("keyboardMoveSpeed");
+        const keyboardMoveSpeedValue = document.getElementById("keyboardMoveSpeedValue");
+        const verticalMoveSpeedInput = document.getElementById("verticalMoveSpeed");
+        const verticalMoveSpeedValue = document.getElementById("verticalMoveSpeedValue");
+        const jumpSpeedInput = document.getElementById("jumpSpeed");
+        const jumpSpeedValue = document.getElementById("jumpSpeedValue");
 
         const updateEnvironmentUI = () => {
             const mode = envModeSelect.value;
             solidControls.style.display = mode === "solid" ? "block" : "none";
             proceduralControls.style.display = mode === "procedural" ? "block" : "none";
             hdrControls.style.display = mode === "hdr" ? "block" : "none";
+            hdrSectionHeader.style.display = mode === "hdr" ? "flex" : "none";
+        };
+
+        const linkRangeNumber = (rangeEl, numberEl) => {
+            if (!rangeEl || !numberEl) {
+                return;
+            }
+            const clamp = (value) => {
+                const min = parseFloat(rangeEl.min);
+                const max = parseFloat(rangeEl.max);
+                const step = parseFloat(rangeEl.step) || 1;
+                let num = parseFloat(value);
+                if (Number.isNaN(num)) {
+                    num = parseFloat(rangeEl.value);
+                }
+                num = Math.min(max, Math.max(min, num));
+                const snapped = Math.round(num / step) * step;
+                return Number.isFinite(snapped) ? snapped : num;
+            };
+
+            const syncFromRange = () => {
+                numberEl.value = rangeEl.value;
+            };
+
+            rangeEl.addEventListener("input", syncFromRange);
+            numberEl.addEventListener("input", (event) => {
+                const value = clamp(event.target.value);
+                rangeEl.value = value;
+                numberEl.value = value;
+                rangeEl.dispatchEvent(new Event("input"));
+            });
+
+            syncFromRange();
         };
 
         updateEnvironmentUI();
+
+        linkRangeNumber(solidOpacityInput, solidOpacityValue);
+        linkRangeNumber(skyLuminanceInput, skyLuminanceValue);
+        linkRangeNumber(skyTurbidityInput, skyTurbidityValue);
+        linkRangeNumber(skyRayleighInput, skyRayleighValue);
+        linkRangeNumber(skyMieCoefficientInput, skyMieCoefficientValue);
+        linkRangeNumber(skyMieDirectionalGInput, skyMieDirectionalGValue);
+        linkRangeNumber(hdrRotationSpeedInput, hdrRotationSpeedValue);
+
+        linkRangeNumber(gridGroundRadiusInput, gridGroundRadiusValue);
+        linkRangeNumber(gridGroundScaleInput, gridGroundScaleValue);
+        linkRangeNumber(gridSpacingInput, gridSpacingValue);
+        linkRangeNumber(gridLineThicknessInput, gridLineThicknessValue);
+        linkRangeNumber(gridLineOpacityInput, gridLineOpacityValue);
+        linkRangeNumber(gridBaseOpacityInput, gridBaseOpacityValue);
+
+        linkRangeNumber(dirLightIntensityInput, dirLightIntensityValue);
+        linkRangeNumber(dirLightXInput, dirLightXValue);
+        linkRangeNumber(dirLightYInput, dirLightYValue);
+        linkRangeNumber(dirLightZInput, dirLightZValue);
+        linkRangeNumber(dirLightOpacityInput, dirLightOpacityValue);
+
+        linkRangeNumber(renderScaleInput, renderScaleValue);
+        linkRangeNumber(exposureInput, exposureValue);
+        linkRangeNumber(contrastInput, contrastValue);
+
+        linkRangeNumber(shadowDarknessInput, shadowDarknessValue);
+        linkRangeNumber(shadowBiasInput, shadowBiasValue);
+        linkRangeNumber(shadowNormalBiasInput, shadowNormalBiasValue);
+        linkRangeNumber(shadowBlurKernelInput, shadowBlurKernelValue);
+
+        linkRangeNumber(mouseSensitivityInput, mouseSensitivityValue);
+        linkRangeNumber(keyboardMoveSpeedInput, keyboardMoveSpeedValue);
+        linkRangeNumber(verticalMoveSpeedInput, verticalMoveSpeedValue);
+        linkRangeNumber(jumpSpeedInput, jumpSpeedValue);
 
         const createScene = () => {
             const scene = new BABYLON.Scene(engine);
@@ -376,8 +698,9 @@
             let hdrRotationEnabled = hdrRotationToggle.checked;
             let hdrRotationSpeed = parseFloat(hdrRotationSpeedInput.value);
             let showHdrSkybox = hdrShowSkyboxToggle.checked;
+            let hdrEnabled = hdrEnableToggle.checked;
 
-            const gridBaseRadius = 1;
+            const gridMeshRadius = 100;
             let gridGround = null;
             let gridGroundMaterial = null;
             let gridGroundTexture = null;
@@ -400,7 +723,7 @@
 
             const ensureGridGround = () => {
                 if (!gridGround) {
-                    gridGround = BABYLON.MeshBuilder.CreateDisc("gridGround", { radius: gridBaseRadius, tessellation: 128 }, scene);
+                    gridGround = BABYLON.MeshBuilder.CreateDisc("gridGround", { radius: gridMeshRadius, tessellation: 128 }, scene);
                     gridGround.rotation.x = Math.PI / 2;
                     gridGround.isPickable = false;
                     gridGround.receiveShadows = true;
@@ -410,10 +733,12 @@
                     gridGroundMaterial.backFaceCulling = false;
                     gridGroundMaterial.specularColor = new BABYLON.Color3(0, 0, 0);
 
-                    gridGroundTexture = new BABYLON.DynamicTexture("gridGroundTex", { width: 1024, height: 1024 }, scene, false);
+                    gridGroundTexture = new BABYLON.DynamicTexture("gridGroundTex", { width: 2048, height: 2048 }, scene, false);
                     gridGroundTexture.hasAlpha = true;
                     gridGroundTexture.wrapU = BABYLON.Texture.CLAMP_ADDRESSMODE;
                     gridGroundTexture.wrapV = BABYLON.Texture.CLAMP_ADDRESSMODE;
+                    gridGroundTexture.anisotropicFilteringLevel = 16;
+                    gridGroundTexture.updateSamplingMode(BABYLON.Texture.NEAREST_SAMPLINGMODE);
 
                     gridGroundMaterial.diffuseTexture = gridGroundTexture;
                     gridGroundMaterial.opacityTexture = gridGroundTexture;
@@ -427,18 +752,21 @@
                     return;
                 }
                 const ctx = gridGroundTexture.getContext();
-                const size = 1024;
-                const spacing = 64;
+                const size = 2048;
+                const spacing = parseFloat(gridSpacingInput.value);
                 const lineWidth = parseFloat(gridLineThicknessInput.value);
 
                 const lineColor = BABYLON.Color3.FromHexString(gridLineColorInput.value);
                 const baseColor = BABYLON.Color3.FromHexString(gridBaseColorInput.value);
+                const lineAlpha = parseFloat(gridLineOpacityInput.value);
+                const baseAlpha = parseFloat(gridBaseOpacityInput.value);
 
+                ctx.imageSmoothingEnabled = false;
                 ctx.clearRect(0, 0, size, size);
-                ctx.fillStyle = `rgb(${Math.round(baseColor.r * 255)}, ${Math.round(baseColor.g * 255)}, ${Math.round(baseColor.b * 255)})`;
+                ctx.fillStyle = `rgba(${Math.round(baseColor.r * 255)}, ${Math.round(baseColor.g * 255)}, ${Math.round(baseColor.b * 255)}, ${baseAlpha})`;
                 ctx.fillRect(0, 0, size, size);
 
-                ctx.strokeStyle = `rgb(${Math.round(lineColor.r * 255)}, ${Math.round(lineColor.g * 255)}, ${Math.round(lineColor.b * 255)})`;
+                ctx.strokeStyle = `rgba(${Math.round(lineColor.r * 255)}, ${Math.round(lineColor.g * 255)}, ${Math.round(lineColor.b * 255)}, ${lineAlpha})`;
                 ctx.lineWidth = lineWidth;
 
                 for (let x = 0; x <= size; x += spacing) {
@@ -456,10 +784,13 @@
 
                 ctx.globalCompositeOperation = "destination-in";
                 const center = size / 2;
-                const radiusPx = size / 2;
-                const gradient = ctx.createRadialGradient(center, center, 0, center, center, radiusPx);
+                const maxRadiusPx = size / 2;
+                const fadeRadius = Math.max(1, Math.min(gridMeshRadius, parseFloat(gridGroundRadiusInput.value)));
+                const fadeRatio = fadeRadius / gridMeshRadius;
+                const fadeRadiusPx = maxRadiusPx * fadeRatio;
+                const gradient = ctx.createRadialGradient(center, center, 0, center, center, fadeRadiusPx);
                 gradient.addColorStop(0, "rgba(255,255,255,1)");
-                gradient.addColorStop(0.6, "rgba(255,255,255,1)");
+                gradient.addColorStop(0.85, "rgba(255,255,255,1)");
                 gradient.addColorStop(1, "rgba(255,255,255,0)");
                 ctx.fillStyle = gradient;
                 ctx.fillRect(0, 0, size, size);
@@ -475,9 +806,9 @@
                 if (enabled) {
                     const baseY = modelMinY !== null ? modelMinY : 0;
                     gridGround.position.set(0, baseY, 0);
-                    const radius = parseFloat(gridGroundRadiusInput.value);
-                    // Disc is in XY plane by default; scale X/Y then rotate to XZ
-                    gridGround.scaling.set(radius, radius, 1);
+                    // Radius only controls fade edge; scale controls mesh size
+                    const scale = parseFloat(gridGroundScaleInput.value);
+                    gridGround.scaling.set(scale, scale, 1);
                     gridGroundTexture.uScale = 1;
                     gridGroundTexture.vScale = 1;
                     gridGround.rotationQuaternion = null;
@@ -493,7 +824,8 @@
                 if (mode === "solid") {
                     scene.environmentTexture = null;
                     const color = BABYLON.Color3.FromHexString(solidColorInput.value);
-                    scene.clearColor = new BABYLON.Color4(color.r, color.g, color.b, 1);
+                    const alpha = parseFloat(solidOpacityInput.value);
+                    scene.clearColor = new BABYLON.Color4(color.r, color.g, color.b, alpha);
                 }
 
                 if (mode === "procedural") {
@@ -516,6 +848,11 @@
                 }
 
                 if (mode === "hdr") {
+                    if (!hdrEnabled) {
+                        scene.environmentTexture = null;
+                        scene.clearColor = new BABYLON.Color4(0, 0, 0, 1);
+                        return;
+                    }
                     scene.clearColor = new BABYLON.Color4(0, 0, 0, 1);
                     const hdrTexture = new BABYLON.HDRCubeTexture(hdrFiles[hdrSelect.value], scene, 2048);
                     scene.environmentTexture = hdrTexture;
@@ -554,10 +891,7 @@
 
             // 添加日光阴影
             const sunShadowGenerator = new BABYLON.ShadowGenerator(4096, sunLight);
-            sunShadowGenerator.usePercentageCloserFiltering = true; // 启用 PCF
             sunShadowGenerator.filteringQuality = BABYLON.ShadowGenerator.QUALITY_HIGH; // 设置高质量过滤
-            sunShadowGenerator.contactHardeningLightSizeUVRatio = 0.1; // 调整接触硬化阴影比例
-            sunShadowGenerator.useContactHardeningShadow = true; // 启用接触硬化阴影
             sunShadowGenerator.enableTransparentShadow = true;
 
             const camera = new BABYLON.ArcRotateCamera("Camera", Math.PI*0, Math.PI/3, 2, BABYLON.Vector3.Zero(), scene);
@@ -569,6 +903,51 @@
             camera.pinchDeltaPercentage = 0.005; // 设置触摸缩放速率为当前的 1/20
 
             camera.wheelPrecision = 100; // 适中滚轮缩放精度
+
+            const initialCameraState = {
+                alpha: camera.alpha,
+                beta: camera.beta,
+                radius: camera.radius,
+                target: camera.target.clone()
+            };
+
+            const movementState = {
+                forward: false,
+                back: false,
+                left: false,
+                right: false,
+                up: false,
+                down: false,
+                jump: false
+            };
+
+            const isInputFocused = () => {
+                const active = document.activeElement;
+                return active && (active.tagName === "INPUT" || active.tagName === "TEXTAREA" || active.tagName === "SELECT");
+            };
+
+            document.addEventListener("keydown", (event) => {
+                if (isInputFocused()) {
+                    return;
+                }
+                if (event.code === "KeyW") movementState.forward = true;
+                if (event.code === "KeyS") movementState.back = true;
+                if (event.code === "KeyA") movementState.left = true;
+                if (event.code === "KeyD") movementState.right = true;
+                if (event.code === "KeyQ") movementState.down = true;
+                if (event.code === "KeyE") movementState.up = true;
+                if (event.code === "Space") movementState.jump = true;
+            });
+
+            document.addEventListener("keyup", (event) => {
+                if (event.code === "KeyW") movementState.forward = false;
+                if (event.code === "KeyS") movementState.back = false;
+                if (event.code === "KeyA") movementState.left = false;
+                if (event.code === "KeyD") movementState.right = false;
+                if (event.code === "KeyQ") movementState.down = false;
+                if (event.code === "KeyE") movementState.up = false;
+                if (event.code === "Space") movementState.jump = false;
+            });
 
 
             // 开启环境光遮蔽
@@ -596,7 +975,37 @@
                 );
                 uiDirectionalLight.direction = direction;
                 uiDirectionalLight.intensity = parseFloat(dirLightIntensityInput.value);
-                uiDirectionalLight.diffuse = BABYLON.Color3.FromHexString(dirLightColorInput.value);
+                const lightColor = BABYLON.Color3.FromHexString(dirLightColorInput.value);
+                const lightAlpha = parseFloat(dirLightOpacityInput.value);
+                uiDirectionalLight.diffuse = lightColor.scale(lightAlpha);
+            };
+
+            const updateShadowSettings = () => {
+                const mode = shadowFilterSelect.value;
+                const blurKernel = parseFloat(shadowBlurKernelInput.value);
+
+                if (mode === "none") {
+                    sunShadowGenerator.filter = BABYLON.ShadowGenerator.FILTER_NONE;
+                }
+                if (mode === "pcf") {
+                    sunShadowGenerator.filter = BABYLON.ShadowGenerator.FILTER_PCF;
+                }
+                if (mode === "pcss") {
+                    sunShadowGenerator.filter = BABYLON.ShadowGenerator.FILTER_PCSS;
+                    sunShadowGenerator.contactHardeningLightSizeUVRatio = 0.1;
+                }
+                if (mode === "blurbox") {
+                    sunShadowGenerator.filter = BABYLON.ShadowGenerator.FILTER_BLURBOX;
+                    sunShadowGenerator.blurKernel = blurKernel;
+                }
+                if (mode === "blurexp") {
+                    sunShadowGenerator.filter = BABYLON.ShadowGenerator.FILTER_BLUREXPONENTIALSHADOWMAP;
+                    sunShadowGenerator.blurKernel = blurKernel;
+                }
+
+                sunShadowGenerator.bias = parseFloat(shadowBiasInput.value);
+                sunShadowGenerator.normalBias = parseFloat(shadowNormalBiasInput.value);
+                sunShadowGenerator.darkness = parseFloat(shadowDarknessInput.value);
             };
 
             const updateRenderSettings = () => {
@@ -612,6 +1021,19 @@
                 scene.imageProcessingConfiguration.contrast = parseFloat(contrastInput.value);
             };
 
+            let keyboardMoveSpeed = parseFloat(keyboardMoveSpeedInput.value);
+            let verticalMoveSpeed = parseFloat(verticalMoveSpeedInput.value);
+            let jumpSpeed = parseFloat(jumpSpeedInput.value);
+
+            const updateControlSettings = () => {
+                const sensitivity = parseFloat(mouseSensitivityInput.value);
+                camera.angularSensibilityX = sensitivity;
+                camera.angularSensibilityY = sensitivity;
+                keyboardMoveSpeed = parseFloat(keyboardMoveSpeedInput.value);
+                verticalMoveSpeed = parseFloat(verticalMoveSpeedInput.value);
+                jumpSpeed = parseFloat(jumpSpeedInput.value);
+            };
+
             const updateGyroControl = () => {
                 if (gyroToggle.checked) {
                     camera.inputs.addDeviceOrientation();
@@ -620,11 +1042,61 @@
                 }
             };
 
+            const applyKeyboardMovement = () => {
+                const delta = engine.getDeltaTime() / 1000;
+                if (delta <= 0) {
+                    return;
+                }
+
+                const forward = camera.getDirection(BABYLON.Axis.Z);
+                forward.y = 0;
+                if (forward.lengthSquared() === 0) {
+                    return;
+                }
+                forward.normalize();
+                const right = BABYLON.Vector3.Cross(BABYLON.Axis.Y, forward).normalize();
+
+                let moveVector = BABYLON.Vector3.Zero();
+                if (movementState.forward) {
+                    moveVector = moveVector.add(forward.scale(keyboardMoveSpeed * delta));
+                }
+                if (movementState.back) {
+                    moveVector = moveVector.add(forward.scale(-keyboardMoveSpeed * delta));
+                }
+                if (movementState.left) {
+                    moveVector = moveVector.add(right.scale(-keyboardMoveSpeed * delta));
+                }
+                if (movementState.right) {
+                    moveVector = moveVector.add(right.scale(keyboardMoveSpeed * delta));
+                }
+                if (movementState.up) {
+                    moveVector = moveVector.add(new BABYLON.Vector3(0, verticalMoveSpeed * delta, 0));
+                }
+                if (movementState.down) {
+                    moveVector = moveVector.add(new BABYLON.Vector3(0, -verticalMoveSpeed * delta, 0));
+                }
+                if (movementState.jump) {
+                    moveVector = moveVector.add(new BABYLON.Vector3(0, jumpSpeed * delta, 0));
+                }
+
+                if (moveVector.lengthSquared() > 0) {
+                    camera.position = camera.position.add(moveVector);
+                    camera.target = camera.target.add(moveVector);
+                }
+            };
+
+            scene.registerBeforeRender(applyKeyboardMovement);
+
             envModeSelect.addEventListener("change", () => {
                 updateEnvironmentUI();
                 applyEnvironment();
             });
             solidColorInput.addEventListener("input", applyEnvironment);
+            solidOpacityInput.addEventListener("input", applyEnvironment);
+            hdrEnableToggle.addEventListener("change", (event) => {
+                hdrEnabled = event.target.checked;
+                applyEnvironment();
+            });
             hdrSelect.addEventListener("change", applyEnvironment);
             hdrShowSkyboxToggle.addEventListener("change", (event) => {
                 showHdrSkybox = event.target.checked;
@@ -658,6 +1130,7 @@
             dirLightYInput.addEventListener("input", updateDirectionalLight);
             dirLightZInput.addEventListener("input", updateDirectionalLight);
             dirLightColorInput.addEventListener("input", updateDirectionalLight);
+            dirLightOpacityInput.addEventListener("input", updateDirectionalLight);
 
             fxaaToggle.addEventListener("change", updateRenderSettings);
             ssaoToggle.addEventListener("change", updateRenderSettings);
@@ -667,16 +1140,40 @@
 
             gridGroundToggle.addEventListener("change", updateGridGround);
             gridGroundRadiusInput.addEventListener("input", updateGridGround);
+            gridGroundScaleInput.addEventListener("input", updateGridGround);
+            gridSpacingInput.addEventListener("input", updateGridGround);
             gridLineThicknessInput.addEventListener("input", updateGridGround);
             gridLineColorInput.addEventListener("input", updateGridGround);
+            gridLineOpacityInput.addEventListener("input", updateGridGround);
             gridBaseColorInput.addEventListener("input", updateGridGround);
+            gridBaseOpacityInput.addEventListener("input", updateGridGround);
 
             gyroToggle.addEventListener("change", updateGyroControl);
+
+            resetCameraButton.addEventListener("click", () => {
+                camera.alpha = initialCameraState.alpha;
+                camera.beta = initialCameraState.beta;
+                camera.radius = initialCameraState.radius;
+                camera.setTarget(initialCameraState.target.clone());
+            });
+
+            mouseSensitivityInput.addEventListener("input", updateControlSettings);
+            keyboardMoveSpeedInput.addEventListener("input", updateControlSettings);
+            verticalMoveSpeedInput.addEventListener("input", updateControlSettings);
+            jumpSpeedInput.addEventListener("input", updateControlSettings);
+
+            shadowFilterSelect.addEventListener("change", updateShadowSettings);
+            shadowDarknessInput.addEventListener("input", updateShadowSettings);
+            shadowBiasInput.addEventListener("input", updateShadowSettings);
+            shadowNormalBiasInput.addEventListener("input", updateShadowSettings);
+            shadowBlurKernelInput.addEventListener("input", updateShadowSettings);
 
             applyEnvironment();
             updateDirectionalLight();
             updateRenderSettings();
             updateGyroControl();
+            updateShadowSettings();
+            updateControlSettings();
             updateGridGround();
 
             // 加载模型并更新进度条
@@ -714,6 +1211,19 @@
                 materialList.innerHTML = ""; // 清空材质列表
 
                 const sortedMaterials = scene.materials.sort((a, b) => a.name.localeCompare(b.name));
+                const materialItems = [];
+                const renderMaterialList = (filterText = "") => {
+                    materialList.innerHTML = "";
+                    const keyword = filterText.trim().toLowerCase();
+                    materialItems.forEach(({ material, element }) => {
+                        const match = material.name.toLowerCase().includes(keyword);
+                        element.style.display = match ? "flex" : "none";
+                        if (match) {
+                            materialList.appendChild(element);
+                        }
+                    });
+                };
+
                 sortedMaterials.forEach(material => {
                     const materialItem = document.createElement("div");
                     materialItem.className = "material-item";
@@ -728,6 +1238,7 @@
 
                     materialItem.appendChild(colorCircle);
                     materialItem.appendChild(materialName);
+                    materialItems.push({ material, element: materialItem });
                     materialList.appendChild(materialItem);
 
                     materialItem.addEventListener("click", () => {
@@ -805,11 +1316,36 @@
                             input.max = max;
                             input.step = step;
                             input.value = value;
+                            const numberInput = document.createElement("input");
+                            numberInput.type = "number";
+                            numberInput.min = min;
+                            numberInput.max = max;
+                            numberInput.step = step;
+                            numberInput.value = value;
+
+                            const wrapper = document.createElement("div");
+                            wrapper.className = "range-row";
+                            wrapper.appendChild(input);
+                            wrapper.appendChild(numberInput);
+
+                            const sync = (val) => {
+                                const num = parseFloat(val);
+                                if (Number.isNaN(num)) {
+                                    return;
+                                }
+                                input.value = num;
+                                numberInput.value = num;
+                                onChange(num);
+                            };
+
                             input.addEventListener("input", (event) => {
-                                onChange(parseFloat(event.target.value));
+                                sync(event.target.value);
+                            });
+                            numberInput.addEventListener("input", (event) => {
+                                sync(event.target.value);
                             });
 
-                            label.appendChild(input);
+                            label.appendChild(wrapper);
                             return label;
                         };
 
@@ -958,6 +1494,11 @@
                         materialProperties.appendChild(otherSection);
                     });
                 });
+
+                materialSearchInput.addEventListener("input", (event) => {
+                    renderMaterialList(event.target.value);
+                });
+                renderMaterialList(materialSearchInput.value || "");
             }, null, (evt) => {
                 // 模拟加载进度（可选）
                 if (evt.lengthComputable) {
