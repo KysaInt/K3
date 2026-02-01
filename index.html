@@ -417,8 +417,9 @@
             opacity: 1;
         }
 
-        /* 材质复位按钮 */
-        #resetMaterialButton {
+        /* 材质复位/保存按钮 */
+        #resetMaterialButton,
+        #saveModelButton {
             background: rgba(255, 255, 255, 0.1);
             border: 1px solid rgba(255, 255, 255, 0.3);
             border-radius: 4px;
@@ -432,7 +433,8 @@
             justify-content: center;
         }
 
-        #resetMaterialButton:hover {
+        #resetMaterialButton:hover,
+        #saveModelButton:hover {
             background: rgba(255, 255, 255, 0.2);
         }
 
@@ -442,10 +444,17 @@
             align-items: center;
             margin-bottom: 8px;
         }
+
+        .material-list-actions {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
     </style>
     <script src="https://cdn.babylonjs.com/babylon.js"></script>
     <script src="https://cdn.babylonjs.com/loaders/babylonjs.loaders.min.js"></script>
     <script src="https://cdn.babylonjs.com/materialsLibrary/babylonjs.materials.min.js"></script>
+    <script src="https://cdn.babylonjs.com/serializers/babylonjs.serializers.min.js"></script>
 </head>
 <body>
     <div id="loadingBarContainer">
@@ -468,7 +477,10 @@
                 <div class="control-group">
                     <div class="material-list-header">
                         <span style="font-size: 12px; color: rgba(255,255,255,0.8);">所有材质</span>
-                        <button id="resetMaterialButton" title="复位所有材质">↻</button>
+                        <span class="material-list-actions">
+                            <button id="saveModelButton" title="保存为 GLB">💾</button>
+                            <button id="resetMaterialButton" title="复位所有材质">↻</button>
+                        </span>
                     </div>
                     <div id="materialList" class="material-list">
                         <!-- 材质列表 -->
@@ -800,6 +812,37 @@
             }
         };
 
+        const CONFIG_SERVER_BASE = "/api/config";
+        let serverConfigAvailable = false;
+
+        const loadServerConfig = async (type) => {
+            try {
+                const res = await fetch(`${CONFIG_SERVER_BASE}/${type}`, { cache: "no-store" });
+                if (!res.ok) return null;
+                const data = await res.json();
+                serverConfigAvailable = true;
+                return data;
+            } catch (error) {
+                return null;
+            }
+        };
+
+        const saveServerConfig = async (type, data) => {
+            try {
+                const res = await fetch(`${CONFIG_SERVER_BASE}/${type}`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(data)
+                });
+                if (res.ok) {
+                    serverConfigAvailable = true;
+                }
+                return res.ok;
+            } catch (error) {
+                return false;
+            }
+        };
+
         // 材质配置保存/加载
         const mergeMaterialConfigs = (baseConfig, overrideConfig) => {
             const merged = { ...(baseConfig || {}) };
@@ -834,6 +877,7 @@
             config[materialName][propertyName] = value;
             writeStorageJson(MATERIAL_CONFIG_KEY, config);
             writeStorageJson(DEFAULT_MATERIAL_CONFIG_KEY, config);
+            saveServerConfig("material", config);
         };
 
         const loadMaterialConfig = () => {
@@ -995,6 +1039,7 @@
             const config = getConfigFromUI();
             writeStorageJson(CONFIG_STORAGE_KEY, config);
             writeStorageJson(DEFAULT_UI_CONFIG_KEY, config);
+            saveServerConfig("ui", config);
         };
 
         const scheduleSaveConfig = (() => {
@@ -1024,8 +1069,9 @@
             scheduleSaveConfig();
         });
 
-        // 材质复位按钮 - 稍后在材质加载后绑定
+        // 材质复位/保存按钮 - 稍后在材质加载后绑定
         let resetMaterialButton = null;
+        let saveModelButton = null;
 
         document.querySelectorAll(".collapsible").forEach(collapsible => {
             collapsible.addEventListener("click", () => {
@@ -1205,11 +1251,27 @@
         linkRangeNumber(verticalMoveSpeedInput, verticalMoveSpeedValue);
         linkRangeNumber(jumpSpeedInput, jumpSpeedValue);
 
-        // 应用保存的配置
-        const initialConfig = loadConfig();
-        applyConfigToUI(initialConfig);
-        updateEnvironmentUI();
-        writeStorageJson(DEFAULT_UI_CONFIG_KEY, getConfigFromUI());
+        const initConfigFromServer = async () => {
+            const [serverUi, serverMaterial] = await Promise.all([
+                loadServerConfig("ui"),
+                loadServerConfig("material")
+            ]);
+
+            if (serverUi && typeof serverUi === "object") {
+                writeStorageJson(DEFAULT_UI_CONFIG_KEY, serverUi);
+            }
+            if (serverMaterial && typeof serverMaterial === "object") {
+                writeStorageJson(DEFAULT_MATERIAL_CONFIG_KEY, serverMaterial);
+            }
+
+            const initialConfig = loadConfig();
+            applyConfigToUI(initialConfig);
+            updateEnvironmentUI();
+            writeStorageJson(DEFAULT_UI_CONFIG_KEY, getConfigFromUI());
+        };
+
+        // 应用保存的配置（优先服务端配置文件）
+        initConfigFromServer();
 
         // 为所有配置项添加自动保存监听器
         [
@@ -1838,7 +1900,7 @@
                 const materialList = document.getElementById("materialList");
                 materialList.innerHTML = ""; // 清空材质列表
 
-                // 绑定材质复位按钮
+                // 绑定材质复位/保存按钮
                 resetMaterialButton = document.getElementById("resetMaterialButton");
                 if (resetMaterialButton) {
                     resetMaterialButton.addEventListener("click", () => {
@@ -1849,6 +1911,28 @@
                         // 重新加载模型以恢复默认材质
                         alert("材质已复位，即将重新加载模型...");
                         location.reload();
+                    });
+                }
+
+                saveModelButton = document.getElementById("saveModelButton");
+                if (saveModelButton) {
+                    saveModelButton.addEventListener("click", async () => {
+                        if (!scene || !BABYLON.GLTF2Export) {
+                            alert("导出功能不可用，请稍后重试。");
+                            return;
+                        }
+                        saveModelButton.disabled = true;
+                        saveModelButton.textContent = "…";
+                        try {
+                            const glb = await BABYLON.GLTF2Export.GLBAsync(scene, "model");
+                            glb.downloadFiles();
+                        } catch (error) {
+                            console.error("GLB 导出失败", error);
+                            alert("GLB 导出失败，请查看控制台。");
+                        } finally {
+                            saveModelButton.disabled = false;
+                            saveModelButton.textContent = "💾";
+                        }
                     });
                 }
 
