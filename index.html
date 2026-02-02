@@ -72,19 +72,30 @@
         }
 
         #infoPanel {
+            position: fixed;
+            top: 0;
+            right: 0;
+            bottom: 0;
             transition: transform 0.3s ease-in-out;
             background: rgba(30, 30, 30, 0.5);
             backdrop-filter: blur(10px);
             display: flex;
             flex-direction: column;
-            height: 100%;
             width: 200px;
+            height: 100dvh;
+            max-height: 100dvh;
             overflow-y: auto;
             overflow-x: hidden;
             overscroll-behavior: contain;
             -webkit-overflow-scrolling: touch;
-            padding-bottom: 20px;
+            touch-action: pan-y;
+            scrollbar-width: thin;
+            scrollbar-color: rgba(255, 255, 255, 0.3) rgba(0, 0, 0, 0.2);
+            padding: calc(10px + env(safe-area-inset-top)) 10px calc(20px + env(safe-area-inset-bottom));
             box-sizing: border-box;
+            color: white;
+            font-size: 14px;
+            border-left: 1px solid #444;
         }
 
         /* 滚动条样式 */
@@ -152,12 +163,29 @@
 
         .collapsible.sub {
             margin-left: 0;
-            padding-left: 20px;
+            padding-left: 28px;
             font-size: 13px;
             background: rgba(20, 20, 20, 0.4);
             border: none;
             border-bottom: 1px solid rgba(255, 255, 255, 0.08);
             border-radius: 0;
+            position: relative;
+        }
+
+        .collapsible.sub::before {
+            content: "";
+            position: absolute;
+            left: 12px;
+            top: 6px;
+            bottom: 6px;
+            width: 2px;
+            background: rgba(255, 255, 255, 0.12);
+        }
+
+        .collapsible.sub + .collapsible-content {
+            padding-left: 28px;
+            border-left: 2px solid rgba(255, 255, 255, 0.08);
+            box-sizing: border-box;
         }
 
         .collapsible.sub.open {
@@ -174,6 +202,7 @@
             border-radius: 5px;
             margin-bottom: 0;
             overflow: hidden;
+            flex-shrink: 0;
         }
 
         .menu-section > .collapsible {
@@ -190,10 +219,12 @@
             overflow: hidden;
             transition: max-height 0.25s ease-in-out;
             background: rgba(15, 15, 15, 0.3);
+            flex-shrink: 0;
         }
 
         .collapsible.open + .collapsible-content {
-            max-height: 2000px;
+            max-height: none;
+            overflow: visible;
         }
 
         .collapsible-content .control-group {
@@ -263,6 +294,12 @@
         .collapsible-content input[type="range"],
         .collapsible-content select {
             width: 100%;
+            box-sizing: border-box;
+        }
+
+        input[type="range"] {
+            width: 100%;
+            box-sizing: border-box;
         }
 
         /* 颜色选择器样式 - 单独一行显示 */
@@ -375,6 +412,9 @@
             overflow-y: auto;
             overscroll-behavior: contain;
             -webkit-overflow-scrolling: touch;
+            touch-action: pan-y;
+            scrollbar-width: thin;
+            scrollbar-color: rgba(255, 255, 255, 0.3) rgba(0, 0, 0, 0.2);
             z-index: 1200;
             font-size: 14px;
         }
@@ -495,7 +535,7 @@
             </div>
         </div>
     </div>
-    <div id="infoPanel" class="hidden" style="position: absolute; top: 0; right: 0; height: 100%; color: white; font-size: 14px; padding: 10px; border-left: 1px solid #444;">
+    <div id="infoPanel" class="hidden">
         <div class="menu-section">
             <div class="collapsible open">渲染表现</div>
             <div class="collapsible-content">
@@ -564,30 +604,33 @@
                     <label for="shadowFilter">阴影模式</label>
                     <select id="shadowFilter">
                         <option value="none">None</option>
-                        <option value="pcf" selected>PCF</option>
-                        <option value="pcss">PCSS</option>
-                        <option value="blurbox">Blur Box</option>
-                        <option value="blurexp">Blur Exponential</option>
+                        <option value="pcf">PCF</option>
+                        <option value="pcss" selected>PCSS (接触硬化)</option>
                     </select>
-                    <label for="shadowDarkness">阴影强度</label>
+                    <label for="shadowDarkness">阴影透明度 (0=最深)</label>
                     <div class="range-row">
-                        <input type="range" id="shadowDarkness" min="0" max="1" step="0.01" value="0.2">
-                        <input type="number" id="shadowDarknessValue" min="0" max="1" step="0.01" value="0.2">
+                        <input type="range" id="shadowDarkness" min="0" max="1" step="0.01" value="0">
+                        <input type="number" id="shadowDarknessValue" min="0" max="1" step="0.01" value="0">
                     </div>
                     <label for="shadowBias">Shadow Bias</label>
                     <div class="range-row">
-                        <input type="range" id="shadowBias" min="0" max="0.01" step="0.0001" value="0.001">
-                        <input type="number" id="shadowBiasValue" min="0" max="0.01" step="0.0001" value="0.001">
+                        <input type="range" id="shadowBias" min="0" max="0.01" step="0.0001" value="0.0001">
+                        <input type="number" id="shadowBiasValue" min="0" max="0.01" step="0.0001" value="0.0001">
                     </div>
                     <label for="shadowNormalBias">Normal Bias</label>
                     <div class="range-row">
-                        <input type="range" id="shadowNormalBias" min="0" max="1" step="0.01" value="0.2">
-                        <input type="number" id="shadowNormalBiasValue" min="0" max="1" step="0.01" value="0.2">
+                        <input type="range" id="shadowNormalBias" min="0" max="0.1" step="0.001" value="0.02">
+                        <input type="number" id="shadowNormalBiasValue" min="0" max="0.1" step="0.001" value="0.02">
                     </div>
-                    <label for="shadowBlurKernel">Blur Kernel</label>
+                    <label for="shadowPenumbraDarkness">半影暗度 (PCSS)</label>
                     <div class="range-row">
-                        <input type="range" id="shadowBlurKernel" min="1" max="64" step="1" value="16">
-                        <input type="number" id="shadowBlurKernelValue" min="1" max="64" step="1" value="16">
+                        <input type="range" id="shadowPenumbraDarkness" min="0" max="1" step="0.01" value="0.4">
+                        <input type="number" id="shadowPenumbraDarknessValue" min="0" max="1" step="0.01" value="0.4">
+                    </div>
+                    <label for="shadowLightSize">光源大小 (PCSS)</label>
+                    <div class="range-row">
+                        <input type="range" id="shadowLightSize" min="0.01" max="1" step="0.01" value="0.1">
+                        <input type="number" id="shadowLightSizeValue" min="0.01" max="1" step="0.01" value="0.1">
                     </div>
                 </div>
             </div>
@@ -649,13 +692,13 @@
                         <label for="hdrSelect">HDR 贴图</label>
                         <select id="hdrSelect">
                             <option value="A">A.hdr</option>
-                            <option value="B" selected>B.hdr</option>
-                            <option value="C">C.hdr</option>
+                            <option value="B">B.hdr</option>
+                            <option value="C" selected>C.hdr</option>
                             <option value="D">D.hdr</option>
                         </select>
                         <label>
                             显示天空盒
-                            <input type="checkbox" id="hdrShowSkybox" style="margin-left: 6px;">
+                            <input type="checkbox" id="hdrShowSkybox" checked style="margin-left: 6px;">
                         </label>
                         <label>
                             HDR 旋转
@@ -695,28 +738,28 @@
                         </label>
                         <label for="gridGroundRadius">消隐半径</label>
                         <div class="range-row">
-                            <input type="range" id="gridGroundRadius" min="1" max="100" step="1" value="40">
-                            <input type="number" id="gridGroundRadiusValue" min="1" max="100" step="1" value="40">
+                            <input type="range" id="gridGroundRadius" min="1" max="100" step="1" value="10">
+                            <input type="number" id="gridGroundRadiusValue" min="1" max="100" step="1" value="10">
                         </div>
                         <label for="gridFadeWidth">过渡宽度</label>
                         <div class="range-row">
-                            <input type="range" id="gridFadeWidth" min="0.01" max="0.5" step="0.01" value="0.15">
-                            <input type="number" id="gridFadeWidthValue" min="0.01" max="0.5" step="0.01" value="0.15">
+                            <input type="range" id="gridFadeWidth" min="0.01" max="0.5" step="0.01" value="0.5">
+                            <input type="number" id="gridFadeWidthValue" min="0.01" max="0.5" step="0.01" value="0.5">
                         </div>
                         <label for="gridGroundScale">圆盘缩放</label>
                         <div class="range-row">
-                            <input type="range" id="gridGroundScale" min="0.2" max="5" step="0.1" value="1">
-                            <input type="number" id="gridGroundScaleValue" min="0.2" max="5" step="0.1" value="1">
+                            <input type="range" id="gridGroundScale" min="0.2" max="5" step="0.1" value="0.2">
+                            <input type="number" id="gridGroundScaleValue" min="0.2" max="5" step="0.1" value="0.2">
                         </div>
                         <label for="gridSpacing">格线间距</label>
                         <div class="range-row">
-                            <input type="range" id="gridSpacing" min="8" max="128" step="4" value="64">
-                            <input type="number" id="gridSpacingValue" min="8" max="128" step="4" value="64">
+                            <input type="range" id="gridSpacing" min="8" max="128" step="4" value="20">
+                            <input type="number" id="gridSpacingValue" min="8" max="128" step="4" value="20">
                         </div>
                         <label for="gridLineThickness">格线粗细</label>
                         <div class="range-row">
-                            <input type="range" id="gridLineThickness" min="0.1" max="6" step="0.1" value="0.5">
-                            <input type="number" id="gridLineThicknessValue" min="0.1" max="6" step="0.1" value="0.5">
+                            <input type="range" id="gridLineThickness" min="0.1" max="6" step="0.1" value="0.1">
+                            <input type="number" id="gridLineThicknessValue" min="0.1" max="6" step="0.1" value="0.1">
                         </div>
                         <label for="gridLineColor">格线颜色</label>
                         <input type="color" id="gridLineColor" value="#9a9a9a">
@@ -729,8 +772,8 @@
                         <input type="color" id="gridBaseColor" value="#2b2b2b">
                         <label for="gridBaseOpacity">地面透明度</label>
                         <div class="range-row">
-                            <input type="range" id="gridBaseOpacity" min="0" max="1" step="0.01" value="1">
-                            <input type="number" id="gridBaseOpacityValue" min="0" max="1" step="0.01" value="1">
+                            <input type="range" id="gridBaseOpacity" min="0" max="1" step="0.01" value="0">
+                            <input type="number" id="gridBaseOpacityValue" min="0" max="1" step="0.01" value="0">
                         </div>
                     </div>
                 </div>
@@ -988,11 +1031,11 @@
                 "skyLuminance", "skyTurbidity", "skyRayleigh", "skyMieCoefficient", "skyMieDirectionalG",
                 "hdrEnable", "hdrSelect", "hdrShowSkybox", "hdrRotation", "hdrRotationSpeed",
                 "backgroundLayerEnable", "backgroundLayerColor", "backgroundLayerOpacity",
-                "gridGroundToggle", "gridGroundRadius", "gridGroundScale", "gridSpacing",
+                "gridGroundToggle", "gridGroundRadius", "gridFadeWidth", "gridGroundScale", "gridSpacing",
                 "gridLineThickness", "gridLineColor", "gridLineOpacity", "gridBaseColor", "gridBaseOpacity",
                 "dirLightIntensity", "dirLightX", "dirLightY", "dirLightZ", "dirLightColor", "dirLightOpacity",
                 "fxaaToggle", "ssaoToggle", "gyroToggle", "renderScale", "exposure", "contrast",
-                "shadowFilter", "shadowDarkness", "shadowBias", "shadowNormalBias", "shadowBlurKernel",
+                "shadowFilter", "shadowDarkness", "shadowBias", "shadowNormalBias", "shadowPenumbraDarkness", "shadowLightSize",
                 "mouseSensitivity", "keyboardMoveSpeed", "verticalMoveSpeed", "jumpSpeed"
             ];
 
@@ -1184,8 +1227,10 @@
         const shadowBiasValue = document.getElementById("shadowBiasValue");
         const shadowNormalBiasInput = document.getElementById("shadowNormalBias");
         const shadowNormalBiasValue = document.getElementById("shadowNormalBiasValue");
-        const shadowBlurKernelInput = document.getElementById("shadowBlurKernel");
-        const shadowBlurKernelValue = document.getElementById("shadowBlurKernelValue");
+        const shadowPenumbraDarknessInput = document.getElementById("shadowPenumbraDarkness");
+        const shadowPenumbraDarknessValue = document.getElementById("shadowPenumbraDarknessValue");
+        const shadowLightSizeInput = document.getElementById("shadowLightSize");
+        const shadowLightSizeValue = document.getElementById("shadowLightSizeValue");
 
         const resetCameraButton = document.getElementById("resetCameraButton");
         const mouseSensitivityInput = document.getElementById("mouseSensitivity");
@@ -1272,7 +1317,8 @@
         linkRangeNumber(shadowDarknessInput, shadowDarknessValue);
         linkRangeNumber(shadowBiasInput, shadowBiasValue);
         linkRangeNumber(shadowNormalBiasInput, shadowNormalBiasValue);
-        linkRangeNumber(shadowBlurKernelInput, shadowBlurKernelValue);
+        linkRangeNumber(shadowPenumbraDarknessInput, shadowPenumbraDarknessValue);
+        linkRangeNumber(shadowLightSizeInput, shadowLightSizeValue);
 
         linkRangeNumber(mouseSensitivityInput, mouseSensitivityValue);
         linkRangeNumber(keyboardMoveSpeedInput, keyboardMoveSpeedValue);
@@ -1307,11 +1353,11 @@
             "skyLuminance", "skyTurbidity", "skyRayleigh", "skyMieCoefficient", "skyMieDirectionalG",
             "hdrEnable", "hdrSelect", "hdrShowSkybox", "hdrRotation", "hdrRotationSpeed",
             "backgroundLayerEnable", "backgroundLayerColor", "backgroundLayerOpacity",
-            "gridGroundToggle", "gridGroundRadius", "gridGroundScale", "gridSpacing",
+            "gridGroundToggle", "gridGroundRadius", "gridFadeWidth", "gridGroundScale", "gridSpacing",
             "gridLineThickness", "gridLineColor", "gridLineOpacity", "gridBaseColor", "gridBaseOpacity",
             "dirLightIntensity", "dirLightX", "dirLightY", "dirLightZ", "dirLightColor", "dirLightOpacity",
             "fxaaToggle", "ssaoToggle", "gyroToggle", "renderScale", "exposure", "contrast",
-            "shadowFilter", "shadowDarkness", "shadowBias", "shadowNormalBias", "shadowBlurKernel",
+            "shadowFilter", "shadowDarkness", "shadowBias", "shadowNormalBias", "shadowPenumbraDarkness", "shadowLightSize",
             "mouseSensitivity", "keyboardMoveSpeed", "verticalMoveSpeed", "jumpSpeed"
         ].forEach((id) => {
             const el = document.getElementById(id);
@@ -1566,16 +1612,29 @@
             uiDirectionalLight.intensity = parseFloat(dirLightIntensityInput.value);
             uiDirectionalLight.diffuse = BABYLON.Color3.FromHexString(dirLightColorInput.value || "#ffffff");
 
-            // 添加日光阴影
-            const sunShadowGenerator = new BABYLON.ShadowGenerator(4096, sunLight);
-            sunShadowGenerator.filteringQuality = BABYLON.ShadowGenerator.QUALITY_HIGH; // 设置高质量过滤
-            sunShadowGenerator.enableTransparentShadow = true;
+            // 使用 CascadedShadowGenerator (CSM) - Babylon.js 最高级的阴影方案
+            const sunShadowGenerator = new BABYLON.CascadedShadowGenerator(2048, sunLight);
+            sunShadowGenerator.numCascades = 4; // 4级级联阴影
+            sunShadowGenerator.lambda = 0.9; // 级联分布因子 (0=线性, 1=对数)
+            sunShadowGenerator.cascadeBlendPercentage = 0.05; // 级联混合
+            sunShadowGenerator.stabilizeCascades = false; // 关闭稳定化以获得更高精度
+            sunShadowGenerator.depthClamp = true; // 深度钳制
+            sunShadowGenerator.autoCalcDepthBounds = true; // 自动计算深度边界
+            sunShadowGenerator.filteringQuality = BABYLON.ShadowGenerator.QUALITY_HIGH;
+            sunShadowGenerator.enableSoftTransparentShadow = true;
+            // 初始化阴影参数 - 使用PCSS (接触硬化软阴影)
+            sunShadowGenerator.useContactHardeningShadow = true;
+            sunShadowGenerator.contactHardeningLightSizeUVRatio = 0.1;
+            sunShadowGenerator.bias = 0.0001;
+            sunShadowGenerator.normalBias = 0.02;
+            sunShadowGenerator.darkness = 0; // 0=最深阴影, 1=无阴影
+            sunShadowGenerator.penumbraDarkness = 0.4; // 半影暗度
 
             const camera = new BABYLON.ArcRotateCamera("Camera", Math.PI*0, Math.PI/3, 2, BABYLON.Vector3.Zero(), scene);
-
+            camera.maxZ = 500; // 设置相机远平面，CSM需要合理的范围
             
             camera.attachControl(canvas, true);
-            camera.minZ = 0; // 设置最近剪切平面为 0
+            camera.minZ = 0.1; // 设置最近剪切平面
             camera.wheelDeltaPercentage = 0.005; // 设置滚动速率为当前的 1/20
             camera.pinchDeltaPercentage = 0.005; // 设置触摸缩放速率为当前的 1/20
 
@@ -1659,25 +1718,20 @@
 
             const updateShadowSettings = () => {
                 const mode = shadowFilterSelect.value;
-                const blurKernel = parseFloat(shadowBlurKernelInput.value);
 
+                // CSM只支持PCF和PCSS
                 if (mode === "none") {
-                    sunShadowGenerator.filter = BABYLON.ShadowGenerator.FILTER_NONE;
+                    sunShadowGenerator.usePercentageCloserFiltering = false;
+                    sunShadowGenerator.useContactHardeningShadow = false;
                 }
                 if (mode === "pcf") {
-                    sunShadowGenerator.filter = BABYLON.ShadowGenerator.FILTER_PCF;
+                    sunShadowGenerator.usePercentageCloserFiltering = true;
+                    sunShadowGenerator.useContactHardeningShadow = false;
                 }
                 if (mode === "pcss") {
-                    sunShadowGenerator.filter = BABYLON.ShadowGenerator.FILTER_PCSS;
-                    sunShadowGenerator.contactHardeningLightSizeUVRatio = 0.1;
-                }
-                if (mode === "blurbox") {
-                    sunShadowGenerator.filter = BABYLON.ShadowGenerator.FILTER_BLURBOX;
-                    sunShadowGenerator.blurKernel = blurKernel;
-                }
-                if (mode === "blurexp") {
-                    sunShadowGenerator.filter = BABYLON.ShadowGenerator.FILTER_BLUREXPONENTIALSHADOWMAP;
-                    sunShadowGenerator.blurKernel = blurKernel;
+                    sunShadowGenerator.useContactHardeningShadow = true;
+                    sunShadowGenerator.contactHardeningLightSizeUVRatio = parseFloat(shadowLightSizeInput.value);
+                    sunShadowGenerator.penumbraDarkness = parseFloat(shadowPenumbraDarknessInput.value);
                 }
 
                 sunShadowGenerator.bias = parseFloat(shadowBiasInput.value);
@@ -1876,7 +1930,8 @@
             shadowDarknessInput.addEventListener("input", updateShadowSettings);
             shadowBiasInput.addEventListener("input", updateShadowSettings);
             shadowNormalBiasInput.addEventListener("input", updateShadowSettings);
-            shadowBlurKernelInput.addEventListener("input", updateShadowSettings);
+            shadowPenumbraDarknessInput.addEventListener("input", updateShadowSettings);
+            shadowLightSizeInput.addEventListener("input", updateShadowSettings);
 
             applyEnvironment();
             updateDirectionalLight();
