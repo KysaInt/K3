@@ -537,9 +537,9 @@
     </div>
     <div id="infoPanel" class="hidden">
         <div class="menu-section">
-            <div class="collapsible open">渲染表现</div>
+            <div class="collapsible">渲染表现</div>
             <div class="collapsible-content">
-            <div class="collapsible sub open">控制</div>
+            <div class="collapsible sub">控制</div>
             <div id="controlControls" class="collapsible-content">
                 <div class="control-group">
                     <button id="resetCameraButton" style="width: 100%; padding: 6px;">复位视角</button>
@@ -565,7 +565,7 @@
                     </div>
                 </div>
             </div>
-            <div class="collapsible sub open">光照</div>
+            <div class="collapsible sub">光照</div>
             <div id="lightControls" class="collapsible-content">
                 <div class="control-group">
                     <label for="dirLightIntensity">方向光强度</label>
@@ -635,66 +635,66 @@
                 </div>
             </div>
 
-            <div class="collapsible sub open">环境</div>
+            <div class="collapsible sub">环境</div>
             <div id="environmentControls" class="collapsible-content">
-                <div class="control-group">
-                    <label for="envMode">环境样式</label>
-                    <select id="envMode">
-                        <option value="solid">纯色</option>
-                        <option value="procedural">Procedural Sky</option>
-                        <option value="hdr" selected>HDR 贴图</option>
-                    </select>
-                </div>
-                <div id="solidControls" class="control-group">
-                    <label for="solidColor">纯色颜色</label>
-                    <input type="color" id="solidColor" value="#000000">
-                    <label for="solidOpacity">透明度</label>
-                    <div class="range-row">
-                        <input type="range" id="solidOpacity" min="0" max="1" step="0.01" value="1">
-                        <input type="number" id="solidOpacityValue" min="0" max="1" step="0.01" value="1">
-                    </div>
-                </div>
-                <div id="proceduralControls" class="control-group" style="display: none;">
-                    <label for="skyLuminance">天空亮度</label>
-                    <div class="range-row">
-                        <input type="range" id="skyLuminance" min="0" max="2" step="0.01" value="1">
-                        <input type="number" id="skyLuminanceValue" min="0" max="2" step="0.01" value="1">
-                    </div>
-                    <label for="skyTurbidity">浑浊度</label>
-                    <div class="range-row">
-                        <input type="range" id="skyTurbidity" min="0" max="50" step="0.5" value="10">
-                        <input type="number" id="skyTurbidityValue" min="0" max="50" step="0.5" value="10">
-                    </div>
-                    <label for="skyRayleigh">瑞利散射</label>
-                    <div class="range-row">
-                        <input type="range" id="skyRayleigh" min="0" max="4" step="0.01" value="2">
-                        <input type="number" id="skyRayleighValue" min="0" max="4" step="0.01" value="2">
-                    </div>
-                    <label for="skyMieCoefficient">米氏系数</label>
-                    <div class="range-row">
-                        <input type="range" id="skyMieCoefficient" min="0" max="0.01" step="0.0001" value="0.005">
-                        <input type="number" id="skyMieCoefficientValue" min="0" max="0.01" step="0.0001" value="0.005">
-                    </div>
-                    <label for="skyMieDirectionalG">米氏方向性</label>
-                    <div class="range-row">
-                        <input type="range" id="skyMieDirectionalG" min="0" max="1" step="0.01" value="0.8">
-                        <input type="number" id="skyMieDirectionalGValue" min="0" max="1" step="0.01" value="0.8">
-                    </div>
-                </div>
-
-                <div class="collapsible sub" id="hdrSectionHeader">HDR 贴图</div>
-                <div id="hdrControls" class="collapsible-content">
+                <div class="collapsible sub">天空盒</div>
+                <div id="skyboxControls" class="collapsible-content">
                     <div class="control-group">
+                        <label for="envMode">天空盒类型</label>
+                        <select id="envMode">
+                            <option value="procedural">程序天空</option>
+                            <option value="hdr" selected>HDR 天空盒</option>
+                            <option value="solid">纯色天空</option>
+                        </select>
+                    </div>
+                    <div id="solidControls" class="control-group">
+                        <label for="solidColor">纯色颜色</label>
+                        <input type="color" id="solidColor" value="#000000">
+                        <label for="solidOpacity">透明度</label>
+                        <div class="range-row">
+                            <input type="range" id="solidOpacity" min="0" max="1" step="0.01" value="1">
+                            <input type="number" id="solidOpacityValue" min="0" max="1" step="0.01" value="1">
+                        </div>
+                    </div>
+                    <div id="proceduralControls" class="control-group" style="display: none;">
+                        <label for="skyLuminance">天空亮度</label>
+                        <div class="range-row">
+                            <input type="range" id="skyLuminance" min="0" max="2" step="0.01" value="1">
+                            <input type="number" id="skyLuminanceValue" min="0" max="2" step="0.01" value="1">
+                        </div>
+                        <label for="skyTurbidity">浑浊度</label>
+                        <div class="range-row">
+                            <input type="range" id="skyTurbidity" min="0" max="50" step="0.5" value="10">
+                            <input type="number" id="skyTurbidityValue" min="0" max="50" step="0.5" value="10">
+                        </div>
+                        <label for="skyRayleigh">瑞利散射</label>
+                        <div class="range-row">
+                            <input type="range" id="skyRayleigh" min="0" max="4" step="0.01" value="2">
+                            <input type="number" id="skyRayleighValue" min="0" max="4" step="0.01" value="2">
+                        </div>
+                        <label for="skyMieCoefficient">米氏系数</label>
+                        <div class="range-row">
+                            <input type="range" id="skyMieCoefficient" min="0" max="0.01" step="0.0001" value="0.005">
+                            <input type="number" id="skyMieCoefficientValue" min="0" max="0.01" step="0.0001" value="0.005">
+                        </div>
+                        <label for="skyMieDirectionalG">米氏方向性</label>
+                        <div class="range-row">
+                            <input type="range" id="skyMieDirectionalG" min="0" max="1" step="0.01" value="0.8">
+                            <input type="number" id="skyMieDirectionalGValue" min="0" max="1" step="0.01" value="0.8">
+                        </div>
+                    </div>
+
+                    <div id="hdrControls" class="control-group">
                         <label>
                             启用 HDR 贴图
                             <input type="checkbox" id="hdrEnable" checked style="margin-left: 6px;">
                         </label>
-                        <label for="hdrSelect">HDR 贴图</label>
+                        <label for="hdrSelect">天空盒贴图</label>
                         <select id="hdrSelect">
                             <option value="A">A.hdr</option>
                             <option value="B">B.hdr</option>
-                            <option value="C" selected>C.hdr</option>
-                            <option value="D">D.hdr</option>
+                            <option value="C">C.hdr</option>
+                            <option value="D" selected>D.hdr</option>
                         </select>
                         <label>
                             显示天空盒
@@ -709,6 +709,30 @@
                             <input type="range" id="hdrRotationSpeed" min="0" max="0.01" step="0.0001" value="0.0002">
                             <input type="number" id="hdrRotationSpeedValue" min="0" max="0.01" step="0.0001" value="0.0002">
                         </div>
+                        <label for="hdrBrightness">贴图亮度</label>
+                        <div class="range-row">
+                            <input type="range" id="hdrBrightness" min="0" max="2" step="0.01" value="1">
+                            <input type="number" id="hdrBrightnessValue" min="0" max="2" step="0.01" value="1">
+                        </div>
+                        <label for="hdrContrast">贴图对比度</label>
+                        <div class="range-row">
+                            <input type="range" id="hdrContrast" min="0" max="2" step="0.01" value="1">
+                            <input type="number" id="hdrContrastValue" min="0" max="2" step="0.01" value="1">
+                        </div>
+                        <label for="hdrBlur">贴图模糊</label>
+                        <div class="range-row">
+                            <input type="range" id="hdrBlur" min="0" max="32" step="1" value="0">
+                            <input type="number" id="hdrBlurValue" min="0" max="32" step="1" value="0">
+                        </div>
+                        <label for="hdrHue">贴图色相</label>
+                        <div class="range-row">
+                            <input type="range" id="hdrHue" min="-180" max="180" step="1" value="0">
+                            <input type="number" id="hdrHueValue" min="-180" max="180" step="1" value="0">
+                        </div>
+                        <label>
+                            反色
+                            <input type="checkbox" id="hdrInvert" style="margin-left: 6px;">
+                        </label>
                     </div>
                 </div>
 
@@ -729,7 +753,7 @@
                     </div>
                 </div>
 
-                <div class="collapsible sub">格线圆盘地面</div>
+                <div class="collapsible sub">格线承影地面</div>
                 <div id="groundControls" class="collapsible-content">
                     <div class="control-group">
                         <label>
@@ -758,8 +782,8 @@
                         </div>
                         <label for="gridLineThickness">格线粗细</label>
                         <div class="range-row">
-                            <input type="range" id="gridLineThickness" min="0.1" max="6" step="0.1" value="0.1">
-                            <input type="number" id="gridLineThicknessValue" min="0.1" max="6" step="0.1" value="0.1">
+                            <input type="range" id="gridLineThickness" min="0.01" max="2" step="0.01" value="0.05">
+                            <input type="number" id="gridLineThicknessValue" min="0.01" max="2" step="0.01" value="0.05">
                         </div>
                         <label for="gridLineColor">格线颜色</label>
                         <input type="color" id="gridLineColor" value="#9a9a9a">
@@ -1030,6 +1054,7 @@
                 "envMode", "solidColor", "solidOpacity",
                 "skyLuminance", "skyTurbidity", "skyRayleigh", "skyMieCoefficient", "skyMieDirectionalG",
                 "hdrEnable", "hdrSelect", "hdrShowSkybox", "hdrRotation", "hdrRotationSpeed",
+                "hdrBrightness", "hdrContrast", "hdrBlur", "hdrHue", "hdrInvert",
                 "backgroundLayerEnable", "backgroundLayerColor", "backgroundLayerOpacity",
                 "gridGroundToggle", "gridGroundRadius", "gridFadeWidth", "gridGroundScale", "gridSpacing",
                 "gridLineThickness", "gridLineColor", "gridLineOpacity", "gridBaseColor", "gridBaseOpacity",
@@ -1154,7 +1179,6 @@
         const solidControls = document.getElementById("solidControls");
         const proceduralControls = document.getElementById("proceduralControls");
         const hdrControls = document.getElementById("hdrControls");
-        const hdrSectionHeader = document.getElementById("hdrSectionHeader");
         const solidColorInput = document.getElementById("solidColor");
         const solidOpacityInput = document.getElementById("solidOpacity");
         const solidOpacityValue = document.getElementById("solidOpacityValue");
@@ -1164,6 +1188,15 @@
         const hdrRotationToggle = document.getElementById("hdrRotation");
         const hdrRotationSpeedInput = document.getElementById("hdrRotationSpeed");
         const hdrRotationSpeedValue = document.getElementById("hdrRotationSpeedValue");
+        const hdrBrightnessInput = document.getElementById("hdrBrightness");
+        const hdrBrightnessValue = document.getElementById("hdrBrightnessValue");
+        const hdrContrastInput = document.getElementById("hdrContrast");
+        const hdrContrastValue = document.getElementById("hdrContrastValue");
+        const hdrBlurInput = document.getElementById("hdrBlur");
+        const hdrBlurValue = document.getElementById("hdrBlurValue");
+        const hdrHueInput = document.getElementById("hdrHue");
+        const hdrHueValue = document.getElementById("hdrHueValue");
+        const hdrInvertToggle = document.getElementById("hdrInvert");
         const skyLuminanceValue = document.getElementById("skyLuminanceValue");
         const skyTurbidityValue = document.getElementById("skyTurbidityValue");
         const skyRayleighValue = document.getElementById("skyRayleighValue");
@@ -1247,7 +1280,6 @@
             solidControls.style.display = mode === "solid" ? "block" : "none";
             proceduralControls.style.display = mode === "procedural" ? "block" : "none";
             hdrControls.style.display = mode === "hdr" ? "block" : "none";
-            hdrSectionHeader.style.display = mode === "hdr" ? "flex" : "none";
         };
 
         const linkRangeNumber = (rangeEl, numberEl) => {
@@ -1294,6 +1326,10 @@
         linkRangeNumber(skyMieCoefficientInput, skyMieCoefficientValue);
         linkRangeNumber(skyMieDirectionalGInput, skyMieDirectionalGValue);
         linkRangeNumber(hdrRotationSpeedInput, hdrRotationSpeedValue);
+        linkRangeNumber(hdrBrightnessInput, hdrBrightnessValue);
+        linkRangeNumber(hdrContrastInput, hdrContrastValue);
+        linkRangeNumber(hdrBlurInput, hdrBlurValue);
+        linkRangeNumber(hdrHueInput, hdrHueValue);
         linkRangeNumber(backgroundLayerOpacity, backgroundLayerOpacityValue);
 
         linkRangeNumber(gridGroundRadiusInput, gridGroundRadiusValue);
@@ -1352,6 +1388,7 @@
             "envMode", "solidColor", "solidOpacity",
             "skyLuminance", "skyTurbidity", "skyRayleigh", "skyMieCoefficient", "skyMieDirectionalG",
             "hdrEnable", "hdrSelect", "hdrShowSkybox", "hdrRotation", "hdrRotationSpeed",
+            "hdrBrightness", "hdrContrast", "hdrBlur", "hdrHue", "hdrInvert",
             "backgroundLayerEnable", "backgroundLayerColor", "backgroundLayerOpacity",
             "gridGroundToggle", "gridGroundRadius", "gridFadeWidth", "gridGroundScale", "gridSpacing",
             "gridLineThickness", "gridLineColor", "gridLineOpacity", "gridBaseColor", "gridBaseOpacity",
@@ -1450,7 +1487,7 @@
                 const size = 2048;
                 // 防御：避免 spacing 为 0/NaN 导致死循环或浏览器卡死
                 const spacing = Math.max(1, Math.floor(parseFloat(gridSpacingInput.value) || 0));
-                const lineWidth = Math.max(0.5, parseFloat(gridLineThicknessInput.value) || 0.5);
+                const lineWidth = Math.max(0.05, parseFloat(gridLineThicknessInput.value) || 0.05);
 
                 const lineColor = BABYLON.Color3.FromHexString(gridLineColorInput.value || "#9a9a9a");
                 const baseColor = BABYLON.Color3.FromHexString(gridBaseColorInput.value || "#2b2b2b");
@@ -1525,6 +1562,13 @@
 
                 // 检查是否启用背景层
                 const backgroundLayerEnabled = backgroundLayerEnable.checked;
+                const applyBackgroundLayerClearColor = () => {
+                    if (!backgroundLayerEnabled) return false;
+                    const bgColor = BABYLON.Color3.FromHexString(backgroundLayerColor.value || "#1a1a1a");
+                    const bgAlpha = parseFloat(backgroundLayerOpacity.value);
+                    scene.clearColor = new BABYLON.Color4(bgColor.r, bgColor.g, bgColor.b, bgAlpha);
+                    return true;
+                };
 
                 if (mode === "solid") {
                     scene.environmentTexture = null;
@@ -1535,34 +1579,31 @@
 
                 if (mode === "procedural") {
                     scene.environmentTexture = null;
-                    if (!backgroundLayerEnabled) {
-                        scene.clearColor = new BABYLON.Color4(0, 0, 0, 1);
-                        const skybox = BABYLON.MeshBuilder.CreateBox("proceduralSkyBox", { size: 1000 }, scene);
-                        const skyMaterial = new BABYLON.SkyMaterial("skyMaterial", scene);
-                        skyMaterial.backFaceCulling = false;
-                        skyMaterial.disableLighting = true;
-                        skyMaterial.luminance = parseFloat(skyLuminanceInput.value);
-                        skyMaterial.turbidity = parseFloat(skyTurbidityInput.value);
-                        skyMaterial.rayleigh = parseFloat(skyRayleighInput.value);
-                        skyMaterial.mieCoefficient = parseFloat(skyMieCoefficientInput.value);
-                        skyMaterial.mieDirectionalG = parseFloat(skyMieDirectionalGInput.value);
-                        skybox.material = skyMaterial;
-                        skybox.infiniteDistance = true;
-                        skybox.isPickable = false;
-                        currentSkybox = skybox;
-                        currentSkyMaterial = skyMaterial;
-                    } else {
-                        // 应用背景层颜色
-                        const bgColor = BABYLON.Color3.FromHexString(backgroundLayerColor.value || "#1a1a1a");
-                        const bgAlpha = parseFloat(backgroundLayerOpacity.value);
-                        scene.clearColor = new BABYLON.Color4(bgColor.r, bgColor.g, bgColor.b, bgAlpha);
-                    }
+                    scene.clearColor = new BABYLON.Color4(0, 0, 0, 1);
+                    const skybox = BABYLON.MeshBuilder.CreateBox("proceduralSkyBox", { size: 5000 }, scene);
+                    const skyMaterial = new BABYLON.SkyMaterial("skyMaterial", scene);
+                    skyMaterial.backFaceCulling = false;
+                    skyMaterial.disableLighting = true;
+                    skyMaterial.luminance = parseFloat(skyLuminanceInput.value);
+                    skyMaterial.turbidity = parseFloat(skyTurbidityInput.value);
+                    skyMaterial.rayleigh = parseFloat(skyRayleighInput.value);
+                    skyMaterial.mieCoefficient = parseFloat(skyMieCoefficientInput.value);
+                    skyMaterial.mieDirectionalG = parseFloat(skyMieDirectionalGInput.value);
+                    skybox.material = skyMaterial;
+                    skybox.infiniteDistance = true;
+                    skybox.isPickable = false;
+                    skybox.parent = null;
+                    skybox.rotationQuaternion = null;
+                    currentSkybox = skybox;
+                    currentSkyMaterial = skyMaterial;
+                    applyBackgroundLayerClearColor();
                 }
 
                 if (mode === "hdr") {
                     if (!hdrEnabled) {
                         scene.environmentTexture = null;
                         scene.clearColor = new BABYLON.Color4(0, 0, 0, 1);
+                        applyBackgroundLayerClearColor();
                         return;
                     }
                     
@@ -1571,18 +1612,11 @@
                     scene.environmentTexture = hdrTexture;
                     currentHdrTexture = hdrTexture;
                     
-                    if (backgroundLayerEnabled) {
-                        // 启用背景层时：不显示天空盒，使用背景层颜色
-                        const bgColor = BABYLON.Color3.FromHexString(backgroundLayerColor.value || "#1a1a1a");
-                        const bgAlpha = parseFloat(backgroundLayerOpacity.value);
-                        scene.clearColor = new BABYLON.Color4(bgColor.r, bgColor.g, bgColor.b, bgAlpha);
-                    } else {
-                        // 未启用背景层时：根据设置决定是否显示天空盒
-                        scene.clearColor = new BABYLON.Color4(0, 0, 0, 1);
-                        if (showHdrSkybox) {
-                            currentSkybox = scene.createDefaultSkybox(hdrTexture, true, 1000);
-                        }
+                    scene.clearColor = new BABYLON.Color4(0, 0, 0, 1);
+                    if (showHdrSkybox) {
+                        currentSkybox = scene.createDefaultSkybox(hdrTexture, true, 5000);
                     }
+                    applyBackgroundLayerClearColor();
                 }
             };
 
@@ -1631,7 +1665,7 @@
             sunShadowGenerator.penumbraDarkness = 0.4; // 半影暗度
 
             const camera = new BABYLON.ArcRotateCamera("Camera", Math.PI*0, Math.PI/3, 2, BABYLON.Vector3.Zero(), scene);
-            camera.maxZ = 500; // 设置相机远平面，CSM需要合理的范围
+            camera.maxZ = 5000; // 提升远平面，避免天空盒被裁切
             
             camera.attachControl(canvas, true);
             camera.minZ = 0.1; // 设置最近剪切平面
@@ -1702,6 +1736,76 @@
             scene.imageProcessingConfiguration.toneMappingEnabled = true;
             scene.imageProcessingConfiguration.exposure = parseFloat(exposureInput.value);
             scene.imageProcessingConfiguration.contrast = parseFloat(contrastInput.value);
+
+            BABYLON.Effect.ShadersStore["hdrColorFragmentShader"] = `
+                precision highp float;
+                varying vec2 vUV;
+                uniform sampler2D textureSampler;
+                uniform float brightness;
+                uniform float contrast;
+                uniform float hue;
+                uniform float invert;
+
+                vec3 applyHue(vec3 color, float angle) {
+                    float s = sin(angle);
+                    float c = cos(angle);
+                    mat3 m = mat3(
+                        0.213 + c * 0.787 - s * 0.213, 0.715 - c * 0.715 - s * 0.715, 0.072 - c * 0.072 + s * 0.928,
+                        0.213 - c * 0.213 + s * 0.143, 0.715 + c * 0.285 + s * 0.140, 0.072 - c * 0.072 - s * 0.283,
+                        0.213 - c * 0.213 - s * 0.787, 0.715 - c * 0.715 + s * 0.715, 0.072 + c * 0.928 + s * 0.072
+                    );
+                    return clamp(m * color, 0.0, 1.0);
+                }
+
+                void main(void) {
+                    vec4 color = texture2D(textureSampler, vUV);
+                    color.rgb = mix(color.rgb, vec3(1.0) - color.rgb, invert);
+                    color.rgb = color.rgb * brightness;
+                    color.rgb = (color.rgb - 0.5) * contrast + 0.5;
+                    color.rgb = applyHue(color.rgb, hue);
+                    gl_FragColor = color;
+                }
+            `;
+
+            const hdrBlurX = new BABYLON.BlurPostProcess("hdrBlurX", new BABYLON.Vector2(1, 0), 1, 1.0, camera);
+            const hdrBlurY = new BABYLON.BlurPostProcess("hdrBlurY", new BABYLON.Vector2(0, 1), 1, 1.0, camera);
+            const hdrColorPostProcess = new BABYLON.PostProcess(
+                "hdrColor",
+                "hdrColor",
+                ["brightness", "contrast", "hue", "invert"],
+                null,
+                1.0,
+                camera
+            );
+
+            hdrBlurX.enabled = false;
+            hdrBlurY.enabled = false;
+            hdrColorPostProcess.enabled = false;
+
+            const updateHdrEffects = () => {
+                const active = envModeSelect.value === "hdr" && hdrEnableToggle.checked;
+                const blurValue = parseFloat(hdrBlurInput.value) || 0;
+                hdrBlurX.enabled = active && blurValue > 0;
+                hdrBlurY.enabled = active && blurValue > 0;
+                hdrColorPostProcess.enabled = active;
+
+                if (hdrBlurX.enabled) {
+                    const kernel = Math.max(1, blurValue);
+                    hdrBlurX.kernel = kernel;
+                    hdrBlurY.kernel = kernel;
+                }
+            };
+
+            hdrColorPostProcess.onApply = (effect) => {
+                const brightness = parseFloat(hdrBrightnessInput.value) || 1;
+                const contrast = parseFloat(hdrContrastInput.value) || 1;
+                const hue = (parseFloat(hdrHueInput.value) || 0) * Math.PI / 180;
+                const invert = hdrInvertToggle.checked ? 1 : 0;
+                effect.setFloat("brightness", brightness);
+                effect.setFloat("contrast", contrast);
+                effect.setFloat("hue", hue);
+                effect.setFloat("invert", invert);
+            };
 
             const updateDirectionalLight = () => {
                 const direction = new BABYLON.Vector3(
@@ -1832,11 +1936,13 @@
             envModeSelect.addEventListener("change", () => {
                 updateEnvironmentUI();
                 applyEnvironment();
+                updateHdrEffects();
             });
             solidOpacityInput.addEventListener("input", applyEnvironment);
             hdrEnableToggle.addEventListener("change", (event) => {
                 hdrEnabled = event.target.checked;
                 applyEnvironment();
+                updateHdrEffects();
             });
             hdrSelect.addEventListener("change", applyEnvironment);
             hdrShowSkyboxToggle.addEventListener("change", (event) => {
@@ -1849,6 +1955,11 @@
             hdrRotationSpeedInput.addEventListener("input", (event) => {
                 hdrRotationSpeed = parseFloat(event.target.value);
             });
+            hdrBrightnessInput.addEventListener("input", updateHdrEffects);
+            hdrContrastInput.addEventListener("input", updateHdrEffects);
+            hdrBlurInput.addEventListener("input", updateHdrEffects);
+            hdrHueInput.addEventListener("input", updateHdrEffects);
+            hdrInvertToggle.addEventListener("change", updateHdrEffects);
 
             backgroundLayerEnable.addEventListener("change", applyEnvironment);
             // 优化背景层颜色/透明度更改 - 只更新clearColor
@@ -1934,6 +2045,7 @@
             shadowLightSizeInput.addEventListener("input", updateShadowSettings);
 
             applyEnvironment();
+            updateHdrEffects();
             updateDirectionalLight();
             updateRenderSettings();
             updateGyroControl();
