@@ -391,6 +391,21 @@
             letter-spacing: 0.5px;
         }
 
+        #loadingProgressTrack {
+            width: min(280px, 70vw);
+            height: 4px;
+            overflow: hidden;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 4px;
+        }
+
+        #loadingProgressBar {
+            width: 0;
+            height: 100%;
+            background: #fff;
+            transition: width 0.15s linear;
+        }
+
         /* 左侧材质属性面板 */
         #materialPanel {
             position: absolute;
@@ -499,7 +514,8 @@
 <body>
     <div id="loadingBarContainer">
         <div id="loadingBarLabel">Loading<span id="loadingDots" aria-hidden="true"><span>.</span><span>.</span><span>.</span></span></div>
-        <div id="loadingPercent">Created by Aye</div>
+        <div id="loadingProgressTrack" role="progressbar" aria-label="模型加载进度" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><div id="loadingProgressBar"></div></div>
+        <div id="loadingPercent" aria-live="polite">等待模型资源…</div>
     </div>
     <canvas id="renderCanvas" style="width: 100vw; height: 100vh; visibility: hidden;"></canvas>
     <button id="togglePanelButton" class="hidden">
@@ -803,7 +819,7 @@
                 </div>
             </div>
 
-            <div class="collapsible sub">引擎</div>
+            <div class="collapsible sub">后处理</div>
             <div id="renderControls" class="collapsible-content">
                 <div class="control-group">
                     <label>
@@ -814,6 +830,45 @@
                         启用 SSAO
                         <input type="checkbox" id="ssaoToggle" checked style="margin-left: 6px;">
                     </label>
+                    <label for="ssaoRadius">SSAO 半径</label>
+                    <div class="range-row">
+                        <input type="range" id="ssaoRadius" min="0.000001" max="0.02" step="0.0001" value="0.000001">
+                        <input type="number" id="ssaoRadiusValue" min="0.000001" max="0.02" step="0.0001" value="0.000001">
+                    </div>
+                    <label for="ssaoStrength">SSAO 强度</label>
+                    <div class="range-row">
+                        <input type="range" id="ssaoStrength" min="0" max="4" step="0.05" value="1">
+                        <input type="number" id="ssaoStrengthValue" min="0" max="4" step="0.05" value="1">
+                    </div>
+                    <label for="ssaoArea">SSAO 区域</label>
+                    <div class="range-row">
+                        <input type="range" id="ssaoArea" min="0.1" max="10" step="0.1" value="1">
+                        <input type="number" id="ssaoAreaValue" min="0.1" max="10" step="0.1" value="1">
+                    </div>
+                    <label for="ssaoFallOff">SSAO 衰减</label>
+                    <div class="range-row">
+                        <input type="range" id="ssaoFallOff" min="0.000001" max="0.1" step="0.0001" value="0.000001">
+                        <input type="number" id="ssaoFallOffValue" min="0.000001" max="0.1" step="0.0001" value="0.000001">
+                    </div>
+                    <label>
+                        Bayer 抖动 / 像素化
+                        <input type="checkbox" id="ditherToggle" style="margin-left: 6px;">
+                    </label>
+                    <label for="pixelSize">像素尺寸</label>
+                    <div class="range-row">
+                        <input type="range" id="pixelSize" min="1" max="16" step="1" value="4">
+                        <input type="number" id="pixelSizeValue" min="1" max="16" step="1" value="4">
+                    </div>
+                    <label for="ditherLevels">色阶数量</label>
+                    <div class="range-row">
+                        <input type="range" id="ditherLevels" min="2" max="16" step="1" value="4">
+                        <input type="number" id="ditherLevelsValue" min="2" max="16" step="1" value="4">
+                    </div>
+                    <label for="ditherStrength">抖动强度</label>
+                    <div class="range-row">
+                        <input type="range" id="ditherStrength" min="0" max="1" step="0.01" value="0.7">
+                        <input type="number" id="ditherStrengthValue" min="0" max="1" step="0.01" value="0.7">
+                    </div>
                     <label>
                         启用陀螺仪控制
                         <input type="checkbox" id="gyroToggle" style="margin-left: 6px;">
@@ -844,8 +899,13 @@
 
         const loadingBarContainer = document.getElementById("loadingBarContainer");
         const loadingPercent = document.getElementById("loadingPercent");
+        const loadingProgressBar = document.getElementById("loadingProgressBar");
+        const loadingProgressTrack = document.getElementById("loadingProgressTrack");
 
         const hideLoadingBar = () => {
+            if (loadingProgressBar) loadingProgressBar.style.width = "100%";
+            if (loadingProgressTrack) loadingProgressTrack.setAttribute("aria-valuenow", "100");
+            if (loadingPercent) loadingPercent.textContent = "场景就绪";
             loadingBarContainer.style.display = "none";
         };
 
@@ -1059,7 +1119,9 @@
                 "gridGroundToggle", "gridGroundRadius", "gridFadeWidth", "gridGroundScale", "gridSpacing",
                 "gridLineThickness", "gridLineColor", "gridLineOpacity", "gridBaseColor", "gridBaseOpacity",
                 "dirLightIntensity", "dirLightX", "dirLightY", "dirLightZ", "dirLightColor", "dirLightOpacity",
-                "fxaaToggle", "ssaoToggle", "gyroToggle", "renderScale", "exposure", "contrast",
+                "fxaaToggle", "ssaoToggle", "ssaoRadius", "ssaoStrength", "ssaoArea", "ssaoFallOff",
+                "ditherToggle", "pixelSize", "ditherLevels", "ditherStrength",
+                "gyroToggle", "renderScale", "exposure", "contrast",
                 "shadowFilter", "shadowDarkness", "shadowBias", "shadowNormalBias", "shadowPenumbraDarkness", "shadowLightSize",
                 "mouseSensitivity", "keyboardMoveSpeed", "verticalMoveSpeed", "jumpSpeed"
             ];
@@ -1246,6 +1308,21 @@
 
         const fxaaToggle = document.getElementById("fxaaToggle");
         const ssaoToggle = document.getElementById("ssaoToggle");
+        const ssaoRadiusInput = document.getElementById("ssaoRadius");
+        const ssaoRadiusValue = document.getElementById("ssaoRadiusValue");
+        const ssaoStrengthInput = document.getElementById("ssaoStrength");
+        const ssaoStrengthValue = document.getElementById("ssaoStrengthValue");
+        const ssaoAreaInput = document.getElementById("ssaoArea");
+        const ssaoAreaValue = document.getElementById("ssaoAreaValue");
+        const ssaoFallOffInput = document.getElementById("ssaoFallOff");
+        const ssaoFallOffValue = document.getElementById("ssaoFallOffValue");
+        const ditherToggle = document.getElementById("ditherToggle");
+        const pixelSizeInput = document.getElementById("pixelSize");
+        const pixelSizeValue = document.getElementById("pixelSizeValue");
+        const ditherLevelsInput = document.getElementById("ditherLevels");
+        const ditherLevelsValue = document.getElementById("ditherLevelsValue");
+        const ditherStrengthInput = document.getElementById("ditherStrength");
+        const ditherStrengthValue = document.getElementById("ditherStrengthValue");
         const gyroToggle = document.getElementById("gyroToggle");
         const renderScaleInput = document.getElementById("renderScale");
         const renderScaleValue = document.getElementById("renderScaleValue");
@@ -1345,6 +1422,14 @@
         linkRangeNumber(dirLightYInput, dirLightYValue);
         linkRangeNumber(dirLightZInput, dirLightZValue);
         linkRangeNumber(dirLightOpacityInput, dirLightOpacityValue);
+
+        linkRangeNumber(ssaoRadiusInput, ssaoRadiusValue);
+        linkRangeNumber(ssaoStrengthInput, ssaoStrengthValue);
+        linkRangeNumber(ssaoAreaInput, ssaoAreaValue);
+        linkRangeNumber(ssaoFallOffInput, ssaoFallOffValue);
+        linkRangeNumber(pixelSizeInput, pixelSizeValue);
+        linkRangeNumber(ditherLevelsInput, ditherLevelsValue);
+        linkRangeNumber(ditherStrengthInput, ditherStrengthValue);
 
         linkRangeNumber(renderScaleInput, renderScaleValue);
         linkRangeNumber(exposureInput, exposureValue);
@@ -1722,16 +1807,61 @@
 
             // 开启环境光遮蔽
             const aoRenderer = new BABYLON.SSAORenderingPipeline("ssao", scene, 1);
-            aoRenderer.radius = .000001; // 设置遮蔽半径
-            aoRenderer.totalStrength = 1; // 设置遮蔽强度
-            aoRenderer.area = 1; // 设置遮蔽区域
-            aoRenderer.fallOff = 0.000001; // 设置遮蔽衰减
+            aoRenderer.radius = parseFloat(ssaoRadiusInput.value);
+            aoRenderer.totalStrength = parseFloat(ssaoStrengthInput.value);
+            aoRenderer.area = parseFloat(ssaoAreaInput.value);
+            aoRenderer.fallOff = parseFloat(ssaoFallOffInput.value);
             aoRenderer.base = .1; // 设置遮蔽基础值
             scene.postProcessRenderPipelineManager.attachCamerasToRenderPipeline("ssao", camera);
 
             // 添加抗锯齿效果
             const fxaaPostProcess = new BABYLON.FxaaPostProcess("fxaa", 1.0, camera);
             fxaaPostProcess.samples = 16; // 设置采样数为 16
+
+            BABYLON.Effect.ShadersStore["bayerDitherFragmentShader"] = `
+                precision highp float;
+                varying vec2 vUV;
+                uniform sampler2D textureSampler;
+                uniform vec2 screenSize;
+                uniform float pixelSize;
+                uniform float levels;
+                uniform float strength;
+
+                float bayer2(vec2 p) {
+                    float x = mod(p.x, 2.0);
+                    float y = mod(p.y, 2.0);
+                    return 2.0 * x + 3.0 * y - 4.0 * x * y;
+                }
+
+                float bayer4(vec2 p) {
+                    float rank = 4.0 * bayer2(mod(p, 2.0)) + bayer2(floor(p / 2.0));
+                    return (rank + 0.5) / 16.0 - 0.5;
+                }
+
+                void main(void) {
+                    vec2 pixel = max(vec2(1.0), vec2(pixelSize));
+                    vec2 uv = (floor(vUV * screenSize / pixel) * pixel + pixel * 0.5) / screenSize;
+                    vec4 color = texture2D(textureSampler, uv);
+                    float threshold = bayer4(floor(gl_FragCoord.xy / pixel));
+                    color.rgb = clamp(floor(color.rgb * (levels - 1.0) + threshold * strength + 0.5) / (levels - 1.0), 0.0, 1.0);
+                    gl_FragColor = color;
+                }
+            `;
+            const ditherPostProcess = new BABYLON.PostProcess(
+                "bayerDither",
+                "bayerDither",
+                ["pixelSize", "levels", "strength"],
+                ["screenSize"],
+                1.0,
+                camera
+            );
+            ditherPostProcess.onApply = (effect) => {
+                effect.setFloat("pixelSize", parseFloat(pixelSizeInput.value));
+                effect.setFloat("levels", parseFloat(ditherLevelsInput.value));
+                effect.setFloat("strength", parseFloat(ditherStrengthInput.value));
+                effect.setFloat2("screenSize", engine.getRenderWidth(), engine.getRenderHeight());
+            };
+            ditherPostProcess.enabled = ditherToggle.checked;
 
             scene.imageProcessingConfiguration.toneMappingEnabled = true;
             scene.imageProcessingConfiguration.exposure = parseFloat(exposureInput.value);
@@ -1845,6 +1975,11 @@
 
             const updateRenderSettings = () => {
                 fxaaPostProcess.enabled = fxaaToggle.checked;
+                aoRenderer.radius = parseFloat(ssaoRadiusInput.value);
+                aoRenderer.totalStrength = parseFloat(ssaoStrengthInput.value);
+                aoRenderer.area = parseFloat(ssaoAreaInput.value);
+                aoRenderer.fallOff = parseFloat(ssaoFallOffInput.value);
+                ditherPostProcess.enabled = ditherToggle.checked;
                 if (ssaoToggle.checked) {
                     scene.postProcessRenderPipelineManager.attachCamerasToRenderPipeline("ssao", camera);
                 } else {
@@ -2010,6 +2145,9 @@
 
             fxaaToggle.addEventListener("change", updateRenderSettings);
             ssaoToggle.addEventListener("change", updateRenderSettings);
+            [ssaoRadiusInput, ssaoStrengthInput, ssaoAreaInput, ssaoFallOffInput,
+                ditherToggle, pixelSizeInput, ditherLevelsInput, ditherStrengthInput]
+                .forEach((input) => input.addEventListener(input.type === "checkbox" ? "change" : "input", updateRenderSettings));
             renderScaleInput.addEventListener("input", updateRenderSettings);
             exposureInput.addEventListener("input", updateRenderSettings);
             contrastInput.addEventListener("input", updateRenderSettings);
@@ -2057,7 +2195,7 @@
             loadingBarContainer.style.display = "flex";
             // 让 canvas 在 loading 期间就开始渲染/编译（遮罩盖在上面）
             canvas.style.visibility = "visible";
-            if (loadingPercent) loadingPercent.textContent = "Created by Aye";
+            if (loadingPercent) loadingPercent.textContent = "正在加载模型…";
 
             // 加载模型
             BABYLON.SceneLoader.LoadAssetContainer(
@@ -2066,6 +2204,7 @@
                 scene, 
                 (container) => {
                     console.log("模型加载完成！");
+                    if (loadingPercent) loadingPercent.textContent = "模型下载完成，正在准备场景…";
                     container.addAllToScene();
                     
                     startRenderLoop();
@@ -2496,8 +2635,15 @@
                 // 加载进度回调
                 if (evt && evt.lengthComputable && evt.total > 0) {
                     const progress = Math.round((evt.loaded / evt.total) * 100);
-                    // 保持署名文本，不在这里覆盖
-                    void progress;
+                    if (loadingProgressBar) loadingProgressBar.style.width = `${progress}%`;
+                    if (loadingProgressTrack) loadingProgressTrack.setAttribute("aria-valuenow", String(progress));
+                    if (loadingPercent) {
+                        const loadedMb = (evt.loaded / (1024 * 1024)).toFixed(1);
+                        const totalMb = (evt.total / (1024 * 1024)).toFixed(1);
+                        loadingPercent.textContent = `下载模型 ${progress}%（${loadedMb} / ${totalMb} MB）`;
+                    }
+                } else if (loadingPercent) {
+                    loadingPercent.textContent = "正在下载模型…";
                 }
             }, (evt) => {
                 console.warn("模型加载失败", evt);
