@@ -850,10 +850,23 @@
                         <input type="range" id="ssaoFallOff" min="0.000001" max="0.1" step="0.0001" value="0.000001">
                         <input type="number" id="ssaoFallOffValue" min="0.000001" max="0.1" step="0.0001" value="0.000001">
                     </div>
+                    <div class="collapsible sub">抖动与像素化</div>
+                    <div class="collapsible-content">
                     <label>
-                        Bayer 抖动 / 像素化
+                        抖动 / 像素化
                         <input type="checkbox" id="ditherToggle" style="margin-left: 6px;">
                     </label>
+                    <label for="ditherType">抖动算法</label>
+                    <select id="ditherType">
+                        <option value="0">Bayer 2×2</option>
+                        <option value="1" selected>Bayer 4×4</option>
+                        <option value="2">Bayer 8×8</option>
+                        <option value="3">蓝噪声风格</option>
+                        <option value="4">随机噪声</option>
+                        <option value="5">误差扩散近似</option>
+                        <option value="6">棋盘矩阵</option>
+                        <option value="7">螺旋矩阵</option>
+                    </select>
                     <label for="pixelSize">像素尺寸</label>
                     <div class="range-row">
                         <input type="range" id="pixelSize" min="1" max="16" step="1" value="4">
@@ -868,6 +881,76 @@
                     <div class="range-row">
                         <input type="range" id="ditherStrength" min="0" max="1" step="0.01" value="0.7">
                         <input type="number" id="ditherStrengthValue" min="0" max="1" step="0.01" value="0.7">
+                    </div>
+                    </div>
+                    <div class="collapsible sub">边缘强化</div>
+                    <div class="collapsible-content">
+                        <label>启用边缘强化 <input type="checkbox" id="edgeToggle" style="margin-left: 6px;"></label>
+                        <label for="edgeStrength">边缘强度</label>
+                        <div class="range-row">
+                            <input type="range" id="edgeStrength" min="0" max="3" step="0.05" value="0.8">
+                            <input type="number" id="edgeStrengthValue" min="0" max="3" step="0.05" value="0.8">
+                        </div>
+                        <label for="edgeWidth">边缘宽度</label>
+                        <div class="range-row">
+                            <input type="range" id="edgeWidth" min="0.5" max="3" step="0.1" value="1">
+                            <input type="number" id="edgeWidthValue" min="0.5" max="3" step="0.1" value="1">
+                        </div>
+                        <label for="edgeColor">边缘颜色</label>
+                        <input type="color" id="edgeColor" value="#ffffff">
+                    </div>
+                    <div class="collapsible sub">彩色半调</div>
+                    <div class="collapsible-content">
+                        <label>启用彩色半调 <input type="checkbox" id="halftoneToggle" style="margin-left: 6px;"></label>
+                        <label for="halftoneSize">网点尺寸</label>
+                        <div class="range-row">
+                            <input type="range" id="halftoneSize" min="2" max="32" step="1" value="8">
+                            <input type="number" id="halftoneSizeValue" min="2" max="32" step="1" value="8">
+                        </div>
+                        <label for="halftoneStrength">半调强度</label>
+                        <div class="range-row">
+                            <input type="range" id="halftoneStrength" min="0" max="1" step="0.01" value="0.8">
+                            <input type="number" id="halftoneStrengthValue" min="0" max="1" step="0.01" value="0.8">
+                        </div>
+                        <label for="halftoneAngle">网点角度</label>
+                        <div class="range-row">
+                            <input type="range" id="halftoneAngle" min="0" max="90" step="1" value="30">
+                            <input type="number" id="halftoneAngleValue" min="0" max="90" step="1" value="30">
+                        </div>
+                    </div>
+                    <div class="collapsible sub">辉光</div>
+                    <div class="collapsible-content">
+                        <label>启用辉光 <input type="checkbox" id="glowToggle" style="margin-left: 6px;"></label>
+                        <label for="glowThreshold">辉光阈值</label>
+                        <div class="range-row">
+                            <input type="range" id="glowThreshold" min="0" max="2" step="0.01" value="0.7">
+                            <input type="number" id="glowThresholdValue" min="0" max="2" step="0.01" value="0.7">
+                        </div>
+                        <label for="glowIntensity">辉光强度</label>
+                        <div class="range-row">
+                            <input type="range" id="glowIntensity" min="0" max="3" step="0.05" value="0.8">
+                            <input type="number" id="glowIntensityValue" min="0" max="3" step="0.05" value="0.8">
+                        </div>
+                        <label for="glowRadius">辉光范围</label>
+                        <div class="range-row">
+                            <input type="range" id="glowRadius" min="1" max="12" step="1" value="4">
+                            <input type="number" id="glowRadiusValue" min="1" max="12" step="1" value="4">
+                        </div>
+                    </div>
+                    <div class="collapsible sub">镜头效果</div>
+                    <div class="collapsible-content">
+                        <label>启用暗角 <input type="checkbox" id="vignetteToggle" style="margin-left: 6px;"></label>
+                        <label for="vignetteStrength">暗角强度</label>
+                        <div class="range-row">
+                            <input type="range" id="vignetteStrength" min="0" max="1" step="0.01" value="0.45">
+                            <input type="number" id="vignetteStrengthValue" min="0" max="1" step="0.01" value="0.45">
+                        </div>
+                        <label>启用色差 <input type="checkbox" id="chromaticToggle" style="margin-left: 6px;"></label>
+                        <label for="chromaticStrength">色差强度</label>
+                        <div class="range-row">
+                            <input type="range" id="chromaticStrength" min="0" max="8" step="0.1" value="2">
+                            <input type="number" id="chromaticStrengthValue" min="0" max="8" step="0.1" value="2">
+                        </div>
                     </div>
                     <label>
                         启用陀螺仪控制
@@ -1120,7 +1203,11 @@
                 "gridLineThickness", "gridLineColor", "gridLineOpacity", "gridBaseColor", "gridBaseOpacity",
                 "dirLightIntensity", "dirLightX", "dirLightY", "dirLightZ", "dirLightColor", "dirLightOpacity",
                 "fxaaToggle", "ssaoToggle", "ssaoRadius", "ssaoStrength", "ssaoArea", "ssaoFallOff",
-                "ditherToggle", "pixelSize", "ditherLevels", "ditherStrength",
+                "ditherToggle", "ditherType", "pixelSize", "ditherLevels", "ditherStrength",
+                "edgeToggle", "edgeStrength", "edgeWidth", "edgeColor",
+                "halftoneToggle", "halftoneSize", "halftoneStrength", "halftoneAngle",
+                "glowToggle", "glowThreshold", "glowIntensity", "glowRadius",
+                "vignetteToggle", "vignetteStrength", "chromaticToggle", "chromaticStrength",
                 "gyroToggle", "renderScale", "exposure", "contrast",
                 "shadowFilter", "shadowDarkness", "shadowBias", "shadowNormalBias", "shadowPenumbraDarkness", "shadowLightSize",
                 "mouseSensitivity", "keyboardMoveSpeed", "verticalMoveSpeed", "jumpSpeed"
@@ -1317,12 +1404,39 @@
         const ssaoFallOffInput = document.getElementById("ssaoFallOff");
         const ssaoFallOffValue = document.getElementById("ssaoFallOffValue");
         const ditherToggle = document.getElementById("ditherToggle");
+        const ditherTypeSelect = document.getElementById("ditherType");
         const pixelSizeInput = document.getElementById("pixelSize");
         const pixelSizeValue = document.getElementById("pixelSizeValue");
         const ditherLevelsInput = document.getElementById("ditherLevels");
         const ditherLevelsValue = document.getElementById("ditherLevelsValue");
         const ditherStrengthInput = document.getElementById("ditherStrength");
         const ditherStrengthValue = document.getElementById("ditherStrengthValue");
+        const edgeToggle = document.getElementById("edgeToggle");
+        const edgeStrengthInput = document.getElementById("edgeStrength");
+        const edgeStrengthValue = document.getElementById("edgeStrengthValue");
+        const edgeWidthInput = document.getElementById("edgeWidth");
+        const edgeWidthValue = document.getElementById("edgeWidthValue");
+        const edgeColorInput = document.getElementById("edgeColor");
+        const halftoneToggle = document.getElementById("halftoneToggle");
+        const halftoneSizeInput = document.getElementById("halftoneSize");
+        const halftoneSizeValue = document.getElementById("halftoneSizeValue");
+        const halftoneStrengthInput = document.getElementById("halftoneStrength");
+        const halftoneStrengthValue = document.getElementById("halftoneStrengthValue");
+        const halftoneAngleInput = document.getElementById("halftoneAngle");
+        const halftoneAngleValue = document.getElementById("halftoneAngleValue");
+        const glowToggle = document.getElementById("glowToggle");
+        const glowThresholdInput = document.getElementById("glowThreshold");
+        const glowThresholdValue = document.getElementById("glowThresholdValue");
+        const glowIntensityInput = document.getElementById("glowIntensity");
+        const glowIntensityValue = document.getElementById("glowIntensityValue");
+        const glowRadiusInput = document.getElementById("glowRadius");
+        const glowRadiusValue = document.getElementById("glowRadiusValue");
+        const vignetteToggle = document.getElementById("vignetteToggle");
+        const vignetteStrengthInput = document.getElementById("vignetteStrength");
+        const vignetteStrengthValue = document.getElementById("vignetteStrengthValue");
+        const chromaticToggle = document.getElementById("chromaticToggle");
+        const chromaticStrengthInput = document.getElementById("chromaticStrength");
+        const chromaticStrengthValue = document.getElementById("chromaticStrengthValue");
         const gyroToggle = document.getElementById("gyroToggle");
         const renderScaleInput = document.getElementById("renderScale");
         const renderScaleValue = document.getElementById("renderScaleValue");
@@ -1430,6 +1544,16 @@
         linkRangeNumber(pixelSizeInput, pixelSizeValue);
         linkRangeNumber(ditherLevelsInput, ditherLevelsValue);
         linkRangeNumber(ditherStrengthInput, ditherStrengthValue);
+        linkRangeNumber(edgeStrengthInput, edgeStrengthValue);
+        linkRangeNumber(edgeWidthInput, edgeWidthValue);
+        linkRangeNumber(halftoneSizeInput, halftoneSizeValue);
+        linkRangeNumber(halftoneStrengthInput, halftoneStrengthValue);
+        linkRangeNumber(halftoneAngleInput, halftoneAngleValue);
+        linkRangeNumber(glowThresholdInput, glowThresholdValue);
+        linkRangeNumber(glowIntensityInput, glowIntensityValue);
+        linkRangeNumber(glowRadiusInput, glowRadiusValue);
+        linkRangeNumber(vignetteStrengthInput, vignetteStrengthValue);
+        linkRangeNumber(chromaticStrengthInput, chromaticStrengthValue);
 
         linkRangeNumber(renderScaleInput, renderScaleValue);
         linkRangeNumber(exposureInput, exposureValue);
@@ -1478,7 +1602,13 @@
             "gridGroundToggle", "gridGroundRadius", "gridFadeWidth", "gridGroundScale", "gridSpacing",
             "gridLineThickness", "gridLineColor", "gridLineOpacity", "gridBaseColor", "gridBaseOpacity",
             "dirLightIntensity", "dirLightX", "dirLightY", "dirLightZ", "dirLightColor", "dirLightOpacity",
-            "fxaaToggle", "ssaoToggle", "gyroToggle", "renderScale", "exposure", "contrast",
+            "fxaaToggle", "ssaoToggle", "ssaoRadius", "ssaoStrength", "ssaoArea", "ssaoFallOff",
+            "ditherToggle", "ditherType", "pixelSize", "ditherLevels", "ditherStrength",
+            "edgeToggle", "edgeStrength", "edgeWidth", "edgeColor",
+            "halftoneToggle", "halftoneSize", "halftoneStrength", "halftoneAngle",
+            "glowToggle", "glowThreshold", "glowIntensity", "glowRadius",
+            "vignetteToggle", "vignetteStrength", "chromaticToggle", "chromaticStrength",
+            "gyroToggle", "renderScale", "exposure", "contrast",
             "shadowFilter", "shadowDarkness", "shadowBias", "shadowNormalBias", "shadowPenumbraDarkness", "shadowLightSize",
             "mouseSensitivity", "keyboardMoveSpeed", "verticalMoveSpeed", "jumpSpeed"
         ].forEach((id) => {
@@ -1826,6 +1956,7 @@
                 uniform float pixelSize;
                 uniform float levels;
                 uniform float strength;
+                uniform float ditherType;
 
                 float bayer2(vec2 p) {
                     float x = mod(p.x, 2.0);
@@ -1833,24 +1964,81 @@
                     return 2.0 * x + 3.0 * y - 4.0 * x * y;
                 }
 
-                float bayer4(vec2 p) {
-                    float rank = 4.0 * bayer2(mod(p, 2.0)) + bayer2(floor(p / 2.0));
-                    return (rank + 0.5) / 16.0 - 0.5;
+                float bayerRank4(vec2 p) {
+                    return 4.0 * bayer2(mod(p, 2.0)) + bayer2(floor(p / 2.0));
+                }
+
+                float bayerRank8(vec2 p) {
+                    return 4.0 * bayerRank4(mod(p, 4.0)) + bayer2(floor(p / 4.0));
+                }
+
+                float hash12(vec2 p) {
+                    vec3 p3 = fract(vec3(p.xyx) * 0.1031);
+                    p3 += dot(p3, p3.yzx + 33.33);
+                    return fract((p3.x + p3.y) * p3.z);
+                }
+
+                float blueNoiseStyle(vec2 p) {
+                    float center = hash12(p);
+                    float neighbors = (
+                        hash12(p + vec2(1.0, 0.0)) +
+                        hash12(p - vec2(1.0, 0.0)) +
+                        hash12(p + vec2(0.0, 1.0)) +
+                        hash12(p - vec2(0.0, 1.0))
+                    ) * 0.25;
+                    return clamp(0.5 + (center - neighbors) * 0.75, 0.0, 1.0) - 0.5;
+                }
+
+                float spiralRank(vec2 p) {
+                    float ring = min(min(p.x, 3.0 - p.x), min(p.y, 3.0 - p.y));
+                    vec2 q = p - vec2(1.5);
+                    float angle = atan(q.y, q.x) + 3.14159265;
+                    return fract(angle / 6.2831853 + ring * 0.25);
                 }
 
                 void main(void) {
                     vec2 pixel = max(vec2(1.0), vec2(pixelSize));
                     vec2 uv = (floor(vUV * screenSize / pixel) * pixel + pixel * 0.5) / screenSize;
                     vec4 color = texture2D(textureSampler, uv);
-                    float threshold = bayer4(floor(gl_FragCoord.xy / pixel));
-                    color.rgb = clamp(floor(color.rgb * (levels - 1.0) + threshold * strength + 0.5) / (levels - 1.0), 0.0, 1.0);
+                    vec2 cell = floor(gl_FragCoord.xy / pixel);
+                    float threshold = 0.0;
+                    float applyDither = 1.0;
+                    if (ditherType < 0.5) {
+                        threshold = (bayer2(cell) + 0.5) / 4.0 - 0.5;
+                    } else if (ditherType < 1.5) {
+                        threshold = (bayerRank4(cell) + 0.5) / 16.0 - 0.5;
+                    } else if (ditherType < 2.5) {
+                        threshold = (bayerRank8(cell) + 0.5) / 64.0 - 0.5;
+                    } else if (ditherType < 3.5) {
+                        threshold = blueNoiseStyle(cell);
+                    } else if (ditherType < 4.5) {
+                        threshold = hash12(cell) - 0.5;
+                    } else if (ditherType < 5.5) {
+                        vec2 texel = pixel / screenSize;
+                        vec3 neighbors = (
+                            texture2D(textureSampler, uv - vec2(texel.x, 0.0)).rgb +
+                            texture2D(textureSampler, uv + vec2(texel.x, 0.0)).rgb +
+                            texture2D(textureSampler, uv + vec2(0.0, texel.y)).rgb
+                        ) / 3.0;
+                        vec3 quantizedNeighbors = floor(neighbors * (levels - 1.0) + 0.5) / (levels - 1.0);
+                        vec3 error = clamp((neighbors - quantizedNeighbors) * vec3(7.0, 3.0, 5.0) / 16.0, -0.5, 0.5);
+                        color.rgb = clamp(color.rgb + error * strength, 0.0, 1.0);
+                        applyDither = 0.0;
+                    } else if (ditherType < 6.5) {
+                        threshold = mod(cell.x + cell.y, 2.0) * 0.5 - 0.25;
+                    } else {
+                        threshold = spiralRank(mod(cell, 4.0)) - 0.5;
+                    }
+                    if (applyDither > 0.5) {
+                        color.rgb = clamp(floor(color.rgb * (levels - 1.0) + threshold * strength + 0.5) / (levels - 1.0), 0.0, 1.0);
+                    }
                     gl_FragColor = color;
                 }
             `;
             const ditherPostProcess = new BABYLON.PostProcess(
                 "bayerDither",
                 "bayerDither",
-                ["pixelSize", "levels", "strength"],
+                ["pixelSize", "levels", "strength", "ditherType"],
                 ["screenSize"],
                 1.0,
                 camera
@@ -1859,9 +2047,146 @@
                 effect.setFloat("pixelSize", parseFloat(pixelSizeInput.value));
                 effect.setFloat("levels", parseFloat(ditherLevelsInput.value));
                 effect.setFloat("strength", parseFloat(ditherStrengthInput.value));
+                effect.setFloat("ditherType", parseFloat(ditherTypeSelect.value));
                 effect.setFloat2("screenSize", engine.getRenderWidth(), engine.getRenderHeight());
             };
             ditherPostProcess.enabled = ditherToggle.checked;
+
+            BABYLON.Effect.ShadersStore["artisticEffectsFragmentShader"] = `
+                precision highp float;
+                varying vec2 vUV;
+                uniform sampler2D textureSampler;
+                uniform vec2 screenSize;
+                uniform float edgeEnabled;
+                uniform float edgeStrength;
+                uniform float edgeWidth;
+                uniform vec3 edgeColor;
+                uniform float halftoneEnabled;
+                uniform float halftoneSize;
+                uniform float halftoneStrength;
+                uniform float halftoneAngle;
+                uniform float glowEnabled;
+                uniform float glowThreshold;
+                uniform float glowIntensity;
+                uniform float glowRadius;
+                uniform float vignetteEnabled;
+                uniform float vignetteStrength;
+                uniform float chromaticEnabled;
+                uniform float chromaticStrength;
+
+                float luminance(vec3 color) {
+                    return dot(color, vec3(0.299, 0.587, 0.114));
+                }
+
+                float edgeLuminance(vec2 uv) {
+                    return luminance(texture2D(textureSampler, clamp(uv, 0.0, 1.0)).rgb);
+                }
+
+                float halftoneDot(vec2 point, float angle, float ink) {
+                    float c = cos(angle);
+                    float s = sin(angle);
+                    mat2 rotation = mat2(c, -s, s, c);
+                    vec2 cell = fract(rotation * point) - 0.5;
+                    float radius = sqrt(clamp(ink, 0.0, 1.0)) * 0.48;
+                    return 1.0 - smoothstep(radius - 0.04, radius + 0.04, length(cell));
+                }
+
+                vec3 brightPart(vec2 uv) {
+                    vec3 sampleColor = texture2D(textureSampler, clamp(uv, 0.0, 1.0)).rgb;
+                    float brightness = max(max(sampleColor.r, sampleColor.g), sampleColor.b);
+                    return max(sampleColor - vec3(glowThreshold), vec3(0.0)) * step(glowThreshold, brightness);
+                }
+
+                void main(void) {
+                    vec2 texel = 1.0 / screenSize;
+                    vec2 center = vUV - 0.5;
+                    float radial = length(center);
+                    vec2 chromaticOffset = center * chromaticStrength * texel * chromaticEnabled;
+                    vec4 color;
+                    color.r = texture2D(textureSampler, clamp(vUV + chromaticOffset, 0.0, 1.0)).r;
+                    color.g = texture2D(textureSampler, vUV).g;
+                    color.b = texture2D(textureSampler, clamp(vUV - chromaticOffset, 0.0, 1.0)).b;
+                    color.a = texture2D(textureSampler, vUV).a;
+
+                    if (glowEnabled > 0.5) {
+                        vec2 blurStep = texel * glowRadius;
+                        vec3 bloom = brightPart(vUV) * 0.2;
+                        bloom += brightPart(vUV + vec2(blurStep.x, 0.0)) * 0.2;
+                        bloom += brightPart(vUV - vec2(blurStep.x, 0.0)) * 0.2;
+                        bloom += brightPart(vUV + vec2(0.0, blurStep.y)) * 0.2;
+                        bloom += brightPart(vUV - vec2(0.0, blurStep.y)) * 0.2;
+                        color.rgb += bloom * glowIntensity;
+                    }
+
+                    if (edgeEnabled > 0.5) {
+                        vec2 stepSize = texel * edgeWidth;
+                        float tl = edgeLuminance(vUV + vec2(-stepSize.x, -stepSize.y));
+                        float tc = edgeLuminance(vUV + vec2(0.0, -stepSize.y));
+                        float tr = edgeLuminance(vUV + vec2(stepSize.x, -stepSize.y));
+                        float ml = edgeLuminance(vUV + vec2(-stepSize.x, 0.0));
+                        float mr = edgeLuminance(vUV + vec2(stepSize.x, 0.0));
+                        float bl = edgeLuminance(vUV + vec2(-stepSize.x, stepSize.y));
+                        float bc = edgeLuminance(vUV + vec2(0.0, stepSize.y));
+                        float br = edgeLuminance(vUV + vec2(stepSize.x, stepSize.y));
+                        float gx = -tl - 2.0 * ml - bl + tr + 2.0 * mr + br;
+                        float gy = -tl - 2.0 * tc - tr + bl + 2.0 * bc + br;
+                        float edge = clamp(length(vec2(gx, gy)) * edgeStrength, 0.0, 1.0);
+                        color.rgb = mix(color.rgb, edgeColor, edge);
+                    }
+
+                    if (halftoneEnabled > 0.5) {
+                        vec3 source = clamp(color.rgb, 0.0, 1.0);
+                        vec2 point = vUV * screenSize / halftoneSize;
+                        float angle = radians(halftoneAngle);
+                        vec3 dots = vec3(
+                            halftoneDot(point + vec2(0.00, 0.00), angle, 1.0 - source.r),
+                            halftoneDot(point + vec2(0.33, 0.33), angle + 1.0472, 1.0 - source.g),
+                            halftoneDot(point + vec2(0.66, 0.66), angle + 2.0944, 1.0 - source.b)
+                        );
+                        vec3 halftone = 1.0 - dots;
+                        color.rgb = mix(color.rgb, halftone, halftoneStrength);
+                    }
+
+                    if (vignetteEnabled > 0.5) {
+                        float vignette = smoothstep(0.25, 0.72, radial);
+                        color.rgb *= 1.0 - vignette * vignetteStrength;
+                    }
+                    gl_FragColor = color;
+                }
+            `;
+            const artisticEffectsPostProcess = new BABYLON.PostProcess(
+                "artisticEffects",
+                "artisticEffects",
+                [
+                    "edgeEnabled", "edgeStrength", "edgeWidth", "edgeColor",
+                    "halftoneEnabled", "halftoneSize", "halftoneStrength", "halftoneAngle",
+                    "glowEnabled", "glowThreshold", "glowIntensity", "glowRadius",
+                    "vignetteEnabled", "vignetteStrength", "chromaticEnabled", "chromaticStrength"
+                ],
+                ["screenSize"],
+                1.0,
+                camera
+            );
+            artisticEffectsPostProcess.onApply = (effect) => {
+                effect.setFloat2("screenSize", engine.getRenderWidth(), engine.getRenderHeight());
+                effect.setFloat("edgeEnabled", edgeToggle.checked ? 1 : 0);
+                effect.setFloat("edgeStrength", parseFloat(edgeStrengthInput.value));
+                effect.setFloat("edgeWidth", parseFloat(edgeWidthInput.value));
+                const edgeColor = BABYLON.Color3.FromHexString(edgeColorInput.value);
+                effect.setColor3("edgeColor", edgeColor);
+                effect.setFloat("halftoneEnabled", halftoneToggle.checked ? 1 : 0);
+                effect.setFloat("halftoneSize", parseFloat(halftoneSizeInput.value));
+                effect.setFloat("halftoneStrength", parseFloat(halftoneStrengthInput.value));
+                effect.setFloat("halftoneAngle", parseFloat(halftoneAngleInput.value) * Math.PI / 180);
+                effect.setFloat("glowEnabled", glowToggle.checked ? 1 : 0);
+                effect.setFloat("glowThreshold", parseFloat(glowThresholdInput.value));
+                effect.setFloat("glowIntensity", parseFloat(glowIntensityInput.value));
+                effect.setFloat("glowRadius", parseFloat(glowRadiusInput.value));
+                effect.setFloat("vignetteEnabled", vignetteToggle.checked ? 1 : 0);
+                effect.setFloat("vignetteStrength", parseFloat(vignetteStrengthInput.value));
+                effect.setFloat("chromaticEnabled", chromaticToggle.checked ? 1 : 0);
+                effect.setFloat("chromaticStrength", parseFloat(chromaticStrengthInput.value));
+            };
 
             scene.imageProcessingConfiguration.toneMappingEnabled = true;
             scene.imageProcessingConfiguration.exposure = parseFloat(exposureInput.value);
@@ -2146,7 +2471,7 @@
             fxaaToggle.addEventListener("change", updateRenderSettings);
             ssaoToggle.addEventListener("change", updateRenderSettings);
             [ssaoRadiusInput, ssaoStrengthInput, ssaoAreaInput, ssaoFallOffInput,
-                ditherToggle, pixelSizeInput, ditherLevelsInput, ditherStrengthInput]
+                ditherToggle, ditherTypeSelect, pixelSizeInput, ditherLevelsInput, ditherStrengthInput]
                 .forEach((input) => input.addEventListener(input.type === "checkbox" ? "change" : "input", updateRenderSettings));
             renderScaleInput.addEventListener("input", updateRenderSettings);
             exposureInput.addEventListener("input", updateRenderSettings);
