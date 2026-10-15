@@ -1,0 +1,258 @@
+<!-- Path-tracing renderer source: erichlof/Babylon.js-PathTracing-Renderer (CC0-1.0), pinned revision. -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <base href="https://cdn.jsdelivr.net/gh/erichlof/Babylon.js-PathTracing-Renderer@840054c0227cbe3e38ef47359f9b84beee544af9/">
+    <title>K3 - Real-time Path Tracing</title>
+    <style>
+        html, body, #renderCanvas {
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            overflow: hidden;
+        }
+
+        #renderCanvas { display: block; touch-action: none; }
+        #container, #info, .dg { display: none !important; }
+        #cameraInfo {
+            position: fixed;
+            left: 12px;
+            bottom: 12px;
+            color: #fff;
+            font: 12px Arial, sans-serif;
+            pointer-events: none;
+        }
+
+        #pathTracingControls {
+            position: fixed;
+            top: 12px;
+            left: 12px;
+            z-index: 10;
+            display: grid;
+            gap: 8px;
+            width: min(240px, calc(100vw - 24px));
+            padding: 12px;
+            color: #fff;
+            background: rgba(20, 20, 20, 0.85);
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            border-radius: 6px;
+            font: 13px Arial, sans-serif;
+        }
+
+        #pathTracingControls label {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 8px;
+        }
+
+        #pathTracingControls select {
+            max-width: 140px;
+        }
+
+        #pathTracingControls input[type="range"] {
+            width: 105px;
+        }
+
+        #ptModelColor {
+            width: 42px;
+            height: 25px;
+            padding: 1px;
+        }
+
+        #pathTracingNote {
+            font-size: 11px;
+            line-height: 1.4;
+            opacity: 0.75;
+        }
+    </style>
+    <script>
+        window.addEventListener("error", (event) => {
+            const status = document.getElementById("pathTracingStatus");
+            if (status) status.textContent = `路径追踪加载错误：${event.message || "依赖加载失败"}`;
+        });
+
+        const appBase = new URL(".", document.referrer || window.parent.location.href);
+    </script>
+</head>
+<body>
+    <canvas id="renderCanvas"></canvas>
+    <div id="container"></div>
+    <div id="info"></div>
+    <div id="cameraInfo"></div>
+    <div id="pathTracingControls">
+        <strong>路径追踪默认材质 / 灯光</strong>
+        <label for="ptMaterial">模型材质
+            <select id="ptMaterial">
+                <option value="1" selected>漫反射</option>
+                <option value="3">金属</option>
+                <option value="4">清漆漫反射</option>
+                <option value="2">透明 / 玻璃</option>
+            </select>
+        </label>
+        <label for="ptModelColor">近似基础色
+            <input id="ptModelColor" type="color" value="#898989">
+        </label>
+        <label for="ptLight">面光源位置
+            <select id="ptLight">
+                <option value="6" selected>顶部</option>
+                <option value="1">右侧</option>
+                <option value="2">左侧</option>
+                <option value="5">地面</option>
+                <option value="3">前方</option>
+                <option value="4">后方</option>
+            </select>
+        </label>
+        <label for="ptLightRadius">面光源大小
+            <input id="ptLightRadius" type="range" min="5" max="150" step="1" value="50">
+            <span id="ptLightRadiusValue">50</span>
+        </label>
+        <div id="pathTracingNote">默认漫反射材质 + 顶部面光源。统一颜色用于近似原材质；不复现 GLB 各子材质贴图。</div>
+    </div>
+    <div id="pathTracingStatus" style="position:fixed;left:12px;top:156px;color:#fff;font:13px Arial,sans-serif;pointer-events:none;">
+        正在加载路径追踪器…
+    </div>
+
+    <script src="js/babylon.js"></script>
+    <script src="js/babylon.glTFFileLoader.min.js"></script>
+    <script src="js/stats.min.js"></script>
+    <script src="js/dat.gui.min.js"></script>
+    <script src="js/BVH_SAH_Quality_Builder.js"></script>
+    <script src="js/PathTracingCommon.js"></script>
+    <script src="js/GLTFModelPathTracing_FragmentShader.js"></script>
+    <script>
+        const originalLoadAssetContainer = BABYLON.SceneLoader.LoadAssetContainer;
+        const pathTracingShader = BABYLON.Effect.ShadersStore["pathTracingFragmentShader"];
+        const sphereIntersectionCall = "UnitSphereIntersect( rObjOrigin, rObjDirection, n )";
+        if (pathTracingShader.split(sphereIntersectionCall).length - 1 !== 2) {
+            throw new Error("路径追踪器场景模板不兼容：未找到预期的演示球体求交代码。");
+        }
+        let customizedPathTracingShader = pathTracingShader
+            .replaceAll(sphereIntersectionCall, "1000000.0")
+            .replace("vec3( 0.7, 0.05, 0.05)", "vec3( 0.35, 0.35, 0.35)")
+            .replace("vec3(0.05, 0.05,  0.7)", "vec3( 0.35, 0.35, 0.35)");
+        const shaderReplacements = [
+            ["uniform bool uModelUsesEmissiveTexture;", "uniform bool uModelUsesEmissiveTexture;\nuniform vec3 uModelBaseColor;"],
+            ["hitType = uModelUsesAlbedoTexture ? PBR_MATERIAL : uModelMaterialType;", "hitType = uModelMaterialType;"],
+            ["hitColor = vec3(1);//vd6.yzw;", "hitColor = uModelBaseColor;"]
+        ];
+        shaderReplacements.forEach(([original, replacement]) => {
+            if (!customizedPathTracingShader.includes(original)) {
+                throw new Error("路径追踪器材质着色器不兼容：无法应用基础色近似。");
+            }
+            customizedPathTracingShader = customizedPathTracingShader.replace(original, replacement);
+        });
+        BABYLON.Effect.ShadersStore["pathTracingFragmentShader"] = customizedPathTracingShader;
+
+        const OriginalEffectWrapper = BABYLON.EffectWrapper;
+        BABYLON.EffectWrapper = function (options) {
+            if (options.fragmentShader === customizedPathTracingShader) {
+                options.uniformNames.push("uModelBaseColor");
+            }
+            return new OriginalEffectWrapper(options);
+        };
+        BABYLON.EffectWrapper.prototype = OriginalEffectWrapper.prototype;
+
+        BABYLON.SceneLoader.LoadAssetContainer = function (...args) {
+            args[0] = new URL("models/", appBase).href;
+            args[1] = "model.glb";
+            modelInitialScale = 1;
+            if (gltfModelTransformNode) {
+                gltfModelTransformNode.rotation.set(0, Math.PI / 4, 0);
+            }
+            const onLoaded = args[3];
+            if (onLoaded) {
+                args[3] = function (...callbackArgs) {
+                    const status = document.getElementById("pathTracingStatus");
+                    if (status) status.textContent = "模型已下载，正在构建路径追踪数据…";
+                    const result = onLoaded.apply(this, callbackArgs);
+                    if (status) {
+                        status.textContent = "路径追踪正在运行，画面会随采样逐步收敛。";
+                        setTimeout(() => { status.style.display = "none"; }, 6000);
+                    }
+                    return result;
+                };
+            }
+            return originalLoadAssetContainer.apply(this, args);
+        };
+    </script>
+    <script src="js/GLTF_Model_Path_Tracing.js"></script>
+    <script>
+        const preparePathTracingModel = Prepare_Model_For_PathTracing;
+        Prepare_Model_For_PathTracing = function () {
+            const positions = pathTracedMesh.getVerticesData(BABYLON.VertexBuffer.PositionKind);
+            if (!positions || positions.length < 3) {
+                throw new Error("路径追踪模型没有可用的位置顶点数据。");
+            }
+
+            const minimum = [Infinity, Infinity, Infinity];
+            const maximum = [-Infinity, -Infinity, -Infinity];
+            for (let index = 0; index < positions.length; index += 3) {
+                for (let axis = 0; axis < 3; axis++) {
+                    minimum[axis] = Math.min(minimum[axis], positions[index + axis]);
+                    maximum[axis] = Math.max(maximum[axis], positions[index + axis]);
+                }
+            }
+            const center = minimum.map((value, axis) => (value + maximum[axis]) * 0.5);
+            const extent = Math.max(
+                maximum[0] - minimum[0],
+                maximum[1] - minimum[1],
+                maximum[2] - minimum[2]
+            );
+            if (!Number.isFinite(extent) || extent <= 0) {
+                throw new Error("无法计算路径追踪模型的有效边界。");
+            }
+
+            const targetSize = 24;
+            modelInitialScale = targetSize / extent;
+            const rotation = gltfModelTransformNode.rotation.y;
+            const rotatedCenterX = Math.cos(rotation) * center[0] + Math.sin(rotation) * center[2];
+            const rotatedCenterZ = -Math.sin(rotation) * center[0] + Math.cos(rotation) * center[2];
+            gltfModelTransformNode.position.set(
+                -rotatedCenterX * modelInitialScale,
+                -20 - center[1] * modelInitialScale,
+                -rotatedCenterZ * modelInitialScale
+            );
+            return preparePathTracingModel();
+        };
+
+        const ptMaterialSelect = document.getElementById("ptMaterial");
+        const ptModelColor = document.getElementById("ptModelColor");
+        const ptLightSelect = document.getElementById("ptLight");
+        const ptLightRadius = document.getElementById("ptLightRadius");
+        const ptLightRadiusValue = document.getElementById("ptLightRadiusValue");
+
+        const resetPathTracingAccumulation = () => {
+            uCameraIsMoving = true;
+        };
+
+        uModelMaterialType = Number(ptMaterialSelect.value);
+        uQuadLightPlaneSelectionNumber = Number(ptLightSelect.value);
+        uQuadLightRadius = Number(ptLightRadius.value);
+        gltfModelTransformNode.position.set(0, -20, 0);
+        leftSphereTransformNode.scaling.setAll(0.001);
+        rightSphereTransformNode.scaling.setAll(0.001);
+        resetPathTracingAccumulation();
+
+        ptMaterialSelect.addEventListener("change", () => {
+            uModelMaterialType = Number(ptMaterialSelect.value);
+            resetPathTracingAccumulation();
+        });
+        ptModelColor.addEventListener("input", resetPathTracingAccumulation);
+        ptLightSelect.addEventListener("change", () => {
+            uQuadLightPlaneSelectionNumber = Number(ptLightSelect.value);
+            resetPathTracingAccumulation();
+        });
+        ptLightRadius.addEventListener("input", () => {
+            uQuadLightRadius = Number(ptLightRadius.value);
+            ptLightRadiusValue.textContent = ptLightRadius.value;
+            resetPathTracingAccumulation();
+        });
+        pathTracingEffect.onApplyObservable.add(() => {
+            pathTracingEffect.effect.setColor3("uModelBaseColor", BABYLON.Color3.FromHexString(ptModelColor.value));
+        });
+    </script>
+</body>
+</html>

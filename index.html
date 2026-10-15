@@ -406,6 +406,37 @@
             transition: width 0.15s linear;
         }
 
+        #pathTracingOverlay {
+            position: fixed;
+            inset: 0;
+            z-index: 3000;
+            display: none;
+            background: #000;
+        }
+
+        #pathTracingOverlay.active {
+            display: block;
+        }
+
+        #pathTracingFrame {
+            width: 100%;
+            height: 100%;
+            border: 0;
+        }
+
+        #closePathTracing {
+            position: absolute;
+            z-index: 1;
+            top: calc(12px + env(safe-area-inset-top));
+            right: calc(12px + env(safe-area-inset-right));
+            padding: 8px 12px;
+            color: #fff;
+            background: rgba(20, 20, 20, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.35);
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
         /* 左侧材质属性面板 */
         #materialPanel {
             position: absolute;
@@ -830,6 +861,8 @@
                         启用 SSAO
                         <input type="checkbox" id="ssaoToggle" checked style="margin-left: 6px;">
                     </label>
+                    <button id="pathTracingToggle" type="button" style="width: 100%; margin: 6px 0; padding: 7px;">切换实时路径追踪</button>
+                    <div style="font-size: 11px; opacity: 0.7; margin-bottom: 8px;">独立渲染模式，会重新加载模型；不继承当前相机、材质、灯光和后处理设置。</div>
                     <label for="ssaoRadius">SSAO 半径</label>
                     <div class="range-row">
                         <input type="range" id="ssaoRadius" min="0.000001" max="0.02" step="0.0001" value="0.000001">
@@ -975,6 +1008,10 @@
             </div>
         </div>
         </div>
+    </div>
+    <div id="pathTracingOverlay" aria-label="实时路径追踪渲染">
+        <button id="closePathTracing" type="button">退出路径追踪</button>
+        <iframe id="pathTracingFrame" title="实时路径追踪渲染"></iframe>
     </div>
     <script>
         const canvas = document.getElementById("renderCanvas");
@@ -1620,11 +1657,34 @@
 
         let scene = null;
         let renderLoopStarted = false;
+        let renderLoopCallback = null;
         const startRenderLoop = () => {
             if (renderLoopStarted || !scene) return;
             renderLoopStarted = true;
-            engine.runRenderLoop(() => scene.render());
+            renderLoopCallback = () => scene.render();
+            engine.runRenderLoop(renderLoopCallback);
         };
+
+        const pathTracingOverlay = document.getElementById("pathTracingOverlay");
+        const pathTracingFrame = document.getElementById("pathTracingFrame");
+        const stopPathTracing = () => {
+            pathTracingFrame.src = "about:blank";
+            pathTracingOverlay.classList.remove("active");
+            if (renderLoopCallback) engine.stopRenderLoop(renderLoopCallback);
+            renderLoopStarted = false;
+            startRenderLoop();
+        };
+        document.getElementById("pathTracingToggle").addEventListener("click", () => {
+            if (engine.webGLVersion < 2) {
+                window.alert("实时路径追踪需要支持 WebGL 2 的浏览器和显卡。");
+                return;
+            }
+            pathTracingOverlay.classList.add("active");
+            if (renderLoopCallback) engine.stopRenderLoop(renderLoopCallback);
+            renderLoopStarted = false;
+            pathTracingFrame.src = "pathtracing.html";
+        });
+        document.getElementById("closePathTracing").addEventListener("click", stopPathTracing);
 
         const createScene = () => {
             const scene = new BABYLON.Scene(engine);
